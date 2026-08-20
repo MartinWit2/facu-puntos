@@ -1,0 +1,85 @@
+.puntos-total-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.puntos-total-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.puntos-total-valor {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.puntos-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.puntos-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.puntos-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.puntos-item-nombre-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.puntos-item-nombre {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.puntos-item-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.puntos-item-valor {
+  font-weight: 700;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.puntos-recursa {
+  color: #c22a2f;
+}
+
+.puntos-recursa small {
+  font-weight: 400;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  .puntos-recursa {
+    color: #f87171;
+  }
+}

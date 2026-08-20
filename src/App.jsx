@@ -1,6 +1,7 @@
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import './App.css'
 import Materias from './pages/Materias.jsx'
+import MateriaDetalle from './pages/MateriaDetalle.jsx'
 import Progreso from './pages/Progreso.jsx'
 import Premios from './pages/Premios.jsx'
 
@@ -11,6 +12,8 @@ const NAV_ITEMS = [
 ]
 
 function App() {
+  const { pathname } = useLocation()
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -20,22 +23,21 @@ function App() {
       <main className="app-content">
         <Routes>
           <Route path="/" element={<Materias />} />
+          <Route path="/materias/:id" element={<MateriaDetalle />} />
           <Route path="/progreso" element={<Progreso />} />
           <Route path="/premios" element={<Premios />} />
         </Routes>
       </main>
 
       <nav className="app-nav">
-        {NAV_ITEMS.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
-          >
-            {label}
-          </NavLink>
-        ))}
+        {NAV_ITEMS.map(({ to, label }) => {
+          const activo = to === '/' ? pathname === '/' || pathname.startsWith('/materias') : pathname === to
+          return (
+            <NavLink key={to} to={to} className={'nav-link' + (activo ? ' active' : '')}>
+              {label}
+            </NavLink>
+          )
+        })}
       </nav>
     </div>
   )

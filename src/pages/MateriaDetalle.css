@@ -1,0 +1,185 @@
+.volver-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.volver-link:hover {
+  text-decoration: underline;
+}
+
+.detalle-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.detalle-header h1 {
+  margin: 0;
+}
+
+.detalle-meta {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+
+.detalle-seccion {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.detalle-seccion h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.parciales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.parcial-card {
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  padding: 1rem;
+}
+
+.parcial-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-h);
+}
+
+.instancias-notas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.instancias-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.instancia-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.instancia-input input {
+  font: inherit;
+  width: 5rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.instancia-resultado {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.instancia-resultado.ok {
+  color: #1f8a5a;
+}
+
+.instancia-resultado.fail {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .instancia-resultado.ok {
+    color: #4ade80;
+  }
+
+  .instancia-resultado.fail {
+    color: #f87171;
+  }
+}
+
+.resultado-automatico {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.tick-manual {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tick-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.tick-botones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tick-boton {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.tick-boton.activo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.tick-nota {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.nota-materia {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.nota-materia input {
+  font: inherit;
+  width: 5rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.btn-reset-nota {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}

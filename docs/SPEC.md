@@ -8,6 +8,7 @@
 
 ## Resultado de la cursada (por materia)
 - **Promoción**: se logra si un parcial tiene 8+ en su instancia original, Y el otro parcial llega a 8+ como máximo en su **primer** recuperatorio. Si ese segundo parcial necesitó el segundo recuperatorio para llegar a 8+, no promociona por default (salvo tick manual).
+  - Generalización a materias con 3+ parciales (configurable): promociona si **todos** los parciales llegan a 8+, y **ninguno** necesitó más que el primer recuperatorio para lograrlo.
 - **Firma**: todos los parciales llegan a 6+ (en cualquiera de sus instancias, incluyendo recuperatorios) pero no se cumple la condición de promoción.
 - **Recursada**: algún parcial no llega a 6+ en ninguna de sus instancias (agotando el original + todos los recuperatorios), o se agotan las instancias del final sin aprobarlo (ver abajo).
 
@@ -23,7 +24,7 @@
 
 ## Overrides manuales
 - Todas las notas son editables a mano en cualquier momento (por las dudas / criterio del profesor).
-- Existe un "tick" manual independiente de la nota, que permite forzar el resultado (promocionó / aprobó parcial / firmó) para casos especiales donde el profesor decide por fuera de la regla estándar (ej: promoción sin cumplir el patrón 8+ original / 8+ primer recu, o aprobación de un parcial con menos de 6).
+- Existe un "tick" manual independiente de la nota, a nivel de toda la cursada (no por parcial individual), que permite forzar el resultado de la cursada (promocionó / firmó) para casos especiales donde el profesor decide por fuera de la regla estándar (ej: promoción sin cumplir el patrón 8+ original / 8+ primer recu).
 
 ## Sistema de Puntos
 - Cada materia tiene un **pool de puntos base**, calculado como **1 punto por cada hora cátedra** de la materia según el plan de estudio (relación 1 a 1). Ese multiplicador (hoy 1) queda como una constante global configurable, ajustable a mano.
@@ -50,9 +51,12 @@
 - Los **premios ya canjeados no se ven afectados** por un saldo negativo posterior — "lo canjeado, canjeado está". El saldo negativo solo bloquea poder canjear premios nuevos hasta volver a positivo.
 
 ## Niveles de materias
-- Cada materia pertenece a un **nivel** (default: 3 niveles), calculado automáticamente dividiendo en tercios el rango de puntos/horas de las materias ya cargadas (de la más chica a la más grande).
-- El nivel es **editable a mano por materia individual** sin que eso dispare un recálculo general de todos los niveles.
-- Si en el futuro aparece una materia que rompe mucho el rango existente, se carga/ajusta a mano en vez de recalcular todo el sistema automáticamente (caso poco frecuente, 1 o 2 veces en toda la carrera).
+- Cada materia pertenece a un **nivel** (1, 2 o 3), calculado automáticamente según el pool de puntos de la materia contra **rangos fijos** (no por tercios ni ningún otro cálculo dinámico basado en las materias ya cargadas):
+  - Nivel 1: menos de 100 puntos.
+  - Nivel 2: entre 100 y 159 puntos.
+  - Nivel 3: 160 puntos o más.
+- Esos dos cortes (100 y 160) son valores default, ajustables como constante si en algún momento hiciera falta cambiar los rangos.
+- El nivel es **editable a mano por materia individual** (override), sin que eso dispare ningún recálculo de las demás materias. El override se mantiene fijo hasta que el usuario lo cambie de nuevo a mano.
 - **Decisión importante**: el nivel es una **etiqueta de referencia** (para ubicarse visualmente, filtrar materias, y calibrar el valor de los premios nuevos — ej. "materia nivel 1 da entre 64 y 96 pts, nivel 2 entre 97 y 144, nivel 3 entre 145 y 200"). El nivel **no otorga puntos extra por sí solo** — si una materia se siente más difícil de lo que sus horas indican, se resuelve pisando el pool de esa materia a mano (ver Sistema de Puntos), no con un bonus de nivel aparte, para no tener dos mecanismos distintos compitiendo por representar lo mismo.
 
 ## Organización: año de cursada
@@ -61,7 +65,9 @@
 
 ## Filtros
 - Filtros disponibles: por **año de cursada** (del plan), por **horas cátedra**, por **nivel**, y por **estado** (aprobada / firmada / cursando / pendiente — no se incluye "recursando" como filtro aparte).
-- Los filtros se pueden **combinar entre sí** (ej. "2do año + nivel 3 + pendiente" al mismo tiempo).
+  - Mapeo de los 5 estados reales de la cursada a estas 4 opciones: "Aprobada" incluye tanto **promocionó** como **aprobó por final** (ambas significan que la materia está terminada, solo por caminos distintos); "Firmada" = firmó con final pendiente; "Cursando" = cursando; "Pendiente" = recursa (una materia en "Recursa" cuenta como "Pendiente" para este filtro, aunque su tarjeta siga mostrando el badge real de "Recursa").
+  - El filtro de horas cátedra es por **rango fijo**, con los mismos cortes que los niveles (menor a 100 / entre 100 y 159 / 160 o más), no por selección de valores exactos cargados.
+- Dentro de cada filtro se pueden **seleccionar varias opciones a la vez** (ej. "1er año" + "2do año" combinan por OR entre sí). Los distintos filtros se combinan entre sí por **AND** (ej. "2do año + nivel 3 + pendiente" al mismo tiempo).
 
 ## Catálogo de premios
 - La app viene con **5-6 premios de ejemplo precargados** (genéricos, con un valor sugerido) para resolver el problema de la "hoja en blanco", pero son **100% editables y borrables** desde el primer momento.
