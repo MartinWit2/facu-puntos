@@ -1,0 +1,72 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.app-content {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.page h1 {
+  margin-top: 0;
+}
+
+.page-placeholder {
+  color: var(--text-muted);
+}
+
+.app-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  padding: 0.5rem;
+}
+
+.nav-link {
+  flex: 1;
+  max-width: 200px;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* En pantallas chicas, la nav pasa a estar fija abajo (estilo app mobile) */
+@media (max-width: 640px) {
+  .app-shell {
+    padding-bottom: 4rem;
+  }
+
+  .app-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+}
