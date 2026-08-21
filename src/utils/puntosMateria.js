@@ -26,3 +26,10 @@ export function calcularPuntosMateria(materia) {
 
   return Math.round((puntosParciales + bonus) * 100) / 100
 }
+
+// Suma de los puntos actuales de todas las materias (puntos "ganados", antes
+// de restar lo canjeado en premios).
+export function calcularPuntosTotales(materias) {
+  const total = materias.reduce((acc, materia) => acc + calcularPuntosMateria(materia), 0)
+  return Math.round(total * 100) / 100
+}

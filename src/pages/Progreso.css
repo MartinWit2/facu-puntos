@@ -1,11 +1,18 @@
+.puntos-totales-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
 .puntos-total-card {
+  flex: 1 1 12rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   padding: 1.25rem;
-  margin-bottom: 2rem;
 }
 
 .puntos-total-label {

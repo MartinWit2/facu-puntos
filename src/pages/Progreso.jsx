@@ -1,12 +1,15 @@
 import MateriaBadge from '../components/MateriaBadge.jsx'
+import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
+import { calcularSaldoDisponible } from '../utils/canjes'
 import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
-import { calcularPuntosMateria } from '../utils/puntosMateria'
+import { calcularPuntosMateria, calcularPuntosTotales } from '../utils/puntosMateria'
 import './Progreso.css'
 
 function Progreso() {
   const { materias } = useMaterias()
+  const { canjes } = useCanjes()
 
   const filas = materias
     .map((materia) => ({
@@ -17,15 +20,24 @@ function Progreso() {
     }))
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
-  const total = Math.round(filas.reduce((acc, f) => acc + f.puntos, 0) * 100) / 100
+  const total = calcularPuntosTotales(materias)
+  const saldoDisponible = calcularSaldoDisponible(total, canjes)
 
   return (
     <section className="page">
       <h1>Progreso / Puntos</h1>
 
-      <div className="puntos-total-card">
-        <span className="puntos-total-label">Puntos acumulados</span>
-        <span className="puntos-total-valor">{total}</span>
+      <div className="puntos-totales-row">
+        <div className="puntos-total-card">
+          <span className="puntos-total-label">Puntos acumulados</span>
+          <span className="puntos-total-valor">{total}</span>
+        </div>
+        <div className="puntos-total-card">
+          <span className="puntos-total-label">Saldo disponible (después de canjes)</span>
+          <span className={saldoDisponible < 0 ? 'puntos-total-valor puntos-recursa' : 'puntos-total-valor'}>
+            {saldoDisponible}
+          </span>
+        </div>
       </div>
 
       {filas.length === 0 ? (

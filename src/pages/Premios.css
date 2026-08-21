@@ -1,0 +1,334 @@
+.saldo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.saldo-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.saldo-valor {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.saldo-detalle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.saldo-negativo .saldo-valor {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .saldo-negativo .saldo-valor {
+    color: #f87171;
+  }
+}
+
+.btn-agregar-premio {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.premio-form-card {
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.premio-form-card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.premio-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.premio-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.premio-form input {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.combobox-categoria {
+  display: flex;
+  flex-direction: column;
+}
+
+.combobox-input-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.combobox-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.combobox-flecha {
+  font: inherit;
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.combobox-opciones {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0.3rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  max-height: 11rem;
+  overflow-y: auto;
+}
+
+.combobox-opciones li button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.5rem;
+  border: none;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.combobox-opciones li button:hover {
+  background: var(--accent-bg);
+}
+
+.niveles-referencia {
+  grid-column: 1 / -1;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.4rem;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font-size: 0.8rem;
+}
+
+.form-error {
+  grid-column: 1 / -1;
+  color: #e5484d;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.form-actions button {
+  font: inherit;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+.form-actions button[type='button'] {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+
+.premio-group {
+  margin-bottom: 1.5rem;
+}
+
+.premio-group h3 {
+  font-size: 1rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.premio-group ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.premio-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  padding: 0.75rem 1rem;
+  flex-wrap: wrap;
+}
+
+.premio-card-editando {
+  display: block;
+  border-color: var(--accent);
+  padding: 1rem;
+}
+
+.premio-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.premio-nombre {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.premio-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.premio-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.premio-card-actions button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.premio-card-actions button.btn-canjear {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.premio-card-actions button.btn-canjear:disabled {
+  border-color: var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.confirmar-texto {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.premio-card-actions button.btn-confirmar {
+  border-color: #e5484d;
+  background: #e5484d;
+  color: #fff;
+}
+
+.premio-seccion {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.premio-seccion h2 {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.historial-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historial-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.historial-nombre {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.historial-fecha {
+  color: var(--text-muted);
+}
+
+.historial-costo {
+  font-weight: 600;
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .historial-costo {
+    color: #f87171;
+  }
+}
+
+@media (max-width: 480px) {
+  .premio-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .premio-card-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
