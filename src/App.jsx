@@ -1,4 +1,6 @@
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import Auth from './pages/Auth.jsx'
+import { useAuth } from './context/useAuth.js'
 import './App.css'
 import Materias from './pages/Materias.jsx'
 import MateriaDetalle from './pages/MateriaDetalle.jsx'
@@ -13,11 +15,46 @@ const NAV_ITEMS = [
 
 function App() {
   const { pathname } = useLocation()
+  const { configurado, cargando, session, usuario, cerrarSesion } = useAuth()
+
+  if (!configurado) {
+    return (
+      <div className="app-shell">
+        <div className="app-aviso">
+          Falta configurar Supabase: completá <code>VITE_SUPABASE_URL</code> y{' '}
+          <code>VITE_SUPABASE_ANON_KEY</code> en el archivo <code>.env</code> (mirá <code>.env.example</code> como
+          referencia) y reiniciá <code>npm run dev</code>.
+        </div>
+      </div>
+    )
+  }
+
+  if (cargando) {
+    return (
+      <div className="app-shell">
+        <div className="app-aviso">Cargando…</div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div className="app-shell">
+        <Auth />
+      </div>
+    )
+  }
 
   return (
     <div className="app-shell">
       <header className="app-header">
         <span className="app-title">facu_puntos</span>
+        <div className="app-header-usuario">
+          <span className="app-header-email">{usuario.email}</span>
+          <button type="button" className="btn-logout" onClick={cerrarSesion}>
+            Cerrar sesión
+          </button>
+        </div>
       </header>
 
       <main className="app-content">
