@@ -231,6 +231,18 @@
   color: var(--text-muted);
 }
 
+.materia-aviso {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #c2410c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .materia-aviso {
+    color: #fb923c;
+  }
+}
+
 .materia-card-actions {
   display: flex;
   align-items: center;

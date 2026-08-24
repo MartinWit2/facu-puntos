@@ -183,3 +183,44 @@
   color: var(--text-muted);
   cursor: pointer;
 }
+
+.materia-aviso {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c2410c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .materia-aviso {
+    color: #fb923c;
+  }
+}
+
+.reglas-overrides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.reglas-overrides label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.reglas-overrides input {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.override-permite-promocion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}

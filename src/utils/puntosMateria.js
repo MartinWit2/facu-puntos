@@ -1,5 +1,6 @@
 import { evaluarCursada } from './cursada'
 import { calcularPoolPuntos } from './puntos'
+import { calcularReglasEfectivas } from './reglasMateria'
 
 // Puntos que aporta una materia AHORA MISMO, calculados de forma derivada a
 // partir de su estado actual (no de un historial de transacciones):
@@ -9,11 +10,12 @@ import { calcularPoolPuntos } from './puntos'
 //   había aprobado antes de recursar. Si vuelve a cursar y aprueba de nuevo,
 //   vuelve a sumar con normalidad — no hace falta lógica de "descuento"
 //   separada, se recalcula solo.
-export function calcularPuntosMateria(materia) {
-  const evaluacion = evaluarCursada(materia)
+// `reglas` son las reglas EFECTIVAS de esta materia (carrera + overrides).
+export function calcularPuntosMateria(materia, reglas) {
+  const evaluacion = evaluarCursada(materia, reglas)
   if (evaluacion.estado === 'recursa') return 0
 
-  const poolBase = calcularPoolPuntos(materia.horasCatedra)
+  const poolBase = calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)
   const puntosPorParcial = poolBase / materia.cantidadParciales
   const puntosParciales = evaluacion.resultadoParciales.resultados.reduce(
     (acc, r) => acc + (r.aprobado ? puntosPorParcial : 0),
@@ -28,8 +30,12 @@ export function calcularPuntosMateria(materia) {
 }
 
 // Suma de los puntos actuales de todas las materias (puntos "ganados", antes
-// de restar lo canjeado en premios).
-export function calcularPuntosTotales(materias) {
-  const total = materias.reduce((acc, materia) => acc + calcularPuntosMateria(materia), 0)
+// de restar lo canjeado en premios). `reglasCarrera` son las reglas de la
+// carrera del usuario; cada materia combina sus propios overrides encima.
+export function calcularPuntosTotales(materias, reglasCarrera) {
+  const total = materias.reduce((acc, materia) => {
+    const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+    return acc + calcularPuntosMateria(materia, reglas)
+  }, 0)
   return Math.round(total * 100) / 100
 }

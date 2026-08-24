@@ -15,7 +15,7 @@ const VALORES_INICIALES = {
   cantidadInstanciasFinal: DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
 }
 
-function MateriaForm({ valoresIniciales, onSubmit, onCancel, submitLabel = 'Agregar materia' }) {
+function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, submitLabel = 'Agregar materia' }) {
   const [form, setForm] = useState({ ...VALORES_INICIALES, ...valoresIniciales })
   const [error, setError] = useState('')
 
@@ -74,7 +74,7 @@ function MateriaForm({ valoresIniciales, onSubmit, onCancel, submitLabel = 'Agre
     }
   }
 
-  const poolPuntos = calcularPoolPuntos(form.horasCatedra)
+  const poolPuntos = calcularPoolPuntos(form.horasCatedra, puntosPorHora)
 
   return (
     <form className="materia-form" onSubmit={handleSubmit}>
@@ -120,7 +120,9 @@ function MateriaForm({ valoresIniciales, onSubmit, onCancel, submitLabel = 'Agre
 
       <div className="pool-preview">
         Pool de puntos base: <strong>{poolPuntos}</strong>{' '}
-        <span>(1 punto por hora cátedra)</span>
+        <span>
+          ({puntosPorHora} punto{puntosPorHora === 1 ? '' : 's'} por hora cátedra)
+        </span>
       </div>
 
       {error && <p className="form-error">{error}</p>}

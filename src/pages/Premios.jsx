@@ -2,23 +2,34 @@ import { useState } from 'react'
 import HistorialCanjes from '../components/HistorialCanjes.jsx'
 import PremioForm from '../components/PremioForm.jsx'
 import PremioList from '../components/PremioList.jsx'
+import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
 import { usePremios } from '../hooks/usePremios.js'
 import { calcularSaldoDisponible } from '../utils/canjes'
+import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosTotales } from '../utils/puntosMateria'
+import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './Premios.css'
 
 function Premios() {
-  const { materias } = useMaterias()
-  const { premios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
-  const { canjes, agregarCanje } = useCanjes()
+  const { materias, cargando: cargandoMaterias } = useMaterias()
+  const { premios, cargando: cargandoPremios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
+  const { canjes, cargando: cargandoCanjes, agregarCanje } = useCanjes()
+  const { reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
   const [formularioAbierto, setFormularioAbierto] = useState(false)
 
-  const puntosTotales = calcularPuntosTotales(materias)
+  const cargando = cargandoMaterias || cargandoPremios || cargandoCanjes
+
+  const puntosTotales = calcularPuntosTotales(materias, reglasCarrera)
   const saldoDisponible = calcularSaldoDisponible(puntosTotales, canjes)
+
+  const poolsMaterias = materias.map((m) =>
+    calcularPoolPuntos(m.horasCatedra, calcularReglasEfectivas(m, reglasCarrera).puntosPorHora),
+  )
+  const rangoPool = poolsMaterias.length > 0 ? { min: Math.min(...poolsMaterias), max: Math.max(...poolsMaterias) } : null
 
   const categoriasExistentes = [...new Set(premios.map((p) => p.categoria))].sort((a, b) => a.localeCompare(b))
 
@@ -58,6 +69,15 @@ function Premios() {
     agregarCanje(premio)
   }
 
+  if (cargando) {
+    return (
+      <section className="page">
+        <h1>Premios</h1>
+        <p className="page-placeholder">Cargando…</p>
+      </section>
+    )
+  }
+
   return (
     <section className="page">
       <h1>Premios</h1>
@@ -82,6 +102,7 @@ function Premios() {
           <PremioForm
             key="nuevo"
             categoriasExistentes={categoriasExistentes}
+            rangoPool={rangoPool}
             submitLabel="Agregar premio"
             onSubmit={handleSubmitAgregar}
             onCancel={handleCancelarAgregar}
@@ -94,6 +115,7 @@ function Premios() {
         saldoDisponible={saldoDisponible}
         premioEditandoId={premioEditandoId}
         categoriasExistentes={categoriasExistentes}
+        rangoPool={rangoPool}
         onIniciarEdicion={handleIniciarEdicion}
         onGuardarEdicion={handleGuardarEdicion}
         onCancelarEdicion={handleCancelarEdicion}

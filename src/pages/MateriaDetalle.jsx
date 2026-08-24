@@ -1,12 +1,11 @@
 import { Link, useParams } from 'react-router-dom'
 import MateriaBadge from '../components/MateriaBadge.jsx'
-import NivelBadge from '../components/NivelBadge.jsx'
-import { NOTA_MINIMA_APROBACION } from '../constants'
+import { usePerfil } from '../context/usePerfil.js'
 import { useMaterias } from '../hooks/useMaterias.js'
 import { nombreAnio } from '../utils/anio'
 import { calcularNotaMateriaAutomatica, contarInstanciasVisibles, evaluarCursada } from '../utils/cursada'
-import { calcularNivelAutomatico, calcularNivelMateria } from '../utils/niveles'
 import { calcularPoolPuntos } from '../utils/puntos'
+import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './MateriaDetalle.css'
 
 function etiquetasParcial(cantidadInstancias) {
@@ -17,8 +16,8 @@ function etiquetasFinal(cantidadInstancias) {
   return Array.from({ length: cantidadInstancias }, (_, i) => `Instancia ${i + 1}`)
 }
 
-function InstanciasNotas({ notas, labels, resultado, onChangeNota }) {
-  const visibles = contarInstanciasVisibles(notas)
+function InstanciasNotas({ notas, labels, resultado, reglas, onChangeNota }) {
+  const visibles = contarInstanciasVisibles(notas, reglas)
 
   return (
     <div className="instancias-notas">
@@ -39,7 +38,7 @@ function InstanciasNotas({ notas, labels, resultado, onChangeNota }) {
       </div>
       {resultado.aprobado && <span className="instancia-resultado ok">Aprobado con {resultado.notaAprobacion}</span>}
       {resultado.agotado && (
-        <span className="instancia-resultado fail">No llegó a {NOTA_MINIMA_APROBACION} en ninguna instancia</span>
+        <span className="instancia-resultado fail">No llegó a {reglas.notaAprobacion} en ninguna instancia</span>
       )}
     </div>
   )
@@ -47,8 +46,17 @@ function InstanciasNotas({ notas, labels, resultado, onChangeNota }) {
 
 function MateriaDetalle() {
   const { id } = useParams()
-  const { materias, editarMateria } = useMaterias()
+  const { materias, cargando, editarMateria } = useMaterias()
+  const { reglasCarrera } = usePerfil()
   const materia = materias.find((m) => m.id === id)
+
+  if (cargando) {
+    return (
+      <section className="page">
+        <p className="page-placeholder">Cargando…</p>
+      </section>
+    )
+  }
 
   if (!materia) {
     return (
@@ -59,14 +67,14 @@ function MateriaDetalle() {
     )
   }
 
-  const evaluacion = evaluarCursada(materia)
-  const evaluacionAutomatica = evaluarCursada({ ...materia, tickManual: null })
-  const notaAutomatica = calcularNotaMateriaAutomatica(materia, evaluacion)
+  const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+  const evaluacion = evaluarCursada(materia, reglas)
+  const evaluacionAutomatica = evaluarCursada({ ...materia, tickManual: null }, reglas)
+  const notaAutomatica = calcularNotaMateriaAutomatica(evaluacion)
   const muestraNotaMateria = evaluacion.estado === 'promocion' || evaluacion.estado === 'aprobada'
   const muestraFinal = evaluacion.resultadoFinal !== null
-  const poolBase = calcularPoolPuntos(materia.horasCatedra)
-  const nivelAutomatico = calcularNivelAutomatico(poolBase)
-  const nivelActual = calcularNivelMateria(materia)
+  const faltanHoras = materia.horasCatedra == null
+  const poolBase = calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)
 
   const actualizarNotaParcial = (indiceParcial, indiceInstancia, valor) => {
     const nota = valor === '' ? null : Number(valor)
@@ -90,8 +98,14 @@ function MateriaDetalle() {
     editarMateria(materia.id, { notaMateriaManual: valor === '' ? null : Number(valor) })
   }
 
-  const handleNivelManual = (nivel) => {
-    editarMateria(materia.id, { nivelManual: materia.nivelManual === nivel ? null : nivel })
+  const handleOverrideNumero = (campo, valor) => {
+    editarMateria(materia.id, { [campo]: valor === '' ? null : Number(valor) })
+  }
+
+  const handlePermitePromocionOverride = (valor) => {
+    editarMateria(materia.id, {
+      permitePromocionOverride: materia.permitePromocionOverride === valor ? null : valor,
+    })
   }
 
   return (
@@ -103,10 +117,16 @@ function MateriaDetalle() {
       <div className="detalle-header">
         <h1>{materia.nombre}</h1>
         <MateriaBadge estado={evaluacion.estado} />
-        <NivelBadge nivel={nivelActual} />
       </div>
       <p className="detalle-meta">
-        {nombreAnio(materia.anioCursada)} año · {materia.horasCatedra} hs cátedra · pool base {poolBase} pts
+        {nombreAnio(materia.anioCursada)} año ·{' '}
+        {faltanHoras ? (
+          <span className="materia-aviso">Cargá las horas cátedra de esta materia</span>
+        ) : (
+          <>
+            {materia.horasCatedra} hs cátedra · pool base {poolBase} pts
+          </>
+        )}
       </p>
 
       <section className="detalle-seccion">
@@ -119,6 +139,7 @@ function MateriaDetalle() {
                 notas={parcial.notas}
                 labels={etiquetasParcial(parcial.notas.length)}
                 resultado={evaluacion.resultadoParciales.resultados[indice]}
+                reglas={reglas}
                 onChangeNota={(indiceInstancia, valor) => actualizarNotaParcial(indice, indiceInstancia, valor)}
               />
             </div>
@@ -165,6 +186,7 @@ function MateriaDetalle() {
             notas={materia.final.notas}
             labels={etiquetasFinal(materia.final.notas.length)}
             resultado={evaluacion.resultadoFinal}
+            reglas={reglas}
             onChangeNota={actualizarNotaFinal}
           />
         </section>
@@ -194,29 +216,56 @@ function MateriaDetalle() {
       </section>
 
       <section className="detalle-seccion">
-        <h2>Nivel</h2>
+        <h2>Reglas de esta materia</h2>
         <p className="resultado-automatico">
-          Según el pool de puntos ({poolBase} pts): <NivelBadge nivel={nivelAutomatico} />
+          Por default (según tu carrera): aprobás con <strong>{reglasCarrera.notaAprobacion}+</strong>, promocionás
+          con <strong>{reglasCarrera.notaPromocion}+</strong>, {reglasCarrera.permitePromocion ? '' : 'no '}permite
+          promoción.
         </p>
-        <div className="tick-manual">
-          <span className="tick-label">Fijar nivel manualmente:</span>
-          <div className="tick-botones">
-            {[1, 2, 3].map((nivel) => (
+        <div className="reglas-overrides">
+          <label>
+            Nota para aprobar (override)
+            <input
+              type="number"
+              min="1"
+              max="10"
+              step="0.5"
+              placeholder={String(reglasCarrera.notaAprobacion)}
+              value={materia.notaAprobacionOverride ?? ''}
+              onChange={(e) => handleOverrideNumero('notaAprobacionOverride', e.target.value)}
+            />
+          </label>
+          <label>
+            Nota para promocionar (override)
+            <input
+              type="number"
+              min="1"
+              max="10"
+              step="0.5"
+              placeholder={String(reglasCarrera.notaPromocion)}
+              value={materia.notaPromocionOverride ?? ''}
+              onChange={(e) => handleOverrideNumero('notaPromocionOverride', e.target.value)}
+            />
+          </label>
+          <div className="override-permite-promocion">
+            <span className="tick-label">Permite promoción (override)</span>
+            <div className="tick-botones">
               <button
-                key={nivel}
                 type="button"
-                className={materia.nivelManual === nivel ? 'tick-boton activo' : 'tick-boton'}
-                onClick={() => handleNivelManual(nivel)}
+                className={materia.permitePromocionOverride === true ? 'tick-boton activo' : 'tick-boton'}
+                onClick={() => handlePermitePromocionOverride(true)}
               >
-                Nivel {nivel}
+                Sí
               </button>
-            ))}
+              <button
+                type="button"
+                className={materia.permitePromocionOverride === false ? 'tick-boton activo' : 'tick-boton'}
+                onClick={() => handlePermitePromocionOverride(false)}
+              >
+                No
+              </button>
+            </div>
           </div>
-          {materia.nivelManual != null && (
-            <p className="tick-nota">
-              Nivel fijado manualmente. Tocá el botón de nuevo para volver al cálculo automático.
-            </p>
-          )}
         </div>
       </section>
     </section>

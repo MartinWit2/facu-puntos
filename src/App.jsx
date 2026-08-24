@@ -1,6 +1,8 @@
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Auth from './pages/Auth.jsx'
+import SeleccionCarrera from './pages/SeleccionCarrera.jsx'
 import { useAuth } from './context/useAuth.js'
+import { usePerfil } from './context/usePerfil.js'
 import './App.css'
 import Materias from './pages/Materias.jsx'
 import MateriaDetalle from './pages/MateriaDetalle.jsx'
@@ -13,9 +15,24 @@ const NAV_ITEMS = [
   { to: '/premios', label: 'Premios' },
 ]
 
+function CabeceraApp({ usuario, cerrarSesion }) {
+  return (
+    <header className="app-header">
+      <span className="app-title">facu_puntos</span>
+      <div className="app-header-usuario">
+        <span className="app-header-email">{usuario.email}</span>
+        <button type="button" className="btn-logout" onClick={cerrarSesion}>
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+  )
+}
+
 function App() {
   const { pathname } = useLocation()
   const { configurado, cargando, session, usuario, cerrarSesion } = useAuth()
+  const { cargandoPerfil, carreraElegida, cargandoReglasCarrera } = usePerfil()
 
   if (!configurado) {
     return (
@@ -45,17 +62,34 @@ function App() {
     )
   }
 
+  if (cargandoPerfil) {
+    return (
+      <div className="app-shell">
+        <div className="app-aviso">Cargando tu perfil…</div>
+      </div>
+    )
+  }
+
+  if (!carreraElegida) {
+    return (
+      <div className="app-shell">
+        <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} />
+        <SeleccionCarrera />
+      </div>
+    )
+  }
+
+  if (cargandoReglasCarrera) {
+    return (
+      <div className="app-shell">
+        <div className="app-aviso">Cargando tu carrera…</div>
+      </div>
+    )
+  }
+
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <span className="app-title">facu_puntos</span>
-        <div className="app-header-usuario">
-          <span className="app-header-email">{usuario.email}</span>
-          <button type="button" className="btn-logout" onClick={cerrarSesion}>
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+      <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} />
 
       <main className="app-content">
         <Routes>

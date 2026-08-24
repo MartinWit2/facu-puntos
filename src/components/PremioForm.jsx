@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import ComboboxCategoria from './ComboboxCategoria.jsx'
-import { NIVEL_UMBRAL_1_2, NIVEL_UMBRAL_2_3 } from '../constants'
 
 const VALORES_INICIALES = {
   nombre: '',
@@ -8,7 +7,14 @@ const VALORES_INICIALES = {
   costoPuntos: '',
 }
 
-function PremioForm({ valoresIniciales, categoriasExistentes, onSubmit, onCancel, submitLabel = 'Agregar premio' }) {
+function PremioForm({
+  valoresIniciales,
+  categoriasExistentes,
+  rangoPool,
+  onSubmit,
+  onCancel,
+  submitLabel = 'Agregar premio',
+}) {
   const [form, setForm] = useState({ ...VALORES_INICIALES, ...valoresIniciales })
   const [error, setError] = useState('')
 
@@ -71,11 +77,12 @@ function PremioForm({ valoresIniciales, categoriasExistentes, onSubmit, onCancel
         <input type="number" min="1" value={form.costoPuntos} onChange={handleChange('costoPuntos')} placeholder="80" />
       </label>
 
-      <div className="niveles-referencia">
-        Referencia de puntos por nivel de materia: <strong>Nivel 1</strong> menos de {NIVEL_UMBRAL_1_2} ·{' '}
-        <strong>Nivel 2</strong> {NIVEL_UMBRAL_1_2}-{NIVEL_UMBRAL_2_3 - 1} · <strong>Nivel 3</strong>{' '}
-        {NIVEL_UMBRAL_2_3}+
-      </div>
+      {rangoPool && (
+        <div className="premio-rango-referencia">
+          Como referencia, tus materias cargadas van de <strong>{rangoPool.min}</strong> a{' '}
+          <strong>{rangoPool.max}</strong> pts.
+        </div>
+      )}
 
       {error && <p className="form-error">{error}</p>}
 

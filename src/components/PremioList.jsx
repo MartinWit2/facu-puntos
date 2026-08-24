@@ -18,6 +18,7 @@ function PremioList({
   saldoDisponible,
   premioEditandoId,
   categoriasExistentes,
+  rangoPool,
   onIniciarEdicion,
   onGuardarEdicion,
   onCancelarEdicion,
@@ -46,6 +47,7 @@ function PremioList({
                     <PremioForm
                       valoresIniciales={premio}
                       categoriasExistentes={categoriasExistentes}
+                      rangoPool={rangoPool}
                       submitLabel="Guardar cambios"
                       onSubmit={onGuardarEdicion}
                       onCancel={onCancelarEdicion}

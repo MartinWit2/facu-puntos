@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MateriaBadge from './MateriaBadge.jsx'
-import NivelBadge from './NivelBadge.jsx'
 import { evaluarCursada } from '../utils/cursada'
-import { calcularNivelMateria } from '../utils/niveles'
 import { calcularPoolPuntos } from '../utils/puntos'
+import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import { nombreAnio } from '../utils/anio'
 
 function agruparPorAnio(materias) {
@@ -19,7 +18,7 @@ function agruparPorAnio(materias) {
     .map(([anio, items]) => [anio, items.slice().sort((a, b) => a.nombre.localeCompare(b.nombre))])
 }
 
-function MateriaList({ materias, onEditar, onEliminar }) {
+function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
   const [confirmandoId, setConfirmandoId] = useState(null)
 
   if (materias.length === 0) {
@@ -34,55 +33,64 @@ function MateriaList({ materias, onEditar, onEliminar }) {
         <section key={anio} className="materia-group">
           <h3>{nombreAnio(anio)} año</h3>
           <ul>
-            {items.map((materia) => (
-              <li key={materia.id} className="materia-card">
-                <div className="materia-card-info">
-                  <div className="materia-nombre-row">
-                    <Link to={`/materias/${materia.id}`} className="materia-nombre">
-                      {materia.nombre}
-                    </Link>
-                    <MateriaBadge estado={evaluarCursada(materia).estado} />
-                    <NivelBadge nivel={calcularNivelMateria(materia)} />
+            {items.map((materia) => {
+              const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+              const faltanHoras = materia.horasCatedra == null
+
+              return (
+                <li key={materia.id} className="materia-card">
+                  <div className="materia-card-info">
+                    <div className="materia-nombre-row">
+                      <Link to={`/materias/${materia.id}`} className="materia-nombre">
+                        {materia.nombre}
+                      </Link>
+                      <MateriaBadge estado={evaluarCursada(materia, reglas).estado} />
+                    </div>
+                    {faltanHoras ? (
+                      <span className="materia-aviso">Cargá las horas cátedra de esta materia</span>
+                    ) : (
+                      <span className="materia-meta">
+                        {materia.horasCatedra} hs cátedra · pool{' '}
+                        {calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)} pts
+                      </span>
+                    )}
+                    <span className="materia-meta">
+                      {materia.cantidadParciales} parciales · {materia.cantidadRecuperatorios} recu c/u ·{' '}
+                      {materia.cantidadInstanciasFinal} instancias de final
+                    </span>
                   </div>
-                  <span className="materia-meta">
-                    {materia.horasCatedra} hs cátedra · pool {calcularPoolPuntos(materia.horasCatedra)} pts
-                  </span>
-                  <span className="materia-meta">
-                    {materia.cantidadParciales} parciales · {materia.cantidadRecuperatorios} recu c/u ·{' '}
-                    {materia.cantidadInstanciasFinal} instancias de final
-                  </span>
-                </div>
-                <div className="materia-card-actions">
-                  {confirmandoId === materia.id ? (
-                    <>
-                      <span className="confirmar-texto">¿Eliminar?</span>
-                      <button
-                        type="button"
-                        className="btn-confirmar"
-                        onClick={() => {
-                          onEliminar(materia.id)
-                          setConfirmandoId(null)
-                        }}
-                      >
-                        Sí
-                      </button>
-                      <button type="button" onClick={() => setConfirmandoId(null)}>
-                        No
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" onClick={() => onEditar(materia)}>
-                        Editar
-                      </button>
-                      <button type="button" onClick={() => setConfirmandoId(materia.id)}>
-                        Eliminar
-                      </button>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
+                  <div className="materia-card-actions">
+                    {confirmandoId === materia.id ? (
+                      <>
+                        <span className="confirmar-texto">¿Eliminar?</span>
+                        <button
+                          type="button"
+                          className="btn-confirmar"
+                          onClick={() => {
+                            onEliminar(materia.id)
+                            setConfirmandoId(null)
+                          }}
+                        >
+                          Sí
+                        </button>
+                        <button type="button" onClick={() => setConfirmandoId(null)}>
+                          No
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" onClick={() => onEditar(materia)}>
+                          Editar
+                        </button>
+                        <button type="button" onClick={() => setConfirmandoId(materia.id)}>
+                          Eliminar
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         </section>
       ))}

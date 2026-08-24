@@ -1,0 +1,70 @@
+.carrera-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.carrera-card {
+  width: 100%;
+  max-width: 26rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.carrera-card h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.3rem;
+}
+
+.carrera-subtitulo {
+  margin: 0 0 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.carrera-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.carrera-lista button {
+  width: 100%;
+  font: inherit;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.carrera-lista button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.carrera-lista button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.carrera-estado {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}
+
+.carrera-error {
+  color: #e5484d;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+}

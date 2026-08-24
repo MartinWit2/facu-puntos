@@ -11,7 +11,6 @@ export function crearEstructuraNotas({ cantidadParciales, cantidadRecuperatorios
     },
     tickManual: null,
     notaMateriaManual: null,
-    nivelManual: null,
   }
 }
 

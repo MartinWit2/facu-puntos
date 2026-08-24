@@ -1,50 +1,81 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
+import { useAuth } from '../context/useAuth.js'
+import { supabase } from '../lib/supabaseClient'
 
-const STORAGE_KEY = 'facu_puntos.premios'
-
-function crearPremiosEjemplo() {
-  return [
-    { id: crypto.randomUUID(), nombre: 'Salir a comer afuera', categoria: 'Comida', costoPuntos: 80 },
-    { id: crypto.randomUUID(), nombre: 'Pedir delivery de algo rico', categoria: 'Comida', costoPuntos: 40 },
-    { id: crypto.randomUUID(), nombre: 'Maratón de una serie', categoria: 'Ocio', costoPuntos: 60 },
-    { id: crypto.randomUUID(), nombre: 'Noche de juegos o salida con amigos', categoria: 'Ocio', costoPuntos: 90 },
-    { id: crypto.randomUUID(), nombre: 'Comprarme algo que quiero hace tiempo', categoria: 'Compras', costoPuntos: 150 },
-    { id: crypto.randomUUID(), nombre: 'Día libre sin culpa', categoria: 'Descanso', costoPuntos: 100 },
-  ]
-}
-
-function cargarPremios() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    // raw === null significa que nunca se guardó nada todavía (primer uso):
-    // ahí sembramos los ejemplos. Un array vacío guardado a propósito (el
-    // usuario borró todo) se respeta tal cual, sin volver a sembrar.
-    if (raw === null) return crearPremiosEjemplo()
-    return JSON.parse(raw)
-  } catch {
-    return crearPremiosEjemplo()
-  }
+function filaAPremio(fila) {
+  return { id: fila.id, nombre: fila.nombre, categoria: fila.categoria, costoPuntos: fila.costo_puntos }
 }
 
 export function usePremios() {
-  const [premios, setPremios] = useState(cargarPremios)
+  const { usuario } = useAuth()
+  const [cache, setCache] = useState(null)
+
+  const premios = usuario && cache?.usuarioId === usuario.id ? cache.valor : []
+  const cargando = Boolean(usuario) && cache?.usuarioId !== usuario?.id
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(premios))
-  }, [premios])
+    if (!usuario) return
+    if (cache?.usuarioId === usuario.id) return
 
-  const agregarPremio = useCallback((datos) => {
-    const nuevo = { id: crypto.randomUUID(), ...datos }
-    setPremios((prev) => [...prev, nuevo])
+    let cancelado = false
+
+    supabase
+      .from('premios')
+      .select('*')
+      .eq('user_id', usuario.id)
+      .then(({ data, error }) => {
+        if (cancelado) return
+        if (error) console.error(error)
+        setCache({ usuarioId: usuario.id, valor: (data ?? []).map(filaAPremio) })
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [usuario, cache])
+
+  const agregarPremio = useCallback(
+    async (datos) => {
+      if (!usuario) return
+
+      const fila = {
+        user_id: usuario.id,
+        nombre: datos.nombre,
+        categoria: datos.categoria,
+        costo_puntos: datos.costoPuntos,
+      }
+      const { data, error } = await supabase.from('premios').insert(fila).select().single()
+      if (error) {
+        console.error(error)
+        return
+      }
+      setCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaAPremio(data)] }))
+    },
+    [usuario],
+  )
+
+  const editarPremio = useCallback(async (id, datos) => {
+    const fila = {}
+    if (datos.nombre !== undefined) fila.nombre = datos.nombre
+    if (datos.categoria !== undefined) fila.categoria = datos.categoria
+    if (datos.costoPuntos !== undefined) fila.costo_puntos = datos.costoPuntos
+
+    const { data, error } = await supabase.from('premios').update(fila).eq('id', id).select().single()
+    if (error) {
+      console.error(error)
+      return
+    }
+    setCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.map((p) => (p.id === id ? filaAPremio(data) : p)) }))
   }, [])
 
-  const editarPremio = useCallback((id, datos) => {
-    setPremios((prev) => prev.map((premio) => (premio.id === id ? { ...premio, ...datos } : premio)))
+  const eliminarPremio = useCallback(async (id) => {
+    const { error } = await supabase.from('premios').delete().eq('id', id)
+    if (error) {
+      console.error(error)
+      return
+    }
+    setCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.filter((p) => p.id !== id) }))
   }, [])
 
-  const eliminarPremio = useCallback((id) => {
-    setPremios((prev) => prev.filter((premio) => premio.id !== id))
-  }, [])
-
-  return { premios, agregarPremio, editarPremio, eliminarPremio }
+  return { premios, cargando, agregarPremio, editarPremio, eliminarPremio }
 }

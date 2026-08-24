@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { nombreAnio } from '../utils/anio'
 import { RANGOS_HORAS } from '../utils/filtrosMaterias'
 
-const OPCIONES_NIVEL = [1, 2, 3].map((n) => ({ valor: String(n), etiqueta: `Nivel ${n}` }))
-
 const OPCIONES_ESTADO = [
   { valor: 'aprobada', etiqueta: 'Aprobada' },
   { valor: 'firmada', etiqueta: 'Firmada' },
@@ -83,14 +81,6 @@ function MateriaFiltros({ materias, filtros, onToggleFiltro, onLimpiar }) {
         onToggle={(valor) => onToggleFiltro('rangosHoras', valor)}
         abierto={abiertos.has('rangosHoras')}
         onToggleAbierto={() => toggleAbierto('rangosHoras')}
-      />
-      <FiltroDesplegable
-        titulo="Nivel"
-        opciones={OPCIONES_NIVEL}
-        seleccionados={filtros.niveles}
-        onToggle={(valor) => onToggleFiltro('niveles', valor)}
-        abierto={abiertos.has('niveles')}
-        onToggleAbierto={() => toggleAbierto('niveles')}
       />
       <FiltroDesplegable
         titulo="Estado"

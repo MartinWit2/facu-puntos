@@ -1,26 +1,42 @@
+import ExplicacionPuntos from '../components/ExplicacionPuntos.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
+import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
 import { calcularSaldoDisponible } from '../utils/canjes'
 import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria, calcularPuntosTotales } from '../utils/puntosMateria'
+import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './Progreso.css'
 
 function Progreso() {
-  const { materias } = useMaterias()
-  const { canjes } = useCanjes()
+  const { materias, cargando: cargandoMaterias } = useMaterias()
+  const { canjes, cargando: cargandoCanjes } = useCanjes()
+  const { reglasCarrera } = usePerfil()
+
+  if (cargandoMaterias || cargandoCanjes) {
+    return (
+      <section className="page">
+        <h1>Progreso / Puntos</h1>
+        <p className="page-placeholder">Cargando…</p>
+      </section>
+    )
+  }
 
   const filas = materias
-    .map((materia) => ({
-      materia,
-      evaluacion: evaluarCursada(materia),
-      poolBase: calcularPoolPuntos(materia.horasCatedra),
-      puntos: calcularPuntosMateria(materia),
-    }))
+    .map((materia) => {
+      const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+      return {
+        materia,
+        evaluacion: evaluarCursada(materia, reglas),
+        poolBase: calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora),
+        puntos: calcularPuntosMateria(materia, reglas),
+      }
+    })
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
-  const total = calcularPuntosTotales(materias)
+  const total = calcularPuntosTotales(materias, reglasCarrera)
   const saldoDisponible = calcularSaldoDisponible(total, canjes)
 
   return (
@@ -39,6 +55,8 @@ function Progreso() {
           </span>
         </div>
       </div>
+
+      <ExplicacionPuntos reglasCarrera={reglasCarrera} />
 
       {filas.length === 0 ? (
         <p className="page-placeholder">Todavía no cargaste ninguna materia.</p>

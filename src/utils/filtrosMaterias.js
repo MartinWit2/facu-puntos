@@ -1,20 +1,17 @@
-import { NIVEL_UMBRAL_1_2, NIVEL_UMBRAL_2_3 } from '../constants'
+import { RANGO_HORAS_UMBRAL_1, RANGO_HORAS_UMBRAL_2 } from '../constants'
 import { evaluarCursada } from './cursada'
-import { calcularNivelMateria } from './niveles'
 
-export const FILTROS_VACIOS = { anios: [], rangosHoras: [], niveles: [], estados: [] }
+export const FILTROS_VACIOS = { anios: [], rangosHoras: [], estados: [] }
 
-// Mismos cortes que los niveles: se reutilizan para no tener dos escalas
-// distintas conviviendo en la pantalla.
 export const RANGOS_HORAS = [
-  { valor: 'bajo', etiqueta: `0-${NIVEL_UMBRAL_1_2 - 1}` },
-  { valor: 'medio', etiqueta: `${NIVEL_UMBRAL_1_2}-${NIVEL_UMBRAL_2_3 - 1}` },
-  { valor: 'alto', etiqueta: `+${NIVEL_UMBRAL_2_3}` },
+  { valor: 'bajo', etiqueta: `0-${RANGO_HORAS_UMBRAL_1 - 1}` },
+  { valor: 'medio', etiqueta: `${RANGO_HORAS_UMBRAL_1}-${RANGO_HORAS_UMBRAL_2 - 1}` },
+  { valor: 'alto', etiqueta: `+${RANGO_HORAS_UMBRAL_2}` },
 ]
 
 export function calcularRangoHoras(horasCatedra) {
-  if (horasCatedra >= NIVEL_UMBRAL_2_3) return 'alto'
-  if (horasCatedra >= NIVEL_UMBRAL_1_2) return 'medio'
+  if (horasCatedra >= RANGO_HORAS_UMBRAL_2) return 'alto'
+  if (horasCatedra >= RANGO_HORAS_UMBRAL_1) return 'medio'
   return 'bajo'
 }
 
@@ -30,15 +27,13 @@ const ESTADOS_POR_FILTRO = {
 }
 
 // Dentro de cada categoría los valores seleccionados combinan por OR (ej.
-// "1er año" o "2do año"); entre categorías combinan por AND (ej. año Y nivel).
+// "1er año" o "2do año"); entre categorías combinan por AND (ej. año Y estado).
 export function materiaCoincideFiltros(materia, filtros) {
   if (filtros.anios.length > 0 && !filtros.anios.includes(String(materia.anioCursada))) return false
 
   if (filtros.rangosHoras.length > 0 && !filtros.rangosHoras.includes(calcularRangoHoras(materia.horasCatedra))) {
     return false
   }
-
-  if (filtros.niveles.length > 0 && !filtros.niveles.includes(String(calcularNivelMateria(materia)))) return false
 
   if (filtros.estados.length > 0) {
     const estado = evaluarCursada(materia).estado
