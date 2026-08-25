@@ -34,6 +34,9 @@ function Progreso() {
         puntos: calcularPuntosMateria(materia, reglas),
       }
     })
+    // Las materias Pendientes (sin empezar) no aportan puntos todavía, así que
+    // no tiene sentido listarlas acá: alargarían la pantalla sin mostrar nada útil.
+    .filter(({ evaluacion }) => evaluacion.estado !== 'pendiente')
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
   const total = calcularPuntosTotales(materias, reglasCarrera)
@@ -59,7 +62,11 @@ function Progreso() {
       <ExplicacionPuntos reglasCarrera={reglasCarrera} />
 
       {filas.length === 0 ? (
-        <p className="page-placeholder">Todavía no cargaste ninguna materia.</p>
+        <p className="page-placeholder">
+          {materias.length === 0
+            ? 'Todavía no cargaste ninguna materia.'
+            : 'Todavía no empezaste a cursar ninguna materia.'}
+        </p>
       ) : (
         <ul className="puntos-lista">
           {filas.map(({ materia, evaluacion, poolBase, puntos }) => (

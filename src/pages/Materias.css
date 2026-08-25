@@ -175,12 +175,25 @@
   margin-bottom: 1.5rem;
 }
 
-.materia-group h3 {
+.materia-group summary {
   font-size: 1rem;
-  color: var(--text-muted);
+  font-weight: 600;
+  color: var(--text-h);
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.6rem;
   margin-bottom: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.materia-group[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+.materia-group-cantidad {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .materia-group ul {

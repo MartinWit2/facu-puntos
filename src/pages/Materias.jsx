@@ -46,6 +46,10 @@ function Materias() {
     eliminarMateria(id)
   }
 
+  const handleToggleEmpezada = (materia) => {
+    editarMateria(materia.id, { empezada: !materia.empezada })
+  }
+
   const handleToggleFiltro = (categoria, valor) => {
     setFiltros((prev) => {
       const lista = prev[categoria]
@@ -56,7 +60,8 @@ function Materias() {
 
   const handleLimpiarFiltros = () => setFiltros(FILTROS_VACIOS)
 
-  const materiasFiltradas = materias.filter((materia) => materiaCoincideFiltros(materia, filtros))
+  const materiasFiltradas = materias.filter((materia) => materiaCoincideFiltros(materia, filtros, reglasCarrera))
+  const filtrosActivos = filtros.anios.length > 0 || filtros.rangosHoras.length > 0 || filtros.estados.length > 0
 
   if (cargando) {
     return (
@@ -108,6 +113,8 @@ function Materias() {
           reglasCarrera={reglasCarrera}
           onEditar={handleEditar}
           onEliminar={handleEliminar}
+          onToggleEmpezada={handleToggleEmpezada}
+          filtrosActivos={filtrosActivos}
         />
       )}
     </section>

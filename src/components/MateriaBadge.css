@@ -7,6 +7,11 @@
   white-space: nowrap;
 }
 
+.badge-pendiente {
+  background: var(--border-color);
+  color: var(--text-muted);
+}
+
 .badge-cursando {
   background: var(--border-color);
   color: var(--text);

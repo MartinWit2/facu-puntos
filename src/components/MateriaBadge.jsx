@@ -1,6 +1,7 @@
 import './MateriaBadge.css'
 
 const ESTADOS = {
+  pendiente: { label: 'Pendiente', clase: 'badge-pendiente' },
   cursando: { label: 'Cursando', clase: 'badge-cursando' },
   promocion: { label: 'Promocionó', clase: 'badge-promocion' },
   firma: { label: 'Firmó (final pendiente)', clase: 'badge-firma' },

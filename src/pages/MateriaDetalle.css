@@ -21,6 +21,17 @@
   margin: 0;
 }
 
+.btn-toggle-empezada {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
 .detalle-meta {
   color: var(--text-muted);
   font-size: 0.9rem;

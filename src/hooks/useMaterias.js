@@ -22,6 +22,7 @@ function filaAMateria(fila) {
     notaAprobacionOverride: fila.nota_aprobacion_override,
     notaPromocionOverride: fila.nota_promocion_override,
     permitePromocionOverride: fila.permite_promocion_override,
+    empezada: fila.empezada,
   }
 }
 
@@ -40,6 +41,7 @@ const CAMPO_A_COLUMNA = {
   notaAprobacionOverride: 'nota_aprobacion_override',
   notaPromocionOverride: 'nota_promocion_override',
   permitePromocionOverride: 'permite_promocion_override',
+  empezada: 'empezada',
 }
 
 // Solo convierte los campos presentes en `datos` (para poder hacer updates

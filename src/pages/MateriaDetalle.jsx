@@ -94,6 +94,10 @@ function MateriaDetalle() {
     editarMateria(materia.id, { tickManual: materia.tickManual === valor ? null : valor })
   }
 
+  const handleToggleEmpezada = () => {
+    editarMateria(materia.id, { empezada: !materia.empezada })
+  }
+
   const handleNotaManual = (valor) => {
     editarMateria(materia.id, { notaMateriaManual: valor === '' ? null : Number(valor) })
   }
@@ -117,6 +121,16 @@ function MateriaDetalle() {
       <div className="detalle-header">
         <h1>{materia.nombre}</h1>
         <MateriaBadge estado={evaluacion.estado} />
+        {evaluacion.estado === 'pendiente' && (
+          <button type="button" className="btn-toggle-empezada" onClick={handleToggleEmpezada}>
+            Empezar a cursar
+          </button>
+        )}
+        {evaluacion.estado === 'cursando' && (
+          <button type="button" className="btn-toggle-empezada" onClick={handleToggleEmpezada}>
+            Volver a pendiente
+          </button>
+        )}
       </div>
       <p className="detalle-meta">
         {nombreAnio(materia.anioCursada)} año ·{' '}

@@ -7,6 +7,8 @@
 - Filosofía general del proyecto: nada queda fijo salvo excepciones explícitas — todo tiene un valor por default (hoy 6/8, heredados de UTN) pero se puede ajustar, ya sea por carrera o por materia puntual.
 
 ## Resultado de la cursada (por materia)
+- **Pendiente**: la materia todavía no tiene ningún parcial cargado y el usuario no la marcó manualmente como "empezada". Es el estado inicial de toda materia nueva (tanto al clonar el plan de estudio de una carrera como al cargarla a mano).
+- **Cursando**: el usuario marcó manualmente que empezó a cursar la materia (botón "Empezar a cursar" / "Volver a pendiente" en Materias y en el detalle de la materia), pero todavía no se cumple ninguna condición de promoción, firma o recursada. Este cambio es **manual y bidireccional**: nunca se dispara solo porque se carga una nota de un parcial, y se puede deshacer si se marcó por error. Es la única distinción manual entre estados que no está ya cubierta por el "tick" de promoción/firma descrito más abajo.
 - **Promoción**: se logra si un parcial tiene la nota de promoción de la carrera (8+ por default) en su instancia original, Y el otro parcial llega a esa misma nota como máximo en su **primer** recuperatorio. Si ese segundo parcial necesitó el segundo recuperatorio para llegarla, no promociona por default (salvo tick manual).
   - Generalización a materias con 3+ parciales (configurable): promociona si **todos** los parciales llegan a la nota de promoción, y **ninguno** necesitó más que el primer recuperatorio para lograrlo.
   - Si la carrera tiene `permite_promocion = false`, ninguna materia de esa carrera promociona automáticamente por notas — van directo al camino de firma + final (el tick manual de promoción tampoco debería usarse en ese caso, aunque técnicamente siga existiendo el campo).
@@ -63,7 +65,8 @@
 
 ## Filtros
 - Filtros disponibles: por **año de cursada** (del plan), por **horas cátedra**, y por **estado** (aprobada / firmada / cursando / pendiente — no se incluye "recursando" como filtro aparte). No hay filtro por nivel (concepto sacado de la app, ver más abajo).
-  - Mapeo de los 5 estados reales de la cursada a estas 4 opciones: "Aprobada" incluye tanto **promocionó** como **aprobó por final** (ambas significan que la materia está terminada, solo por caminos distintos); "Firmada" = firmó con final pendiente; "Cursando" = cursando; "Pendiente" = recursa (una materia en "Recursa" cuenta como "Pendiente" para este filtro, aunque su tarjeta siga mostrando el badge real de "Recursa").
+  - Mapeo de los 6 estados reales de la cursada a estas 4 opciones: "Aprobada" incluye tanto **promocionó** como **aprobó por final** (ambas significan que la materia está terminada, solo por caminos distintos); "Firmada" = firmó con final pendiente; "Cursando" = cursando; "Pendiente" agrupa tanto **pendiente** (sin empezar) como **recursa** (una materia en "Recursa" cuenta como "Pendiente" para este filtro, aunque su tarjeta siga mostrando el badge real de "Recursa").
+- La pantalla de Materias agrupa las materias por año de cursada en secciones colapsables (acordeón): al entrar, todos los años arrancan cerrados (se ve solo el nombre del año y la cantidad de materias) y se despliegan al hacer clic. Varios años pueden estar abiertos a la vez. El estado de qué años están abiertos no se persiste entre sesiones.
   - El filtro de horas cátedra es por **rango fijo** (menor a 100 / entre 100 y 159 / 160 o más), no por selección de valores exactos cargados.
 - Dentro de cada filtro se pueden **seleccionar varias opciones a la vez** (ej. "1er año" + "2do año" combinan por OR entre sí). Los distintos filtros se combinan entre sí por **AND** (ej. "2do año + pendiente" al mismo tiempo).
 

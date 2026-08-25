@@ -18,7 +18,7 @@ function agruparPorAnio(materias) {
     .map(([anio, items]) => [anio, items.slice().sort((a, b) => a.nombre.localeCompare(b.nombre))])
 }
 
-function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
+function MateriaList({ materias, reglasCarrera, onEditar, onEliminar, onToggleEmpezada, filtrosActivos }) {
   const [confirmandoId, setConfirmandoId] = useState(null)
 
   if (materias.length === 0) {
@@ -30,11 +30,18 @@ function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
   return (
     <div className="materia-list">
       {grupos.map(([anio, items]) => (
-        <section key={anio} className="materia-group">
-          <h3>{nombreAnio(anio)} año</h3>
+        // La key incluye filtrosActivos para que, al activar o quitar
+        // filtros, el <details> se remonte con su valor `open` inicial
+        // correcto (abierto mientras hay filtros, cerrado si no hay
+        // ninguno), sin pelearse con los clics manuales del usuario.
+        <details key={`${anio}-${filtrosActivos}`} className="materia-group" open={filtrosActivos}>
+          <summary>
+            {nombreAnio(anio)} año <span className="materia-group-cantidad">({items.length})</span>
+          </summary>
           <ul>
             {items.map((materia) => {
               const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+              const estado = evaluarCursada(materia, reglas).estado
               const faltanHoras = materia.horasCatedra == null
 
               return (
@@ -44,7 +51,7 @@ function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
                       <Link to={`/materias/${materia.id}`} className="materia-nombre">
                         {materia.nombre}
                       </Link>
-                      <MateriaBadge estado={evaluarCursada(materia, reglas).estado} />
+                      <MateriaBadge estado={estado} />
                     </div>
                     {faltanHoras ? (
                       <span className="materia-aviso">Cargá las horas cátedra de esta materia</span>
@@ -79,6 +86,11 @@ function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
                       </>
                     ) : (
                       <>
+                        {estado === 'pendiente' && (
+                          <button type="button" onClick={() => onToggleEmpezada(materia)}>
+                            Empezar a cursar
+                          </button>
+                        )}
                         <button type="button" onClick={() => onEditar(materia)}>
                           Editar
                         </button>
@@ -92,7 +104,7 @@ function MateriaList({ materias, reglasCarrera, onEditar, onEliminar }) {
               )
             })}
           </ul>
-        </section>
+        </details>
       ))}
     </div>
   )

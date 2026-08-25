@@ -50,13 +50,17 @@ export function evaluarFinal(materia, reglas) {
   return { aprobado: false, agotado: true, notaAprobacion: null, indiceInstancia: null }
 }
 
-// Resultado completo de la cursada: 'cursando' | 'promocion' | 'firma' | 'recursa' | 'aprobada'.
+// Resultado completo de la cursada: 'pendiente' | 'cursando' | 'promocion' |
+// 'firma' | 'recursa' | 'aprobada'.
 // `reglas` son las reglas EFECTIVAS de esta materia puntual (ya combinadas
 // carrera + overrides, ver utils/reglasMateria.js).
 // El tick manual (a nivel cursada, no por parcial) puede forzar 'promocion' o
 // 'firma' aunque las notas cargadas no cumplan la regla automática — incluso
 // si la carrera no permite promoción automática, el tick manual sigue
 // pudiendo forzarla (es una excepción explícita del profesor).
+// 'pendiente' vs 'cursando' es la ÚNICA distinción manual de este cálculo
+// (materia.empezada): no se dispara solo con cargar una nota, el usuario la
+// marca a mano. Todo lo demás sigue siendo 100% derivado de las notas.
 export function evaluarCursada(materia, reglas) {
   const resultadoParciales = evaluarParciales(materia, reglas)
 
@@ -68,7 +72,7 @@ export function evaluarCursada(materia, reglas) {
   } else if (resultadoParciales.algunoAgotado) {
     estado = 'recursa'
   } else if (!resultadoParciales.todosAprobados) {
-    estado = 'cursando'
+    estado = materia.empezada ? 'cursando' : 'pendiente'
   } else if (reglas.permitePromocion && resultadoParciales.cumplePatronPromocion) {
     estado = 'promocion'
   } else {
