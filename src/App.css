@@ -30,7 +30,8 @@
   color: var(--text-muted);
 }
 
-.btn-logout {
+.btn-logout,
+.btn-cambiar-carrera {
   font: inherit;
   font-size: 0.85rem;
   padding: 0.4rem 0.8rem;
@@ -39,6 +40,7 @@
   background: transparent;
   color: var(--text);
   cursor: pointer;
+  text-decoration: none;
 }
 
 .app-aviso {

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import CanjeOrigenSelector from './CanjeOrigenSelector.jsx'
 import PremioForm from './PremioForm.jsx'
 
 function agruparPorCategoria(premios) {
@@ -19,6 +20,7 @@ function PremioList({
   premioEditandoId,
   categoriasExistentes,
   rangoPool,
+  origenesDisponibles,
   onIniciarEdicion,
   onGuardarEdicion,
   onCancelarEdicion,
@@ -58,6 +60,26 @@ function PremioList({
 
               const alcanza = saldoDisponible >= premio.costoPuntos
 
+              if (confirmandoCanjeId === premio.id) {
+                return (
+                  <li key={premio.id} className="premio-card premio-card-canjeando">
+                    <div className="premio-card-info">
+                      <span className="premio-nombre">{premio.nombre}</span>
+                      <span className="premio-meta">{premio.costoPuntos} pts</span>
+                    </div>
+                    <CanjeOrigenSelector
+                      premio={premio}
+                      origenesDisponibles={origenesDisponibles}
+                      onConfirmar={(detalleOrigen) => {
+                        onCanjear(premio, detalleOrigen)
+                        setConfirmandoCanjeId(null)
+                      }}
+                      onCancelar={() => setConfirmandoCanjeId(null)}
+                    />
+                  </li>
+                )
+              }
+
               return (
                 <li key={premio.id} className="premio-card">
                   <div className="premio-card-info">
@@ -66,24 +88,7 @@ function PremioList({
                   </div>
 
                   <div className="premio-card-actions">
-                    {confirmandoCanjeId === premio.id ? (
-                      <>
-                        <span className="confirmar-texto">¿Canjear por {premio.costoPuntos} pts?</span>
-                        <button
-                          type="button"
-                          className="btn-confirmar"
-                          onClick={() => {
-                            onCanjear(premio)
-                            setConfirmandoCanjeId(null)
-                          }}
-                        >
-                          Sí
-                        </button>
-                        <button type="button" onClick={() => setConfirmandoCanjeId(null)}>
-                          No
-                        </button>
-                      </>
-                    ) : confirmandoEliminarId === premio.id ? (
+                    {confirmandoEliminarId === premio.id ? (
                       <>
                         <span className="confirmar-texto">¿Eliminar?</span>
                         <button

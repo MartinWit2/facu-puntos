@@ -1,3 +1,4 @@
+import { calcularPuntosUsadosPorMateria } from './canjes'
 import { evaluarCursada } from './cursada'
 import { calcularPoolPuntos } from './puntos'
 import { calcularReglasEfectivas } from './reglasMateria'
@@ -38,4 +39,26 @@ export function calcularPuntosTotales(materias, reglasCarrera) {
     return acc + calcularPuntosMateria(materia, reglas)
   }, 0)
   return Math.round(total * 100) / 100
+}
+
+// Puntos que cada materia todavía tiene "disponibles" para usar como origen
+// de un canje: lo que aporta ahora mismo, menos lo que ya se usó de ella en
+// canjes anteriores. Si una materia recursó después de haber sido usada como
+// origen, sus puntos actuales vuelven a 0 pero lo ya usado sigue contando —
+// el resultado se acota en 0 (no puede quedar "disponible" negativo), y esa
+// materia simplemente vuelve a sumar disponible a medida que se recupera.
+// Solo devuelve las materias con algo disponible (>0), ordenadas por nombre.
+export function calcularOrigenesDisponibles(materias, reglasCarrera, canjes) {
+  const usados = calcularPuntosUsadosPorMateria(canjes)
+
+  return materias
+    .map((materia) => {
+      const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+      const puntosActuales = calcularPuntosMateria(materia, reglas)
+      const usado = usados.get(materia.id) ?? 0
+      const disponible = Math.max(0, Math.round((puntosActuales - usado) * 100) / 100)
+      return { materiaId: materia.id, nombre: materia.nombre, disponible }
+    })
+    .filter((origen) => origen.disponible > 0)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre))
 }

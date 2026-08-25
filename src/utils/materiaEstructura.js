@@ -37,3 +37,17 @@ export function ajustarEstructuraNotas(materiaAnterior, datosNuevos) {
 
   return { parciales, final }
 }
+
+// Si el usuario tiene algo cargado en sus materias actuales (alguna nota,
+// un resultado forzado a mano, o una materia agregada por fuera del plan
+// clonado). Se usa para decidir si hace falta advertir antes de un cambio
+// de carrera, que borra y reclona todo user_materias.
+export function tieneProgresoCargado(materias) {
+  return materias.some(
+    (materia) =>
+      materia.materiaCatalogoId == null ||
+      materia.tickManual != null ||
+      materia.parciales.some((parcial) => parcial.notas.some((nota) => nota != null)) ||
+      materia.final.notas.some((nota) => nota != null),
+  )
+}

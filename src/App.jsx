@@ -1,9 +1,10 @@
-import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Auth from './pages/Auth.jsx'
 import SeleccionCarrera from './pages/SeleccionCarrera.jsx'
 import { useAuth } from './context/useAuth.js'
 import { usePerfil } from './context/usePerfil.js'
 import './App.css'
+import CambiarCarrera from './pages/CambiarCarrera.jsx'
 import Materias from './pages/Materias.jsx'
 import MateriaDetalle from './pages/MateriaDetalle.jsx'
 import Progreso from './pages/Progreso.jsx'
@@ -15,12 +16,17 @@ const NAV_ITEMS = [
   { to: '/premios', label: 'Premios' },
 ]
 
-function CabeceraApp({ usuario, cerrarSesion }) {
+function CabeceraApp({ usuario, cerrarSesion, mostrarCambiarCarrera }) {
   return (
     <header className="app-header">
-      <span className="app-title">facu_puntos</span>
+      <span className="app-title">Unipoints</span>
       <div className="app-header-usuario">
         <span className="app-header-email">{usuario.email}</span>
+        {mostrarCambiarCarrera && (
+          <Link to="/cambiar-carrera" className="btn-cambiar-carrera">
+            Cambiar de carrera
+          </Link>
+        )}
         <button type="button" className="btn-logout" onClick={cerrarSesion}>
           Cerrar sesión
         </button>
@@ -89,7 +95,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} />
+      <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} mostrarCambiarCarrera />
 
       <main className="app-content">
         <Routes>
@@ -97,6 +103,7 @@ function App() {
           <Route path="/materias/:id" element={<MateriaDetalle />} />
           <Route path="/progreso" element={<Progreso />} />
           <Route path="/premios" element={<Premios />} />
+          <Route path="/cambiar-carrera" element={<CambiarCarrera />} />
         </Routes>
       </main>
 

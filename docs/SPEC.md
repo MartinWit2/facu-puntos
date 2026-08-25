@@ -28,6 +28,7 @@
 ## Overrides manuales
 - Todas las notas son editables a mano en cualquier momento (por las dudas / criterio del profesor).
 - Existe un "tick" manual independiente de la nota, a nivel de toda la cursada (no por parcial individual), que permite forzar el resultado de la cursada (promocionó / firmó) para casos especiales donde el profesor decide por fuera de la regla estándar (ej: promoción sin cumplir el patrón 8+ original / 8+ primer recu).
+- Checkbox "No sumar puntos de esta materia" (en el formulario de agregar/editar materia), para materias que el usuario ya tenía aprobadas antes de usar la app y no quiere que sumen puntos retroactivos. Por debajo usa el mismo `pool_override` que el pisado manual del pool: tildado lo pone en 0, destildado lo vuelve a `null` (pool calculado normalmente por horas cátedra). No afecta el estado real de la cursada (Promocionó/Firmó siguen calculándose igual).
 
 ## Sistema de Puntos
 - Cada materia tiene un **pool de puntos base**, calculado como horas cátedra × el multiplicador `puntos_por_hora` de la **carrera** del usuario (default 1, o sea 1 punto por hora cátedra). Ya no es una constante global de la app: cada carrera puede tener su propio multiplicador.
@@ -58,6 +59,9 @@
 - Cada carrera define sus propios **defaults**: nota de aprobación, nota de promoción, si permite promoción sin final (`permite_promocion`), y el multiplicador de puntos por hora cátedra. Estos valores viven en la carrera, no son globales de la app.
 - Cualquiera de esos defaults se puede **pisar puntualmente por materia** (igual criterio que el override de pool): si el override es null, se usa el valor de la carrera; si tiene un valor, ese pisa al de la carrera para esa materia en particular.
 - Existe un **catálogo de materias por carrera** (el "plan de estudio" de referencia, compartido entre todos los usuarios de esa carrera). El usuario clona una materia del catálogo hacia su propio progreso para empezar a cursarla. Si el catálogo no tiene las horas cátedra de esa materia (falta el dato para esa carrera), el usuario las completa él mismo al clonarla — hasta que las carga, no se puede calcular el pool de puntos de esa materia, pero eso no bloquea guardarla, solo avisa que falta el dato.
+- El listado de carreras para elegir (primera vez) o cambiar (después) tiene un **buscador de texto simple**, sin distinguir mayúsculas/minúsculas, que filtra en vivo por universidad o por nombre de carrera.
+- El usuario puede **cambiar de carrera** en cualquier momento (botón "Cambiar de carrera" en el header). Si tiene progreso cargado en la carrera actual (alguna nota, un tick manual, o una materia agregada a mano), se le avisa antes de confirmar que va a perder eso; si no tiene nada cargado, se confirma igual pero sin la advertencia de pérdida. Al confirmar: se borran todas sus `user_materias` actuales y se reclona el plan de la carrera nueva (mismo mecanismo que la primera elección). **Los premios y el historial de canjes no se tocan** — no dependen de la carrera.
+- Cambiar de carrera **reinicia el saldo disponible a 0**: los canjes hechos en la carrera anterior no vuelven a descontarse del saldo de la carrera nueva (sería injusto, ya se pagaron con puntos que esa carrera vieja había ganado). Esto se logra guardando en el perfil desde cuándo rige la carrera actual (`carrera_desde`) e ignorando, solo para el cálculo del saldo, los canjes de antes de esa fecha — el historial de canjes los sigue mostrando a todos igual, nada se borra. El comportamiento de saldo negativo por **recursar** una materia no cambia: sigue funcionando exactamente igual que antes dentro de una misma carrera.
 
 ## Organización: año de cursada
 - Cada materia tiene un **año de cursada** fijo, que es el año que sugiere el plan de estudio (1er año, 2do año, etc.) — no el año calendario real en que se cursó.
@@ -79,6 +83,14 @@
 - Los premios son **repetibles**: se pueden canjear las veces que se quiera mientras haya puntos suficientes (no son de un solo uso).
 - Los premios se organizan en **categorías** (ej. comida, ocio, compras, descanso), pensado para cuando la lista crezca (puede llegar a 100+ premios con el tiempo).
 - Al crear un premio nuevo, la app muestra como referencia el rango de puntos (mínimo y máximo) entre las materias que el usuario ya tiene cargadas, para ayudar a calibrar el valor del premio.
+
+## Origen de los puntos al canjear
+- El saldo total sigue siendo la única fuente de verdad para "alcanza o no alcanza" (suma de todo lo ganado menos todo lo canjeado) — esto no cambia.
+- Al canjear, el usuario puede elegir **de qué materia(s) salen** los puntos ("modo manual con mínimo"): se le muestran las materias con puntos disponibles (lo que aportan ahora mismo, menos lo ya usado de ellas en canjes anteriores) y las tilda en el orden que quiera.
+- El sistema reparte el costo del premio entre las materias tildadas siguiendo ese orden: agota la primera, si no alcanza sigue con la segunda, y así — sin que el usuario calcule montos a mano.
+- Si lo tildado no cubre el costo del premio, no se puede confirmar el canje (mismo aviso que cuando no alcanza el saldo general).
+- El detalle de origen (qué materia aportó cuántos puntos) queda guardado en el propio canje (columna `detalle_origen`, igual criterio que la "foto" de nombre/costo del premio) y se muestra en el historial.
+- Si una materia usada como origen de un canje ya hecho se recursa después, ese canje no se toca ni se recalcula — sigue como quedó. La materia recursada simplemente vuelve a sumar disponible desde 0 hacia adelante.
 
 ## Plataforma: mobile vs. escritorio
 - **Decisión**: web app responsiva (adaptable a celular y computadora desde un mismo proyecto), con posibilidad de convertirse en PWA (instalable en el celular con ícono propio, sin barra de navegador).

@@ -13,7 +13,14 @@ function HistorialCanjes({ canjes }) {
     <ul className="historial-lista">
       {canjesOrdenados.map((canje) => (
         <li key={canje.id} className="historial-item">
-          <span className="historial-nombre">{canje.premioNombre}</span>
+          <div className="historial-item-info">
+            <span className="historial-nombre">{canje.premioNombre}</span>
+            {canje.detalleOrigen?.length > 0 && (
+              <span className="historial-origen">
+                de: {canje.detalleOrigen.map((o) => `${o.materiaNombre} (${o.puntos} pts)`).join(', ')}
+              </span>
+            )}
+          </div>
           <span className="historial-fecha">{formatearFecha(canje.fecha)}</span>
           <span className="historial-costo">-{canje.costoPuntos} pts</span>
         </li>

@@ -6,9 +6,9 @@ import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
 import { usePremios } from '../hooks/usePremios.js'
-import { calcularSaldoDisponible } from '../utils/canjes'
+import { calcularSaldoDisponible, canjesDesde } from '../utils/canjes'
 import { calcularPoolPuntos } from '../utils/puntos'
-import { calcularPuntosTotales } from '../utils/puntosMateria'
+import { calcularOrigenesDisponibles, calcularPuntosTotales } from '../utils/puntosMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './Premios.css'
 
@@ -16,15 +16,20 @@ function Premios() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { premios, cargando: cargandoPremios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
   const { canjes, cargando: cargandoCanjes, agregarCanje } = useCanjes()
-  const { reglasCarrera } = usePerfil()
+  const { perfil, reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
   const [formularioAbierto, setFormularioAbierto] = useState(false)
 
   const cargando = cargandoMaterias || cargandoPremios || cargandoCanjes
 
+  // Los canjes de una carrera anterior (si el usuario cambió de carrera) no
+  // cuentan contra el saldo actual — el historial de abajo los sigue
+  // mostrando a todos igual.
+  const canjesCarreraActual = canjesDesde(canjes, perfil?.carrera_desde)
   const puntosTotales = calcularPuntosTotales(materias, reglasCarrera)
-  const saldoDisponible = calcularSaldoDisponible(puntosTotales, canjes)
+  const saldoDisponible = calcularSaldoDisponible(puntosTotales, canjesCarreraActual)
+  const origenesDisponibles = calcularOrigenesDisponibles(materias, reglasCarrera, canjesCarreraActual)
 
   const poolsMaterias = materias.map((m) =>
     calcularPoolPuntos(m.horasCatedra, calcularReglasEfectivas(m, reglasCarrera).puntosPorHora),
@@ -64,9 +69,8 @@ function Premios() {
     eliminarPremio(id)
   }
 
-  const handleCanjear = (premio) => {
-    if (saldoDisponible < premio.costoPuntos) return
-    agregarCanje(premio)
+  const handleCanjear = (premio, detalleOrigen) => {
+    agregarCanje(premio, detalleOrigen)
   }
 
   if (cargando) {
@@ -116,6 +120,7 @@ function Premios() {
         premioEditandoId={premioEditandoId}
         categoriasExistentes={categoriasExistentes}
         rangoPool={rangoPool}
+        origenesDisponibles={origenesDisponibles}
         onIniciarEdicion={handleIniciarEdicion}
         onGuardarEdicion={handleGuardarEdicion}
         onCancelarEdicion={handleCancelarEdicion}

@@ -3,7 +3,7 @@ import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
-import { calcularSaldoDisponible } from '../utils/canjes'
+import { calcularPuntosUsadosPorMateria, calcularSaldoDisponible, canjesDesde } from '../utils/canjes'
 import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria, calcularPuntosTotales } from '../utils/puntosMateria'
@@ -13,7 +13,7 @@ import './Progreso.css'
 function Progreso() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { canjes, cargando: cargandoCanjes } = useCanjes()
-  const { reglasCarrera } = usePerfil()
+  const { perfil, reglasCarrera } = usePerfil()
 
   if (cargandoMaterias || cargandoCanjes) {
     return (
@@ -24,23 +24,37 @@ function Progreso() {
     )
   }
 
+  // Los canjes de una carrera anterior (si el usuario cambió de carrera) no
+  // cuentan para esta pantalla: ni descuentan del saldo ni "gastan" puntos
+  // de las materias nuevas (que ya arrancan de cero de cualquier forma).
+  const canjesCarreraActual = canjesDesde(canjes, perfil?.carrera_desde)
+  const usadosPorMateria = calcularPuntosUsadosPorMateria(canjesCarreraActual)
+
   const filas = materias
     .map((materia) => {
       const reglas = calcularReglasEfectivas(materia, reglasCarrera)
+      const evaluacion = evaluarCursada(materia, reglas)
+      const puntos = calcularPuntosMateria(materia, reglas)
+      const usado = usadosPorMateria.get(materia.id) ?? 0
+      const disponible = Math.max(0, Math.round((puntos - usado) * 100) / 100)
       return {
         materia,
-        evaluacion: evaluarCursada(materia, reglas),
+        evaluacion,
         poolBase: calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora),
-        puntos: calcularPuntosMateria(materia, reglas),
+        puntos,
+        disponible,
+        // Ya se gastaron en canjes todos los puntos que había ganado (y no es
+        // que nunca haya ganado nada): no aporta más nada útil a la pantalla.
+        consumidaCompleta: evaluacion.estado !== 'recursa' && usado > 0 && disponible === 0,
       }
     })
     // Las materias Pendientes (sin empezar) no aportan puntos todavía, así que
     // no tiene sentido listarlas acá: alargarían la pantalla sin mostrar nada útil.
-    .filter(({ evaluacion }) => evaluacion.estado !== 'pendiente')
+    .filter(({ evaluacion, consumidaCompleta }) => evaluacion.estado !== 'pendiente' && !consumidaCompleta)
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
   const total = calcularPuntosTotales(materias, reglasCarrera)
-  const saldoDisponible = calcularSaldoDisponible(total, canjes)
+  const saldoDisponible = calcularSaldoDisponible(total, canjesCarreraActual)
 
   return (
     <section className="page">
@@ -65,11 +79,11 @@ function Progreso() {
         <p className="page-placeholder">
           {materias.length === 0
             ? 'Todavía no cargaste ninguna materia.'
-            : 'Todavía no empezaste a cursar ninguna materia.'}
+            : 'No hay materias con puntos para mostrar por ahora.'}
         </p>
       ) : (
         <ul className="puntos-lista">
-          {filas.map(({ materia, evaluacion, poolBase, puntos }) => (
+          {filas.map(({ materia, evaluacion, poolBase, puntos, disponible }) => (
             <li key={materia.id} className="puntos-item">
               <div className="puntos-item-info">
                 <div className="puntos-item-nombre-row">
@@ -84,7 +98,9 @@ function Progreso() {
                     0 pts <small>(recursa, no suma)</small>
                   </span>
                 ) : (
-                  <span className="puntos-valor">{puntos} pts</span>
+                  <span className="puntos-valor">
+                    {disponible} pts {disponible < puntos && <small>(de {puntos} ganados)</small>}
+                  </span>
                 )}
               </div>
             </li>

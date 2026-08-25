@@ -9,6 +9,7 @@ function filaACanje(fila) {
     premioNombre: fila.premio_nombre,
     costoPuntos: fila.costo_puntos,
     fecha: fila.fecha,
+    detalleOrigen: fila.detalle_origen,
   }
 }
 
@@ -44,7 +45,7 @@ export function useCanjes() {
   // canje ya hecho no se revierte ni cambia aunque el premio se edite o
   // se borre después.
   const agregarCanje = useCallback(
-    async (premio) => {
+    async (premio, detalleOrigen) => {
       if (!usuario) return
 
       const fila = {
@@ -52,6 +53,7 @@ export function useCanjes() {
         premio_id: premio.id,
         premio_nombre: premio.nombre,
         costo_puntos: premio.costoPuntos,
+        detalle_origen: detalleOrigen,
       }
       const { data, error } = await supabase.from('canjes').insert(fila).select().single()
       if (error) {

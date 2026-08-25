@@ -206,10 +206,114 @@
   flex-wrap: wrap;
 }
 
-.premio-card-editando {
+.premio-card-editando,
+.premio-card-canjeando {
   display: block;
   border-color: var(--accent);
   padding: 1rem;
+}
+
+.canje-origen {
+  margin-top: 0.75rem;
+}
+
+.canje-origen-titulo {
+  margin: 0 0 0.6rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.canje-origen-lista {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.canje-origen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.canje-origen-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.canje-origen-orden {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.canje-origen-disponible {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.canje-origen-resumen {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.canje-origen-falta {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .canje-origen-falta {
+    color: #f87171;
+  }
+}
+
+.canje-origen-acciones {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.canje-origen-acciones button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.canje-origen-acciones button.btn-confirmar {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.canje-origen-acciones button.btn-confirmar:disabled {
+  border-color: var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
 .premio-card-info {
@@ -301,9 +405,20 @@
   flex-wrap: wrap;
 }
 
+.historial-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
 .historial-nombre {
   font-weight: 600;
   color: var(--text-h);
+}
+
+.historial-origen {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .historial-fecha {

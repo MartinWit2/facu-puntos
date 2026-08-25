@@ -14,6 +14,7 @@ export function PerfilProvider({ children }) {
   const [carreras, setCarreras] = useState(undefined)
   const [reglasCarreraCache, setReglasCarreraCache] = useState(null)
   const [eligiendo, setEligiendo] = useState(false)
+  const [cambiandoCarrera, setCambiandoCarrera] = useState(false)
   const [error, setError] = useState('')
 
   const perfil = usuario && perfilCache?.usuarioId === usuario.id ? perfilCache.valor : undefined
@@ -31,7 +32,7 @@ export function PerfilProvider({ children }) {
 
     supabase
       .from('perfiles')
-      .select('user_id, carrera_id')
+      .select('user_id, carrera_id, carrera_desde')
       .eq('user_id', usuario.id)
       .maybeSingle()
       .then(({ data, error: errorConsulta }) => {
@@ -45,18 +46,19 @@ export function PerfilProvider({ children }) {
     }
   }, [usuario, configurado, perfilCache])
 
-  // Solo hace falta la lista de carreras mientras el usuario todavía no
-  // eligió, y solo se busca una vez (no se vuelve a pedir aunque cambien las
-  // demás dependencias del efecto).
+  // La lista de carreras hace falta tanto para elegir por primera vez como
+  // para cambiar de carrera más adelante, así que se busca una sola vez por
+  // sesión (no se vuelve a pedir) sin importar si el usuario ya eligió.
   useEffect(() => {
-    if (!configurado || !usuario || cargandoPerfil || perfil?.carrera_id) return
+    if (!configurado || !usuario || cargandoPerfil) return
     if (carreras !== undefined) return
 
     let cancelado = false
 
     supabase
       .from('carreras')
-      .select('id, nombre')
+      .select('id, nombre, universidad')
+      .order('universidad')
       .order('nombre')
       .then(({ data, error: errorConsulta }) => {
         if (cancelado) return
@@ -67,7 +69,7 @@ export function PerfilProvider({ children }) {
     return () => {
       cancelado = true
     }
-  }, [usuario, configurado, cargandoPerfil, perfil, carreras])
+  }, [usuario, configurado, cargandoPerfil, carreras])
 
   // Trae las reglas de evaluación y puntos de la carrera ya elegida (una vez
   // que el usuario eligió, no antes). Se cachea por carreraId igual que el
@@ -195,11 +197,48 @@ export function PerfilProvider({ children }) {
         await clonarPremiosDefault()
       }
 
-      setPerfilCache({ usuarioId: usuario.id, valor: { user_id: usuario.id, carrera_id: carreraId } })
+      setPerfilCache({
+        usuarioId: usuario.id,
+        valor: { user_id: usuario.id, carrera_id: carreraId, carrera_desde: new Date().toISOString() },
+      })
     } catch (errorElegir) {
       setError(errorElegir.message)
     } finally {
       setEligiendo(false)
+    }
+  }
+
+  // Cambiar de carrera: a diferencia de elegirCarrera (que solo clona si
+  // todavía no había nada), acá el usuario ya tiene una carrera y decidió
+  // reemplazarla — se borran sus materias actuales sin condición y se
+  // reclona el plan de la carrera nueva. Los premios y canjes no se tocan:
+  // no dependen de la carrera. La pantalla que llama a esto se encarga de
+  // avisar antes si había progreso cargado.
+  const cambiarCarrera = async (nuevaCarreraId) => {
+    if (!usuario) return
+
+    setCambiandoCarrera(true)
+    setError('')
+
+    try {
+      const { error: errorBorrado } = await supabase.from('user_materias').delete().eq('user_id', usuario.id)
+      if (errorBorrado) throw errorBorrado
+
+      // carrera_desde marca el arranque de esta carrera: los canjes de antes
+      // de esta fecha no cuentan contra el saldo de la carrera nueva (ver
+      // calcularSaldoDisponible), aunque el historial los siga mostrando.
+      const { error: errorPerfil } = await supabase
+        .from('perfiles')
+        .update({ carrera_id: nuevaCarreraId, carrera_desde: new Date().toISOString() })
+        .eq('user_id', usuario.id)
+      if (errorPerfil) throw errorPerfil
+
+      await clonarPlanDeEstudio(nuevaCarreraId)
+    } catch (errorCambio) {
+      setError(errorCambio.message)
+      throw errorCambio
+    } finally {
+      setCambiandoCarrera(false)
     }
   }
 
@@ -208,11 +247,13 @@ export function PerfilProvider({ children }) {
     cargandoPerfil,
     carreraElegida: perfil?.carrera_id != null,
     carreras: carreras ?? [],
-    cargandoCarreras: carreras === undefined && !cargandoPerfil && !perfil?.carrera_id,
+    cargandoCarreras: configurado && Boolean(usuario) && !cargandoPerfil && carreras === undefined,
     reglasCarrera,
     cargandoReglasCarrera,
     elegirCarrera,
     eligiendo,
+    cambiarCarrera,
+    cambiandoCarrera,
     error,
   }
 

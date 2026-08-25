@@ -26,6 +26,18 @@
   font-size: 0.9rem;
 }
 
+.selector-carreras-buscador {
+  width: 100%;
+  font: inherit;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+
 .carrera-lista {
   list-style: none;
   margin: 0;
@@ -33,10 +45,16 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  max-height: 20rem;
+  overflow-y: auto;
 }
 
 .carrera-lista button {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
   font: inherit;
   font-weight: 600;
   padding: 0.7rem 1rem;
@@ -45,6 +63,16 @@
   background: var(--bg);
   color: var(--text);
   cursor: pointer;
+}
+
+.carrera-opcion-universidad {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.carrera-opcion-nombre {
+  font-size: 0.95rem;
 }
 
 .carrera-lista button:hover:not(:disabled) {
@@ -67,4 +95,55 @@
   color: #e5484d;
   font-size: 0.85rem;
   margin: 0.75rem 0 0;
+}
+
+.carrera-aviso {
+  color: #c22a2f;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .carrera-aviso {
+    color: #f87171;
+  }
+}
+
+.carrera-cambio-acciones {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.carrera-cambio-acciones button {
+  flex: 1;
+  font: inherit;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.carrera-cambio-acciones button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.carrera-cambio-acciones button:last-child {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-color);
+}
+
+.carrera-cancelar-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.carrera-cancelar-link:hover {
+  text-decoration: underline;
 }

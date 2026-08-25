@@ -48,7 +48,7 @@ function Auth() {
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
-        <h1>facu_puntos</h1>
+        <h1>Unipoints</h1>
         <p className="auth-subtitulo">{modo === 'login' ? 'Iniciá sesión' : 'Creá tu cuenta'}</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>

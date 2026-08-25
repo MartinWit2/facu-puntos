@@ -13,10 +13,15 @@ const VALORES_INICIALES = {
   cantidadParciales: DEFAULT_CANTIDAD_PARCIALES,
   cantidadRecuperatorios: DEFAULT_CANTIDAD_RECUPERATORIOS,
   cantidadInstanciasFinal: DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
+  noSumaPuntos: false,
 }
 
 function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, submitLabel = 'Agregar materia' }) {
-  const [form, setForm] = useState({ ...VALORES_INICIALES, ...valoresIniciales })
+  const [form, setForm] = useState({
+    ...VALORES_INICIALES,
+    ...valoresIniciales,
+    noSumaPuntos: valoresIniciales?.poolOverride === 0,
+  })
   const [error, setError] = useState('')
 
   const handleChange = (campo) => (e) => {
@@ -67,6 +72,7 @@ function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, subm
       cantidadParciales,
       cantidadRecuperatorios,
       cantidadInstanciasFinal,
+      poolOverride: form.noSumaPuntos ? 0 : null,
     })
 
     if (!valoresIniciales) {
@@ -118,11 +124,26 @@ function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, subm
         />
       </label>
 
+      <label className="materia-form-checkbox">
+        <input
+          type="checkbox"
+          checked={form.noSumaPuntos}
+          onChange={(e) => setForm((prev) => ({ ...prev, noSumaPuntos: e.target.checked }))}
+        />
+        No sumar puntos de esta materia (ya la tenía aprobada antes de usar la app)
+      </label>
+
       <div className="pool-preview">
-        Pool de puntos base: <strong>{poolPuntos}</strong>{' '}
-        <span>
-          ({puntosPorHora} punto{puntosPorHora === 1 ? '' : 's'} por hora cátedra)
-        </span>
+        {form.noSumaPuntos ? (
+          <span>Esta materia no va a sumar puntos.</span>
+        ) : (
+          <>
+            Pool de puntos base: <strong>{poolPuntos}</strong>{' '}
+            <span>
+              ({puntosPorHora} punto{puntosPorHora === 1 ? '' : 's'} por hora cátedra)
+            </span>
+          </>
+        )}
       </div>
 
       {error && <p className="form-error">{error}</p>}
