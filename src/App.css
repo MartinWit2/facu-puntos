@@ -153,3 +153,23 @@
     z-index: 10;
   }
 }
+
+/* ============================================================
+   Chrome mobile (handoff de diseño): header y tabs quedan fijos porque
+   son hijos normales de un flex column de altura completa, y el contenido
+   del medio es el único que scrollea — evita los problemas típicos de
+   position:fixed con el teclado/safe areas en navegadores móviles.
+   ============================================================ */
+.app-shell-mobile {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.app-content-mobile {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}

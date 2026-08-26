@@ -1,0 +1,235 @@
+# Handoff: Unipoints — versión mobile
+
+## Overview
+Unipoints (repo `MartinWit2/facu-puntos`) es una app personal donde un estudiante carga sus notas de parciales y finales, gana puntos según las horas cátedra de cada materia, y canjea esos puntos por premios que él mismo define. Hoy existe como app web React + Vite + Supabase. Este handoff describe la **versión mobile** de las cuatro pantallas principales: Materias, Detalle de materia, Progreso y Premios.
+
+El objetivo del rediseño no es agregar features nuevas, sino adaptar los mismos flujos a una pantalla de teléfono: header fijo con el saldo, navegación por tabs abajo, y hojas inferiores (bottom sheets) en lugar de inputs y paneles expandibles.
+
+## About the Design Files
+Los archivos de este bundle son **referencias de diseño hechas en HTML** — prototipos que muestran el aspecto y el comportamiento buscados, no código para copiar a producción.
+
+La tarea es **recrear estos diseños en el entorno del codebase existente**: React 19 + Vite + React Router + Supabase, con CSS plano por página (`src/pages/*.css`, `src/components/*.css`) y variables en `src/index.css`. Seguí esos patrones. El prototipo usa estilos inline por razones propias de la herramienta de diseño; en el codebase corresponden clases CSS como las que ya existen.
+
+Importante: la lógica de negocio **ya está implementada** en el repo y no hay que reescribirla. El prototipo reimplementa las reglas solo para poder demostrarlas. Usá los módulos reales:
+
+- `src/utils/cursada.js` — `evaluarCursada(materia, reglas)` → estado de la materia
+- `src/utils/reglasMateria.js` — `calcularReglasEfectivas(materia, reglasCarrera)`
+- `src/utils/puntos.js`, `src/utils/puntosMateria.js` — cálculo de puntos y disponibles por materia
+- `src/utils/canjes.js` — puntos usados por materia
+- `src/utils/filtrosMaterias.js` — `FILTROS_VACIOS`, `RANGOS_HORAS`, `materiaCoincideFiltros`
+- `src/utils/anio.js` — `nombreAnio`
+- `src/constants.js` — cantidades default y umbrales de rangos de horas
+- `docs/SPEC.md` — el modelo completo de materias, parciales, puntos y premios
+
+Si algo del prototipo contradice a `docs/SPEC.md` o a esos utils, **gana el repo**.
+
+## Fidelity
+**Alta fidelidad.** Colores, tipografía, espaciados, radios y sombras son finales y salen de `src/index.css` del repo. Recrear pixel-perfect usando las variables CSS que ya existen. Los datos que se ven en el prototipo son de ejemplo (plan de Ing. en Sistemas de la UTN, con nombres de 3° a 5° año inventados) — en la app real vienen de Supabase.
+
+## Screens / Views
+
+### Chrome común (header + tabs)
+
+**Header** — fijo arriba, siempre visible, no scrollea.
+- Fondo `#ffffff`, borde inferior `1px solid #e5e4e7`, padding `56px 18px 12px` (los 56px superiores son el safe area del status bar de iOS; en la app real usar `env(safe-area-inset-top)`).
+- Layout: `flex`, `align-items:center`, `justify-content:space-between`, `gap:12px`.
+- Izquierda, columna: "Unipoints" en Baloo 2 800, 19px, `#9a329d`, `line-height:1.1`; debajo el nombre de la carrera en 11px `#6b6375` ("UTN · Ing. en Sistemas").
+- Derecha, fila con `gap:9px`:
+  - **Píldora de saldo**: `border-radius:999px`, fondo `rgba(198,64,201,.14)`, padding `8px 14px`, `gap:7px`. Contiene un círculo de 14px `#ffc800` con `box-shadow: inset 0 -2px 0 rgba(224,172,0,.9)` (la moneda) y el saldo en Baloo 2 800, 16px, `#9a329d`.
+  - **Avatar**: 40×40, `border-radius:999px`, fondo `#c640c9` (`#9a329d` cuando el menú está abierto), `box-shadow:0 3px 0 #9a329d`, inicial del usuario en Baloo 2 800, 15px, `#fff`. Al presionar: `transform:translateY(2px)` y sombra a `0 1px 0`.
+
+**Tabs** — fijos abajo, `flex`, `gap:6px`, padding `8px 10px 30px` (los 30px son el home indicator; usar `env(safe-area-inset-bottom)`), fondo `#ffffff`, borde superior `1px solid #e5e4e7`.
+- Tres tabs de igual ancho (`flex:1`), `min-height:46px`, columna centrada con `gap:3px`, `border-radius:14px`.
+- Activo: fondo `rgba(198,64,201,.14)`, color `#9a329d`. Inactivo: fondo transparente, color `#6b6375`.
+- Label en Baloo 2 600, 12px. Los iconos del prototipo son placeholders (un cuadrado de 16px con borde de 2px y distinto radio por tab) — **reemplazar por iconos reales** del set que use el proyecto.
+- Tabs: Materias, Progreso, Premios. El detalle de materia mantiene "Materias" activo.
+
+### 1. Materias
+
+Lista completa de las materias de la carrera, agrupadas por año.
+
+- Contenedor scrolleable, padding `18px 16px 28px`, columna con `gap:18px`.
+- **Encabezado**: h1 "Materias" en Baloo 2 800, 27px, `#2b2438`, margen 0. A la derecha, 12px `#6b6375`, con el conteo: `"N de M aprobadas"` sin filtros activos, o `"N de M materias"` cuando hay filtros.
+- **Barra de filtros**: fila horizontal scrolleable con `gap:8px`, tres chips (Año, Horas, Estado) más "Limpiar" cuando hay alguno activo.
+  - Chip: `min-height:38px`, padding `0 14px`, `border-radius:999px`, `font-size:13px`, `font-weight:600`. Sin selección: borde `1.5px solid #e5e4e7`, fondo `#fff`, texto `#3f3b46`. Con selección: borde y fondo `#c640c9`, texto `#fff`, y un contador circular de 18px con el número de opciones elegidas.
+  - Tocar un chip abre una **hoja inferior** con las opciones como filas tildables (ver "Hojas inferiores"). En la web esto es un dropdown (`MateriaFiltros.jsx`); en mobile es una hoja, porque los dropdowns anclados no funcionan bien con el teclado y el scroll del teléfono.
+  - Opciones por categoría: **Año**, derivado de los años presentes en los datos (`nombreAnio`), nunca hardcodeado. **Horas**, los rangos de `RANGOS_HORAS` (`Menos de 100`, `100 a 159`, `160 o más`, según `RANGO_HORAS_UMBRAL_1 = 100` y `_2 = 160`). **Estado**, las cuatro opciones agrupadas de `filtrosMaterias.js`: Aprobada (incluye `promocion` y `aprobada`), Firmada (`firma`), Cursando (`cursando`), Pendiente (`pendiente` y `recursa`).
+  - Combinación: OR dentro de cada categoría, AND entre categorías. Usar `materiaCoincideFiltros` tal cual.
+  - Si el filtro no deja ninguna materia: tarjeta vacía centrada, `border-radius:18px`, fondo `#fff`, borde `1px solid #e5e4e7`, con el texto "Ninguna materia coincide con los filtros" en 13.5px `#6b6375` y un botón de texto "Limpiar filtros".
+- **Tarjeta por año** (una por año, colapsable): fondo `#fff`, borde `1px solid #e5e4e7`, `border-radius:18px`, `box-shadow:0 3px 12px rgba(43,36,56,.08)`, `overflow:hidden`. Con filtros activos, un año sin materias visibles se oculta por completo.
+  - **Cabecera** clickeable: padding `15px 16px`, `min-height:44px`, `gap:12px`. Título "`1er año`" en Baloo 2 700, 17px, `#2b2438`; al lado, 12px `#6b6375` con `"N/M aprobadas"`. Debajo, **barra de avance**: alto 6px, `border-radius:999px`, riel `#eeecf1`, relleno `#c640c9` al porcentaje de aprobadas, `transition:width .3s ease`. A la derecha un chevron `▾` que rota 180° al abrir, `transition:transform .2s ease`.
+  - Por defecto: 1° cerrado, 2° abierto (en la app real, abrir el año de cursada actual).
+  - **Fila de materia**: padding `13px 16px`, borde inferior `1px solid #f2f0f5`, `gap:12px`. Nombre en 14.5px 600 `#2b2438`, `line-height:1.25`. Debajo, badge de estado y meta (`"128 hs · pool 128"`) en 11.5px `#6b6375`. A la derecha, los puntos ganados como `"+128"` en Baloo 2 700, 14px, `#9a329d` (vacío si son 0) y un chevron `›` en 12px `#c3bfc9`. Toda la fila navega al detalle.
+
+**Badges de estado** — `border-radius:999px`, padding `3px 9px`, 10.5px, `font-weight:700`. Mismos pares que `MateriaBadge.css`:
+
+| Estado | Texto | Fondo | Color |
+| --- | --- | --- | --- |
+| `pendiente` | Pendiente | `#e5e4e7` | `#6b6375` |
+| `cursando` | Cursando | `rgba(255,200,0,.22)` | `#a66a00` |
+| `promocion` | Promocionó | `rgba(88,204,2,.18)` | `#2f7a00` |
+| `firma` | Firmó | `rgba(28,176,246,.18)` | `#0f7ab0` |
+| `aprobada` | Aprobada | `rgba(88,204,2,.18)` | `#2f7a00` |
+| `recursa` | Recursa | `rgba(255,75,75,.16)` | `#c22a2f` |
+
+### 2. Detalle de materia
+
+Padding `16px 16px 28px`, columna con `gap:16px`.
+
+- **Volver**: "‹ Materias", 13.5px `#6b6375`, `min-height:44px`.
+- **Título**: nombre en Baloo 2 800, 25px, `#2b2438`, `line-height:1.15`. Debajo, badge de estado (padding `4px 11px`, 11px) y meta en 12px `#6b6375`: `"128 hs cátedra · 2 parciales"`.
+- **Tarjeta de puntos**: borde `2px solid #c640c9`, fondo `rgba(198,64,201,.10)`, `border-radius:18px`, padding `14px 16px`. Label "Puntos de esta materia" en 11px `#6b6375`; valor en Baloo 2 800, 28px, `#9a329d`; y detalle en 11px `#6b6375`: `"Pool base 128"`, con `" · +50% por promoción"` o `" · +25% por final"` cuando corresponde.
+- **Botón "Empezar a cursar"**, solo si el estado es `pendiente`: ancho completo, `min-height:48px`, fondo `#c640c9`, texto `#fff` Baloo 2 700 16px, `border-radius:14px`, `box-shadow:0 4px 0 #9a329d`. Al presionar: `translateY(3px)` y sombra `0 1px 0`.
+- **Parciales**: sección con label "PARCIALES" (11px, 600, `letter-spacing:.08em`, mayúsculas, `#6b6375`). Una tarjeta por parcial (`#fff`, borde `1px solid #e5e4e7`, radio 18px, sombra `0 3px 12px rgba(43,36,56,.08)`, padding `14px 16px`, `gap:11px`).
+  - Cabecera: "Parcial 1" en 14px 700 `#2b2438`; a la derecha el estado en 12px 700 — "Aprobado con 8" / "Aprobado" en `#2f7a00`, "Sin aprobar" en `#c22a2f`, "Sin rendir" en `#6b6375`.
+  - **Chips de nota**: una fila (`gap:9px`) con una instancia por columna (`flex:1`): original, recu 1, recu 2 (cantidad según `DEFAULT_CANTIDAD_RECUPERATORIOS`, configurable por materia). Cada chip: alto 46px, `border-radius:13px`, borde `1.5px`, nota en Baloo 2 800, 19px, y label debajo en 10px `#6b6375` ("Original", "Recu 1"…).
+    - Vacío: `–`, borde `#e5e4e7`, fondo `#fbfafc`, texto `#c3bfc9`.
+    - Aprobado (nota ≥ nota de aprobación): borde `rgba(88,204,2,.5)`, fondo `rgba(88,204,2,.14)`, texto `#2f7a00`.
+    - Desaprobado: borde `rgba(255,75,75,.45)`, fondo `rgba(255,75,75,.12)`, texto `#c22a2f`.
+  - **Tocar un chip abre la hoja de notas** — este es el cambio más importante respecto de la web: no hay inputs numéricos ni teclado. Ver "Hojas inferiores".
+- **Final**: se muestra solo si el estado es `firma` o `aprobada`. Misma tarjeta, con 4 chips (`DEFAULT_CANTIDAD_INSTANCIAS_FINAL`) etiquetados "Inst. 1"…"Inst. 4". Arriba, en 12px `#6b6375`: "Final aprobado." o "Firmaste: te quedan N instancias de final."
+- **Forzar resultado**: label de sección, una línea de ayuda en 12px `#6b6375` ("Si el profesor decide por fuera de la regla, marcalo acá.") y dos botones toggle en fila, `min-height:44px`, `border-radius:13px`, 13.5px 600 — "Promocionó" y "Firmó". Apagado: borde `1.5px solid #e5e4e7`, fondo transparente, texto `#3f3b46`. Encendido: borde y fondo `#c640c9`, texto `#fff`. Son excluyentes en la práctica y equivalen al override manual del spec.
+
+### 3. Progreso
+
+Padding `18px 16px 28px`, `gap:16px`.
+
+- h1 "Progreso" (Baloo 2 800, 27px, `#2b2438`).
+- **Tarjeta de saldo**: borde `2px solid #c640c9`, fondo `rgba(198,64,201,.10)`, `border-radius:20px`, padding 18px, fila con `gap:14px`. Círculo-moneda de 44px `#ffc800` con `inset 0 -4px 0 rgba(224,172,0,.9)`. Al lado: "Saldo disponible" en 12px `#6b6375`, el saldo en Baloo 2 800, 40px, `#9a329d`, `line-height:1.05`, y "N pts ya canjeados" en 12px `#6b6375`.
+- **Dos tarjetas chicas** en fila (`gap:10px`): "Ganados" y "Canjeados", cada una `#fff`, borde `1px solid #e5e4e7`, radio 16px, padding `13px 15px`, label 11px `#6b6375` y valor Baloo 2 700 21px `#2b2438`.
+- **"DE DÓNDE VIENEN"**: una fila por materia con puntos, `#fff`, borde `1px solid #e5e4e7`, radio 16px, sombra `0 3px 12px rgba(43,36,56,.08)`, padding `12px 15px`. Nombre en 14px 600, badge de estado y pool en 11px `#6b6375`; a la derecha, los puntos en Baloo 2 800 16px `#9a329d` y una nota de 10.5px `#6b6375`.
+
+### 4. Premios
+
+Padding `18px 16px 28px`, `gap:18px`.
+
+- h1 "Premios".
+- **Agrupado por categoría** (`ComboboxCategoria` en el repo): título de categoría en Baloo 2 700 16px `#2b2438`, y a la derecha el conteo en 11px `#6b6375`.
+- **Fila de premio**: `#fff`, borde `1px solid #e5e4e7`, radio 18px, sombra `0 3px 12px rgba(43,36,56,.08)`, padding `13px 15px`, `gap:12px`. Nombre en 14.5px 600 `#2b2438`; debajo, "Podés canjearlo" en `#2f7a00` o "Te faltan N pts" en `#6b6375`, 11.5px.
+  - **Botón de costo** a la derecha, `min-height:40px`, padding `0 16px`, radio 12px, Baloo 2 700 14px, con el costo ("250 pts"). Alcanza: fondo y borde `#c640c9`, texto `#fff`, `box-shadow:0 4px 0 #9a329d`. No alcanza: transparente, borde `#e5e4e7`, texto `#a9a4b0`, sin sombra, no clickeable.
+- **Historial**: título "Historial" en Baloo 2 700 16px, separado por un borde superior `1px solid #e5e4e7` con `padding-top:16px`. Cada fila: `#fff`, borde `1px solid #e5e4e7`, radio 16px, padding `11px 14px`. Nombre en 13.5px 600; debajo, el origen resumido en 11px `#6b6375` (`"Análisis 240 · Álgebra 10"`). A la derecha, `"−250 pts"` en Baloo 2 700 14px `#c22a2f` y la fecha en 10.5px `#6b6375`.
+
+## Hojas inferiores (bottom sheets)
+
+Patrón compartido: overlay `position:absolute; inset:0` con fondo `rgba(43,36,56,.4)` (`.28` para el menú de usuario), contenido pegado abajo con `border-radius:26px 26px 0 0`, fondo `#fff`, y entrada animada `transform: translateY(100%) → 0` en `.22s ease`. Tocar el overlay cierra. Cada hoja tiene un "Cerrar" en 13px `#6b6375` arriba a la derecha.
+
+**Hoja de nota** (padding `20px 18px 34px`, `gap:14px`). Título con el contexto ("Parcial 1 · original", "Parcial 2 · recu 1", "Final · instancia 3") en Baloo 2 700 17px. Línea de ayuda en 12px `#6b6375` que explica la regla vigente: "Se aprueba con 6 o más. Con 8 en el original o el primer recu, promociona." Grilla de 5 columnas, `gap:9px`, con las notas 1 a 10: celda de 52px, radio 14px, Baloo 2 800 20px; nota que aprueba con borde `rgba(88,204,2,.45)` / fondo `rgba(88,204,2,.10)` / texto `#2f7a00`, nota que no aprueba con borde `#e5e4e7` / fondo `#fbfafc` / texto `#6b6375`. Abajo, "Borrar nota": `min-height:44px`, borde `1.5px solid #e5e4e7`, texto 13.5px `#6b6375`. Elegir una nota la guarda y cierra la hoja de inmediato — sin botón de confirmar.
+
+**Hoja de filtro**. Título con el nombre de la categoría. Una fila por opción, `min-height:48px`, radio 14px, con un tilde de 22px a la izquierda: sin marcar, borde `1.5px solid #d8d4dd`; marcado, fondo `#c640c9` con el check en `#fff`. Se puede marcar varias. Abajo, un botón "Ver N materias" en `#c640c9` que cierra la hoja.
+
+**Hoja de canje** (`max-height:78%`, padding `20px 18px 30px`). Reemplaza al `CanjeOrigenSelector` expandible de la web. Encabezado con el nombre del premio en Baloo 2 700 18px y "250 pts · saldo 372" en 12px `#6b6375`. Ayuda: "Tocá las materias en el orden en que querés gastar sus puntos."
+- Lista scrolleable de materias con puntos disponibles, ordenadas por nombre. Cada fila: `min-height:44px`, padding `12px 13px`, radio 15px. Sin elegir: borde `1.5px solid #e5e4e7`, fondo `#fff`. Elegida: borde `#c640c9`, fondo `rgba(198,64,201,.08)`.
+- A la izquierda, un círculo de 24px con el **número de orden** de tildado (fondo `#c640c9`, texto `#fff`); vacío con borde `1.5px solid #d8d4dd` si no está elegida. Ese orden define de dónde se descuenta primero.
+- A la derecha, en 12px `#6b6375`: "240 disp." si no está elegida, o "240 de 250" mostrando cuánto aporta esa materia al canje.
+- Resumen en vivo, 12.5px 600: "Cubierto 240 de 250 pts · faltan 10" en `#c22a2f`, o "Cubierto: 250 de 250 pts" en `#2f7a00`.
+- Botón de confirmar, `min-height:50px`, radio 15px, Baloo 2 700 16px. Habilitado: fondo `#c640c9`, texto `#fff`, sombra `0 4px 0 #9a329d`, label "Confirmar canje". Deshabilitado: fondo `#f2f0f5`, texto `#a9a4b0`, label "Elegí de dónde salen los puntos".
+
+**Menú de usuario** — no es una hoja inferior sino un popover anclado al avatar: `position:absolute; top:104px; right:14px`, ancho 236px, `#fff`, borde `1px solid #e5e4e7`, radio 20px, `box-shadow:0 12px 32px rgba(43,36,56,.22)`.
+- Cabecera: avatar de 38px `#c640c9` con la inicial, nombre en 14px 700 `#2b2438`, email en 11.5px `#6b6375` con elipsis.
+- "Cambiar de carrera": `min-height:48px`, padding `0 16px`, 14px `#3f3b46`, borde inferior `1px solid #f2f0f5`. Debe navegar a `CambiarCarrera` (`src/pages/CambiarCarrera.jsx`) — en el prototipo solo cierra el menú, **esa pantalla queda pendiente de diseño**.
+- "Cerrar sesión": mismas medidas, texto `#c22a2f`. Llama al `signOut` de `AuthContext`.
+- Los iconos de ambas filas son placeholders (cuadrado y círculo de 14px con borde de 2px) — reemplazar por iconos reales.
+
+**Celebración de canje** — overlay a pantalla completa, fondo `rgba(255,255,255,.94)`, centrado, `gap:16px`, padding 40px, texto centrado. Círculo-moneda de 88px `#ffc800` con `inset 0 -7px 0 rgba(224,172,0,.9)` y una animación `pop` de `.4s ease` (`scale .86 → 1.04 → 1`, opacidad 0 → 1). Título "¡Noche de cine!" en Baloo 2 800 24px `#2b2438`; subtítulo "Canjeaste 120 pts. Te quedan 252 disponibles." en 14px `#6b6375`. Botón "Listo" en `#c640c9` con sombra `0 4px 0 #9a329d`. Equivale al `Celebracion.jsx` que ya existe.
+
+## Interactions & Behavior
+
+- **Navegación**: tabs abajo entre Materias / Progreso / Premios. Materias → detalle de materia, y "‹ Materias" vuelve. Cambiar de tab resetea el detalle abierto. En el codebase, mantener las rutas de React Router que ya existen.
+- **Cargar una nota**: tocar chip → hoja de notas → tocar la nota → se guarda y la hoja cierra. Todo lo dependiente se recalcula al instante: estado del parcial, badge de la materia, puntos de la materia, saldo del header, barra de avance del año, disponibles en el canje. Sin botón de guardar.
+- **Filtrar**: tocar chip → hoja → tildar → "Ver N materias". Los años que quedan sin materias visibles se ocultan; el conteo del encabezado pasa a "N de M materias". "Limpiar" resetea las tres categorías a `FILTROS_VACIOS`.
+- **Colapsar años**: tocar la cabecera. Es estado local de UI; conviene conservarlo al ir y volver del detalle.
+- **Canjear**: botón de costo → hoja de canje → tildar materias en orden → confirmar → overlay de celebración → "Listo". El canje se agrega al historial con el detalle de cuántos puntos salieron de cada materia.
+- **Estados de presionado**: los botones con sombra sólida bajan `translateY(2–3px)` y reducen la sombra a `0 1px 0`. No hay hover — es táctil.
+- **Transiciones**: hojas `translateY .22s ease`; chevron `transform .2s ease`; barra de avance `width .3s ease`; celebración `pop .4s ease`. Nada más se anima.
+- **Deshabilitado**: un premio que no se puede pagar no es clickeable y se muestra en gris (`#a9a4b0` sobre transparente, sin sombra). Mismo criterio para el botón de confirmar mientras el costo no esté cubierto.
+
+## State Management
+
+Estado que necesita la vista mobile (el resto vive en los hooks y contexts que ya existen: `useMaterias`, `usePremios`, `useCanjes`, `PerfilContext`, `AuthContext`):
+
+- `screen` — tab activo: `materias` | `progreso` | `premios`, más `detalle`.
+- `detalleId` — id de la materia abierta, o null.
+- `aniosAbiertos` — set/mapa de años colapsados.
+- `filtros` — `{ anios: [], rangosHoras: [], estados: [] }`, forma de `FILTROS_VACIOS`.
+- `filtroSheet` — qué categoría de filtro está abierta, o null.
+- `notaSheet` — `{ materiaId, tipo: 'parcial' | 'final', parcialIdx, instanciaIdx }`, o null.
+- `canjeSheet` — id del premio en curso, o null.
+- `ordenOrigen` — array ordenado de ids de materia elegidos en la hoja de canje. El orden importa: define el descuento. Se limpia al cerrar.
+- `celebracion` — `{ nombre, costo }` tras confirmar, o null.
+- `menuUsuario` — booleano.
+
+Derivados, siempre calculados con los utils del repo, nunca guardados: estado de cada materia, puntos por materia, disponibles por materia, ganados, canjeados, saldo, y la lista filtrada.
+
+Solo una capa modal a la vez. Z-index del prototipo: menú 34, hoja de nota/filtro 30, hoja de canje 32, celebración 40.
+
+## Design Tokens
+
+Todos ya existen en `src/index.css` — usar las variables, no los hex sueltos.
+
+**Colores**
+| Uso | Valor |
+| --- | --- |
+| Texto | `#3f3b46` |
+| Texto fuerte / títulos | `#2b2438` |
+| Texto atenuado | `#6b6375` |
+| Texto deshabilitado | `#a9a4b0` |
+| Fondo | `#ffffff` |
+| Fondo suave (pantalla) | `#f6f7fb` |
+| Fondo de chip vacío | `#fbfafc` |
+| Borde | `#e5e4e7` |
+| Borde interno / divisor | `#f2f0f5` |
+| Riel de barra | `#eeecf1` |
+| Chevron inactivo | `#c3bfc9` |
+| Acento (primario) | `#c640c9` |
+| Acento oscuro (sombra, marca) | `#9a329d` |
+| Acento suave (fondo) | `rgba(198,64,201,.14)` / `.10` / `.08` |
+| Moneda | `#ffc800`, sombra interna `rgba(224,172,0,.9)` |
+| Éxito (texto) | `#2f7a00` |
+| Éxito (fondo / borde) | `rgba(88,204,2,.18)` / `.14` / `.10`, borde `rgba(88,204,2,.5)` |
+| Error (texto) | `#c22a2f` |
+| Error (fondo / borde) | `rgba(255,75,75,.16)` / `.12`, borde `rgba(255,75,75,.45)` |
+| Info (firma) | texto `#0f7ab0`, fondo `rgba(28,176,246,.18)` |
+| Advertencia (cursando) | texto `#a66a00`, fondo `rgba(255,200,0,.22)` |
+
+**Tipografía**. Títulos, números y botones en **Baloo 2** (500/600/700/800), la misma del repo. Texto de interfaz en la stack del sistema (`system-ui, 'Segoe UI', Roboto, sans-serif`).
+
+Escala: 40px/800 saldo grande · 28px/800 puntos de materia · 27px/800 h1 · 25px/800 título de detalle · 21px/700 métrica · 19–20px/800 nota en chip · 17–18px/700 título de tarjeta o hoja · 16px/700 botón · 14.5px/600 nombre de materia · 14px/600–700 fila · 13.5px/600 botón secundario · 12px/400 meta · 11px/600 label de sección (mayúsculas, `letter-spacing:.08em`) · 10.5px/700 badge · 10px/400 label de chip.
+
+Nada por debajo de 10px. Los targets táctiles nunca bajan de 44px: filas de menú, hojas y toggles usan `min-height:44px` o más.
+
+**Espaciado**: 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 26, 28px. Padding lateral de pantalla 16px. Gap entre secciones 16–18px, entre tarjetas 10–11px.
+
+**Radios**: 999px píldoras y avatares · 26px hojas (arriba) · 20px popover y tarjeta de saldo · 18px tarjetas · 16px tarjetas chicas · 15px filas de canje y botón de hoja · 14px celdas de nota, tabs, botones · 13px chips de nota y toggles · 12px botón de costo · 6px barra de avance · 4–5px iconos placeholder.
+
+**Sombras**: tarjeta `0 3px 12px rgba(43,36,56,.08)` · popover `0 12px 32px rgba(43,36,56,.22)` · botón primario `0 4px 0 #9a329d` (presionado `0 1px 0`) · avatar `0 3px 0 #9a329d` · moneda `inset 0 -Npx 0 rgba(224,172,0,.9)` con N = 2/4/7 según tamaño.
+
+## Assets
+Ninguno propio. El diseño no usa imágenes ni SVGs: la moneda es un círculo con sombra interna y los iconos de tabs y menú son **placeholders geométricos** que hay que reemplazar por el set de iconos que elija el proyecto (el repo hoy tampoco tiene librería de iconos). Baloo 2 se carga desde Google Fonts, igual que en el repo. El favicon existente es `public/favicon.svg`.
+
+## Screenshots
+En `screenshots/` están las capturas del prototipo, a 2x sobre un marco de iPhone de 402×874:
+
+| Archivo | Qué muestra |
+| --- | --- |
+| `01-materias.png` | Materias con la barra de filtros y los años colapsables |
+| `02-detalle-materia.png` | Detalle de materia: puntos, parciales con chips, forzar resultado |
+| `03-hoja-nota.png` | Hoja inferior para cargar una nota |
+| `04-progreso.png` | Progreso: saldo, ganados/canjeados y origen de los puntos |
+| `05-premios.png` | Premios por categoría e historial |
+| `06-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
+| `07-menu-usuario.png` | Menú de usuario anclado al avatar |
+
+Son capturas con datos de ejemplo. Las medidas y colores exactos están en las secciones de arriba — no los midas sobre la imagen.
+
+## Files
+- `Unipoints Mobile.dc.html` — el prototipo completo, con las cuatro pantallas, las hojas y toda la lógica de demo. Abrilo en el navegador para ver el comportamiento.
+- `ios-frame.jsx` — marco de iPhone del prototipo (status bar y home indicator). Es andamiaje de la herramienta de diseño, **no** parte del diseño: sirve solo para ver las medidas reales y los safe areas.
+- `support.js` — runtime de la herramienta de diseño. Ignorar.
+
+Referencias en el repo: `docs/SPEC.md` para el modelo, `src/index.css` para los tokens, `src/pages/*.css` y `src/components/*.css` para los estilos actuales, y los utils listados más arriba para la lógica.
+
+## Pendiente de diseño
+- Pantalla de **cambiar de carrera** (hoy el menú solo cierra).
+- **Alta de materia** desde el catálogo (`MateriaForm`) y **alta de premio** (`PremioForm`) en mobile.
+- **Estados vacíos** de primera vez: sin materias, sin premios, sin canjes.
+- **Login / selección inicial de carrera** (`Auth`, `SeleccionCarrera`) en mobile.

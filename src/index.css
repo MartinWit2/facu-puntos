@@ -18,6 +18,15 @@
   --red: #ff4b4b;
   --red-dark: #e63e3e;
 
+  /* Tokens del handoff mobile: líneas/rieles/placeholders muy sutiles, sin
+     equivalente previo en la app de escritorio. */
+  --divisor: #f2f0f5;
+  --riel: #eeecf1;
+  --chevron: #c3bfc9;
+  --tick-vacio: #d8d4dd;
+  --text-disabled: #a9a4b0;
+  --chip-vacio-bg: #fbfafc;
+
   --radius-card: 1.1rem;
   --shadow-card: 0 3px 12px rgba(43, 36, 56, 0.08);
 
@@ -51,6 +60,13 @@
     --yellow-dark: #e0ac00;
     --red: #ff6b6b;
     --red-dark: #e63e3e;
+
+    --divisor: #262832;
+    --riel: #2a2c36;
+    --chevron: #6b6878;
+    --tick-vacio: #3a3c46;
+    --text-disabled: #6f6c78;
+    --chip-vacio-bg: #1d1f27;
 
     --shadow-card: 0 3px 14px rgba(0, 0, 0, 0.4);
   }

@@ -1,0 +1,328 @@
+.page-mobile {
+  padding: 1.125rem 1rem 1.75rem;
+  background: var(--bg-soft);
+  min-height: 100%;
+}
+
+.page-mobile h1 {
+  margin: 0;
+  font-size: 1.6875rem;
+  font-weight: 800;
+}
+
+.materias-mobile-encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.125rem;
+}
+
+.materias-mobile-conteo {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---------- Filtros ---------- */
+
+.filtros-mobile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.125rem;
+  padding-bottom: 0.125rem;
+}
+
+.chip-filtro-mobile {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.375rem;
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip-filtro-mobile.activo {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.chip-filtro-mobile-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 0.6875rem;
+}
+
+.chip-filtro-mobile-limpiar {
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 0 0.25rem;
+  cursor: pointer;
+}
+
+.materias-mobile-vacio {
+  text-align: center;
+  border-radius: 1.125rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  padding: 1.75rem 1.25rem;
+}
+
+.materias-mobile-vacio p {
+  margin: 0 0 0.75rem;
+  font-size: 0.84375rem;
+  color: var(--text-muted);
+}
+
+.materias-mobile-vacio button {
+  font: inherit;
+  font-size: 0.84375rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------- Tarjetas de año ---------- */
+
+.materias-mobile-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.anio-card-mobile {
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1.125rem;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.anio-card-mobile-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9375rem 1rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.anio-card-mobile-cabecera::-webkit-details-marker {
+  display: none;
+}
+
+.anio-card-mobile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.anio-card-mobile-titulo-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.anio-card-mobile-titulo {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--text-h);
+}
+
+.anio-card-mobile-conteo {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.anio-card-mobile-barra {
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--riel);
+  overflow: hidden;
+}
+
+.anio-card-mobile-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.anio-card-mobile-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.anio-card-mobile[open] .anio-card-mobile-chevron {
+  transform: rotate(180deg);
+}
+
+.anio-card-mobile-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.materia-fila-mobile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8125rem 1rem;
+  border-bottom: 1px solid var(--divisor);
+  text-decoration: none;
+  color: inherit;
+}
+
+.anio-card-mobile-lista li:last-child .materia-fila-mobile {
+  border-bottom: none;
+}
+
+.materia-fila-mobile-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.materia-fila-mobile-nombre {
+  font-size: 0.90625rem;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materia-fila-mobile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.materia-fila-mobile .materia-badge {
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.65625rem;
+}
+
+.materia-fila-mobile-meta {
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.materia-fila-mobile-aviso {
+  font-size: 0.71875rem;
+  color: var(--red-dark);
+}
+
+.materia-fila-mobile-puntos {
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--accent-dark);
+}
+
+.materia-fila-mobile-chevron {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--chevron);
+}
+
+/* ---------- Hoja de filtro ---------- */
+
+.filtro-sheet-lista {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.filtro-sheet-opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.5rem;
+  border-radius: 0.875rem;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.filtro-sheet-tilde {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--tick-vacio);
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.filtro-sheet-opcion.marcada .filtro-sheet-tilde {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.filtro-sheet-boton-ver {
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 0.9375rem;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.filtro-sheet-boton-ver:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}

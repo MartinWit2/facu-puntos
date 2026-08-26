@@ -1,0 +1,50 @@
+.tabs-mobile {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem 0.625rem calc(1.875rem + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.tab-mobile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1875rem;
+  min-height: 2.875rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.tab-mobile.activo {
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+.tab-mobile-label {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.tab-mobile-icono {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentcolor;
+}
+
+.tab-mobile-icono-materias {
+  border-radius: 0.3rem;
+}
+
+.tab-mobile-icono-progreso {
+  border-radius: 999px;
+}
+
+.tab-mobile-icono-premios {
+  border-radius: 0.5rem 0 0.5rem 0;
+}
