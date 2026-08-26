@@ -60,17 +60,21 @@ function Progreso() {
     <section className="page">
       <h1>Progreso / Puntos</h1>
 
-      <div className="puntos-totales-row">
-        <div className="puntos-total-card">
-          <span className="puntos-total-label">Puntos acumulados</span>
-          <span className="puntos-total-valor">{total}</span>
-        </div>
-        <div className="puntos-total-card">
-          <span className="puntos-total-label">Saldo disponible (después de canjes)</span>
-          <span className={saldoDisponible < 0 ? 'puntos-total-valor puntos-recursa' : 'puntos-total-valor'}>
+      <div className="puntos-hero">
+        <span className="puntos-hero-icono" aria-hidden="true">
+          🪙
+        </span>
+        <div className="puntos-hero-info">
+          <span className="puntos-hero-label">Saldo disponible</span>
+          <span className={saldoDisponible < 0 ? 'puntos-hero-valor puntos-recursa' : 'puntos-hero-valor'}>
             {saldoDisponible}
           </span>
         </div>
+      </div>
+
+      <div className="puntos-total-card puntos-total-secundario">
+        <span className="puntos-total-label">Puntos acumulados (antes de canjes)</span>
+        <span className="puntos-total-valor">{total}</span>
       </div>
 
       <ExplicacionPuntos reglasCarrera={reglasCarrera} />

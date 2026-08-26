@@ -1,9 +1,9 @@
 .materia-badge {
   display: inline-block;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -13,40 +13,48 @@
 }
 
 .badge-cursando {
-  background: var(--border-color);
-  color: var(--text);
+  background: rgba(255, 200, 0, 0.22);
+  color: #a66a00;
 }
 
 .badge-promocion {
-  background: rgba(48, 164, 108, 0.15);
-  color: #1f8a5a;
+  background: rgba(88, 204, 2, 0.18);
+  color: #2f7a00;
 }
 
 .badge-firma {
-  background: rgba(230, 160, 30, 0.18);
-  color: #b5790a;
+  background: rgba(28, 176, 246, 0.18);
+  color: #0f7ab0;
 }
 
 .badge-recursa {
-  background: rgba(229, 72, 77, 0.15);
+  background: rgba(255, 75, 75, 0.16);
   color: #c22a2f;
 }
 
 .badge-aprobada {
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: rgba(88, 204, 2, 0.18);
+  color: #2f7a00;
 }
 
 @media (prefers-color-scheme: dark) {
+  .badge-cursando {
+    color: #ffd84d;
+  }
+
   .badge-promocion {
-    color: #4ade80;
+    color: #7be343;
   }
 
   .badge-firma {
-    color: #fbbf24;
+    color: #57c7fb;
   }
 
   .badge-recursa {
-    color: #f87171;
+    color: #ff8080;
+  }
+
+  .badge-aprobada {
+    color: #7be343;
   }
 }

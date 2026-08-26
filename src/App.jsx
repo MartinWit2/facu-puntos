@@ -3,6 +3,10 @@ import Auth from './pages/Auth.jsx'
 import SeleccionCarrera from './pages/SeleccionCarrera.jsx'
 import { useAuth } from './context/useAuth.js'
 import { usePerfil } from './context/usePerfil.js'
+import { useMaterias } from './hooks/useMaterias.js'
+import { useCanjes } from './hooks/useCanjes.js'
+import { calcularSaldoDisponible, canjesDesde } from './utils/canjes'
+import { calcularPuntosTotales } from './utils/puntosMateria'
 import './App.css'
 import CambiarCarrera from './pages/CambiarCarrera.jsx'
 import Materias from './pages/Materias.jsx'
@@ -16,11 +20,16 @@ const NAV_ITEMS = [
   { to: '/premios', label: 'Premios' },
 ]
 
-function CabeceraApp({ usuario, cerrarSesion, mostrarCambiarCarrera }) {
+function CabeceraApp({ usuario, cerrarSesion, mostrarCambiarCarrera, puntos }) {
   return (
     <header className="app-header">
       <span className="app-title">Unipoints</span>
       <div className="app-header-usuario">
+        {puntos != null && (
+          <span className="app-header-puntos">
+            <span aria-hidden="true">🪙</span> {puntos}
+          </span>
+        )}
         <span className="app-header-email">{usuario.email}</span>
         {mostrarCambiarCarrera && (
           <Link to="/cambiar-carrera" className="btn-cambiar-carrera">
@@ -38,7 +47,13 @@ function CabeceraApp({ usuario, cerrarSesion, mostrarCambiarCarrera }) {
 function App() {
   const { pathname } = useLocation()
   const { configurado, cargando, session, usuario, cerrarSesion } = useAuth()
-  const { cargandoPerfil, carreraElegida, cargandoReglasCarrera } = usePerfil()
+  const { perfil, cargandoPerfil, carreraElegida, cargandoReglasCarrera, reglasCarrera } = usePerfil()
+  const { materias } = useMaterias()
+  const { canjes } = useCanjes()
+
+  const puntosHeader = reglasCarrera
+    ? calcularSaldoDisponible(calcularPuntosTotales(materias, reglasCarrera), canjesDesde(canjes, perfil?.carrera_desde))
+    : null
 
   if (!configurado) {
     return (
@@ -95,7 +110,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} mostrarCambiarCarrera />
+      <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} mostrarCambiarCarrera puntos={puntosHeader} />
 
       <main className="app-content">
         <Routes>

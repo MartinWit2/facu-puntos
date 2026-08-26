@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useCelebracion } from '../components/Celebracion.jsx'
 import HistorialCanjes from '../components/HistorialCanjes.jsx'
 import PremioForm from '../components/PremioForm.jsx'
 import PremioList from '../components/PremioList.jsx'
@@ -20,6 +21,7 @@ function Premios() {
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
   const [formularioAbierto, setFormularioAbierto] = useState(false)
+  const { celebrar, elemento: celebracion } = useCelebracion()
 
   const cargando = cargandoMaterias || cargandoPremios || cargandoCanjes
 
@@ -71,6 +73,7 @@ function Premios() {
 
   const handleCanjear = (premio, detalleOrigen) => {
     agregarCanje(premio, detalleOrigen)
+    celebrar()
   }
 
   if (cargando) {
@@ -84,11 +87,14 @@ function Premios() {
 
   return (
     <section className="page">
+      {celebracion}
       <h1>Premios</h1>
 
       <div className={saldoDisponible < 0 ? 'saldo-card saldo-negativo' : 'saldo-card'}>
         <span className="saldo-label">Saldo disponible</span>
-        <span className="saldo-valor">{saldoDisponible} pts</span>
+        <span className="saldo-valor">
+          <span aria-hidden="true">🪙</span> {saldoDisponible} pts
+        </span>
         <span className="saldo-detalle">
           {puntosTotales} pts ganados − {Math.round((puntosTotales - saldoDisponible) * 100) / 100} pts canjeados
         </span>

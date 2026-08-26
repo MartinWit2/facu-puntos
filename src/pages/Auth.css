@@ -10,14 +10,22 @@
   width: 100%;
   max-width: 24rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 2rem;
   text-align: center;
 }
 
 .auth-card h1 {
   margin: 0 0 0.3rem;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  color: var(--accent-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .auth-card h1 {
+    color: var(--accent);
+  }
 }
 
 .auth-subtitulo {

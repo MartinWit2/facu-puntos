@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useCelebracion } from '../components/Celebracion.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useMaterias } from '../hooks/useMaterias.js'
@@ -7,6 +9,8 @@ import { calcularNotaMateriaAutomatica, contarInstanciasVisibles, evaluarCursada
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './MateriaDetalle.css'
+
+const ESTADOS_FESTEJABLES = new Set(['promocion', 'firma'])
 
 function etiquetasParcial(cantidadInstancias) {
   return Array.from({ length: cantidadInstancias }, (_, i) => (i === 0 ? 'Nota original' : `Recuperatorio ${i}`))
@@ -50,6 +54,22 @@ function MateriaDetalle() {
   const { reglasCarrera } = usePerfil()
   const materia = materias.find((m) => m.id === id)
 
+  const { celebrar, elemento: celebracion } = useCelebracion()
+
+  const reglas = materia && reglasCarrera ? calcularReglasEfectivas(materia, reglasCarrera) : null
+  const evaluacion = reglas ? evaluarCursada(materia, reglas) : null
+
+  // Festeja el instante en que la materia PASA a promocionó/firmó (por nota
+  // o por tick manual), no cada vez que la pantalla se abre ya estando así.
+  const estadoAnteriorRef = useRef(evaluacion?.estado)
+  useEffect(() => {
+    const anterior = estadoAnteriorRef.current
+    if (evaluacion && anterior !== evaluacion.estado && ESTADOS_FESTEJABLES.has(evaluacion.estado)) {
+      celebrar()
+    }
+    estadoAnteriorRef.current = evaluacion?.estado
+  }, [evaluacion, celebrar])
+
   if (cargando) {
     return (
       <section className="page">
@@ -67,8 +87,6 @@ function MateriaDetalle() {
     )
   }
 
-  const reglas = calcularReglasEfectivas(materia, reglasCarrera)
-  const evaluacion = evaluarCursada(materia, reglas)
   const evaluacionAutomatica = evaluarCursada({ ...materia, tickManual: null }, reglas)
   const notaAutomatica = calcularNotaMateriaAutomatica(evaluacion)
   const muestraNotaMateria = evaluacion.estado === 'promocion' || evaluacion.estado === 'aprobada'
@@ -114,6 +132,7 @@ function MateriaDetalle() {
 
   return (
     <section className="page materia-detalle">
+      {celebracion}
       <Link to="/" className="volver-link">
         ← Volver a Materias
       </Link>

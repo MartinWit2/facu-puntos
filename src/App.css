@@ -15,19 +15,48 @@
 }
 
 .app-title {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-title {
+    color: var(--accent);
+  }
 }
 
 .app-header-usuario {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.6rem;
 }
 
 .app-header-email {
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.app-header-puntos {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .app-header-puntos {
+    color: var(--accent);
+  }
 }
 
 .btn-logout,
@@ -91,15 +120,22 @@
   max-width: 200px;
   text-align: center;
   padding: 0.6rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   text-decoration: none;
   color: var(--text-muted);
-  font-weight: 500;
+  font-family: var(--display);
+  font-weight: 600;
 }
 
 .nav-link.active {
-  color: var(--accent);
+  color: var(--accent-dark);
   background: var(--accent-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-link.active {
+    color: var(--accent);
+  }
 }
 
 /* En pantallas chicas, la nav pasa a estar fija abajo (estilo app mobile) */

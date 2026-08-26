@@ -1,18 +1,59 @@
-.puntos-totales-row {
+.puntos-hero {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 1.25rem;
+  border: 2px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.puntos-hero-icono {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.puntos-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.puntos-hero-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.puntos-hero-valor {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .puntos-hero-valor {
+    color: var(--accent);
+  }
 }
 
 .puntos-total-card {
-  flex: 1 1 12rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 1.25rem;
+}
+
+.puntos-total-secundario {
+  max-width: 20rem;
+  margin-bottom: 2rem;
 }
 
 .puntos-total-label {
@@ -21,7 +62,7 @@
 }
 
 .puntos-total-valor {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--text-h);
 }
@@ -41,7 +82,8 @@
   align-items: center;
   gap: 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 0.75rem 1rem;
   flex-wrap: wrap;
 }

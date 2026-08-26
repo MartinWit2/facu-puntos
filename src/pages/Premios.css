@@ -2,8 +2,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border: 2px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
 }
@@ -14,14 +16,26 @@
 }
 
 .saldo-valor {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--text-h);
+  font-family: var(--display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  .saldo-valor {
+    color: var(--accent);
+  }
 }
 
 .saldo-detalle {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.saldo-negativo {
+  border-color: var(--red);
+  background: rgba(255, 75, 75, 0.12);
 }
 
 .saldo-negativo .saldo-valor {
@@ -48,7 +62,8 @@
 
 .premio-form-card {
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 1.25rem;
   margin-bottom: 2rem;
 }
@@ -179,8 +194,8 @@
 }
 
 .premio-group h3 {
-  font-size: 1rem;
-  color: var(--text-muted);
+  font-size: 1.1rem;
+  color: var(--text-h);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.4rem;
   margin-bottom: 0.75rem;
@@ -201,7 +216,8 @@
   align-items: center;
   gap: 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.6rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 0.75rem 1rem;
   flex-wrap: wrap;
 }
@@ -313,6 +329,7 @@
   border-color: var(--border-color);
   background: transparent;
   color: var(--text-muted);
+  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -359,6 +376,7 @@
   border-color: var(--border-color);
   background: transparent;
   color: var(--text-muted);
+  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -400,7 +418,8 @@
   gap: 1rem;
   padding: 0.6rem 0.8rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   font-size: 0.85rem;
   flex-wrap: wrap;
 }

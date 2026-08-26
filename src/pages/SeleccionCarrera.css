@@ -10,7 +10,8 @@
   width: 100%;
   max-width: 26rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 2rem;
   text-align: center;
 }
@@ -58,11 +59,18 @@
   font: inherit;
   font-weight: 600;
   padding: 0.7rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border-color);
+  border-radius: 0.85rem;
+  border: 2px solid var(--border-color);
   background: var(--bg);
   color: var(--text);
   cursor: pointer;
+  transition:
+    border-color 0.1s ease,
+    transform 0.06s ease;
+}
+
+.carrera-lista button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .carrera-opcion-universidad {

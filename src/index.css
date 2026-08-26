@@ -1,13 +1,28 @@
 :root {
   --text: #3f3b46;
-  --text-h: #08060d;
+  --text-h: #2b2438;
   --text-muted: #6b6375;
   --bg: #ffffff;
+  --bg-soft: #f6f7fb;
   --border-color: #e5e4e7;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
+
+  /* Violeta principal: energético, usado en botones y acentos */
+  --accent: #c640c9;
+  --accent-dark: #9a329d;
+  --accent-bg: rgba(198, 64, 201, 0.14);
+
+  --blue: #1cb0f6;
+  --blue-dark: #1899d6;
+  --yellow: #ffc800;
+  --yellow-dark: #e0ac00;
+  --red: #ff4b4b;
+  --red-dark: #e63e3e;
+
+  --radius-card: 1.1rem;
+  --shadow-card: 0 3px 12px rgba(43, 36, 56, 0.08);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Baloo 2', var(--sans);
 
   font: 16px/1.5 var(--sans);
   color-scheme: light dark;
@@ -23,9 +38,21 @@
     --text-h: #f3f4f6;
     --text-muted: #9ca3af;
     --bg: #16171d;
+    --bg-soft: #1d1f27;
     --border-color: #2e303a;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
+
+    --accent: #db6cdc;
+    --accent-dark: #a83fab;
+    --accent-bg: rgba(219, 108, 220, 0.18);
+
+    --blue: #38bdf8;
+    --blue-dark: #0ea5e9;
+    --yellow: #ffd84d;
+    --yellow-dark: #e0ac00;
+    --red: #ff6b6b;
+    --red-dark: #e63e3e;
+
+    --shadow-card: 0 3px 14px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -38,7 +65,69 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
+  font-family: var(--display);
   color: var(--text-h);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+}
+
+/* ============================================================
+   Botones "gordito": sombra sólida abajo que se hunde al presionar.
+   Se aplica por selector a los botones de acción principal ya
+   existentes, sin cambiar el markup de cada pantalla.
+   ============================================================ */
+.btn-agregar-materia,
+.btn-agregar-premio,
+.auth-form button[type='submit'],
+.form-actions button:not([type='button']),
+.carrera-cambio-acciones button:first-child,
+.canje-origen-acciones button.btn-confirmar,
+.premio-card-actions button.btn-canjear,
+.tick-boton.activo {
+  border-width: 2px;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.btn-agregar-materia:active:not(:disabled),
+.btn-agregar-premio:active:not(:disabled),
+.auth-form button[type='submit']:active:not(:disabled),
+.form-actions button:not([type='button']):active:not(:disabled),
+.carrera-cambio-acciones button:first-child:active:not(:disabled),
+.canje-origen-acciones button.btn-confirmar:active:not(:disabled),
+.premio-card-actions button.btn-canjear:active:not(:disabled),
+.tick-boton.activo:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.materia-card-actions button.btn-confirmar,
+.premio-card-actions button.btn-confirmar {
+  border-width: 2px;
+  box-shadow: 0 4px 0 var(--red-dark);
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.materia-card-actions button.btn-confirmar:active,
+.premio-card-actions button.btn-confirmar:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--red-dark);
 }
