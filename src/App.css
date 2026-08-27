@@ -173,3 +173,11 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Pantallas que todavía no tienen su propio rediseño mobile (Detalle,
+   Progreso, Premios: usan la clase compartida .page) dependían del padding
+   de .app-content de escritorio. .page-mobile (las que sí están
+   rediseñadas, como Materias) maneja su propio padding y no entra acá. */
+.app-content-mobile .page {
+  padding: 1.25rem 1rem 1.75rem;
+}

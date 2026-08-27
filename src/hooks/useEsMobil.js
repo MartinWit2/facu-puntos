@@ -11,9 +11,17 @@ export function useEsMobil() {
 
   useEffect(() => {
     const media = window.matchMedia(CONSULTA)
-    const escuchar = (e) => setEsMobil(e.matches)
-    media.addEventListener('change', escuchar)
-    return () => media.removeEventListener('change', escuchar)
+    // El evento "change" de matchMedia no siempre se dispara con algunas
+    // formas de redimensionar (ej. las herramientas de emulación de
+    // viewport de las devtools); "resize" es más confiable como respaldo,
+    // así que se escuchan los dos y siempre se relee `media.matches` fresco.
+    const actualizar = () => setEsMobil(media.matches)
+    media.addEventListener('change', actualizar)
+    window.addEventListener('resize', actualizar)
+    return () => {
+      media.removeEventListener('change', actualizar)
+      window.removeEventListener('resize', actualizar)
+    }
   }, [])
 
   return esMobil
