@@ -1,0 +1,49 @@
+.hoja-nota-ayuda {
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hoja-nota-grilla {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5625rem;
+  margin-bottom: 0.875rem;
+}
+
+.hoja-nota-celda {
+  height: 3.25rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--chip-vacio-bg);
+  color: var(--chevron);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.hoja-nota-celda.aprueba {
+  border-color: rgba(88, 204, 2, 0.45);
+  background: rgba(88, 204, 2, 0.1);
+  color: #2f7a00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hoja-nota-celda.aprueba {
+    color: #7be343;
+  }
+}
+
+.hoja-nota-borrar {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.84375rem;
+  cursor: pointer;
+}

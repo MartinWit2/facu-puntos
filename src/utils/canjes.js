@@ -35,3 +35,26 @@ export function calcularPuntosUsadosPorMateria(canjes) {
 export function calcularSaldoDisponible(puntosTotales, canjes) {
   return Math.round((puntosTotales - calcularPuntosCanjeados(canjes)) * 100) / 100
 }
+
+// Reparte el costo de un canje entre las materias tildadas, en el orden en
+// que se tildaron: agota la primera, si no alcanza sigue con la segunda, y
+// así. La usan tanto el selector de origen de escritorio como la hoja de
+// canje mobile — la regla de reparto vive acá una sola vez.
+export function calcularDetalleOrigen(seleccion, origenesDisponibles, costoPuntos) {
+  let restante = costoPuntos
+  const detalle = []
+
+  for (const materiaId of seleccion) {
+    if (restante <= 0) break
+    const origen = origenesDisponibles.find((o) => o.materiaId === materiaId)
+    if (!origen) continue
+
+    const aporte = Math.min(origen.disponible, restante)
+    if (aporte > 0) {
+      detalle.push({ materiaId, materiaNombre: origen.nombre, puntos: Math.round(aporte * 100) / 100 })
+      restante -= aporte
+    }
+  }
+
+  return { detalle, restante: Math.round(restante * 100) / 100 }
+}

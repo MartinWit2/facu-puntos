@@ -1,0 +1,171 @@
+.progreso-mobile h1 {
+  margin: 0 0 1rem;
+}
+
+.progreso-mobile-saldo {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  border: 2px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: 1.25rem;
+  padding: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.progreso-mobile-saldo.negativo {
+  border-color: var(--red);
+  background: rgba(255, 75, 75, 0.12);
+}
+
+.progreso-mobile-moneda {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  box-shadow: inset 0 -4px 0 rgba(224, 172, 0, 0.9);
+}
+
+.progreso-mobile-saldo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.progreso-mobile-saldo-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.progreso-mobile-saldo-valor {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1.05;
+  color: var(--accent-dark);
+}
+
+.progreso-mobile-saldo-valor.negativo {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .progreso-mobile-saldo-valor.negativo {
+    color: #f87171;
+  }
+}
+
+.progreso-mobile-saldo-canjeados {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.progreso-mobile-resumen {
+  display: flex;
+  gap: 0.625rem;
+  margin-bottom: 1.125rem;
+}
+
+.progreso-mobile-resumen-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 0.8125rem 0.9375rem;
+}
+
+.progreso-mobile-resumen-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.progreso-mobile-resumen-valor {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.3125rem;
+  color: var(--text-h);
+}
+
+.progreso-mobile-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.progreso-mobile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  padding: 0.75rem 0.9375rem;
+}
+
+.progreso-mobile-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.progreso-mobile-item-nombre {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progreso-mobile-item-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progreso-mobile-item-meta-row .materia-badge {
+  padding: 0.1875rem 0.5625rem;
+  font-size: 0.65625rem;
+}
+
+.progreso-mobile-item-meta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.progreso-mobile-item-valor-bloque {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.progreso-mobile-item-valor {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--accent-dark);
+}
+
+.progreso-mobile-item-valor.negativo {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .progreso-mobile-item-valor.negativo {
+    color: #f87171;
+  }
+}
+
+.progreso-mobile-item-nota {
+  font-size: 0.65625rem;
+  color: var(--text-muted);
+}

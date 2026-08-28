@@ -147,3 +147,48 @@ h3 {
   transform: translateY(3px);
   box-shadow: 0 1px 0 var(--red-dark);
 }
+
+/* ============================================================
+   Handoff mobile: label de sección compartido entre pantallas
+   (Detalle, Progreso, Premios) — "PARCIALES", "DE DÓNDE VIENEN", etc.
+   ============================================================ */
+.seccion-mobile-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.625rem;
+}
+
+/* Botón primario "gordito" de ancho completo, compartido por las hojas y
+   pantallas mobile (Agregar premio, Empezar a cursar, Confirmar, etc). */
+.boton-primario-mobile {
+  width: 100%;
+  min-height: 3rem;
+  border: none;
+  border-radius: 0.875rem;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.boton-primario-mobile:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.boton-primario-mobile:disabled {
+  background: var(--divisor);
+  color: var(--text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}

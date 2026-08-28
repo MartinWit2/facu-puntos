@@ -1,0 +1,132 @@
+.hoja-canje-meta {
+  margin: 0 0 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hoja-canje-ayuda {
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hoja-canje-lista {
+  list-style: none;
+  margin: 0 0 0.875rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.hoja-canje-fila {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.75rem 0.8125rem;
+  border-radius: 0.9375rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.hoja-canje-fila.elegida {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.hoja-canje-orden {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--tick-vacio);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+.hoja-canje-orden.lleno {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.hoja-canje-nombre {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hoja-canje-disp {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hoja-canje-resumen {
+  margin: 0 0 0.875rem;
+  font-size: 0.78125rem;
+  font-weight: 600;
+}
+
+.hoja-canje-resumen.ok {
+  color: #2f7a00;
+}
+
+.hoja-canje-resumen.falta {
+  color: #c22a2f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hoja-canje-resumen.ok {
+    color: #7be343;
+  }
+
+  .hoja-canje-resumen.falta {
+    color: #f87171;
+  }
+}
+
+.hoja-canje-confirmar {
+  width: 100%;
+  min-height: 3.125rem;
+  border-radius: 0.9375rem;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.hoja-canje-confirmar:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.hoja-canje-confirmar:disabled {
+  background: var(--divisor);
+  color: var(--text-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}

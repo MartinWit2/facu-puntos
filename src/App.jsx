@@ -15,8 +15,11 @@ import CambiarCarrera from './pages/CambiarCarrera.jsx'
 import Materias from './pages/Materias.jsx'
 import MateriasMobile from './pages/MateriasMobile.jsx'
 import MateriaDetalle from './pages/MateriaDetalle.jsx'
+import MateriaDetalleMobile from './pages/MateriaDetalleMobile.jsx'
 import Progreso from './pages/Progreso.jsx'
+import ProgresoMobile from './pages/ProgresoMobile.jsx'
 import Premios from './pages/Premios.jsx'
+import PremiosMobile from './pages/PremiosMobile.jsx'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Materias' },
@@ -122,12 +125,12 @@ function App() {
         <main className="app-content-mobile">
           <Routes>
             <Route path="/" element={<MateriasMobile />} />
-            {/* Detalle/Progreso/Premios/Cambiar de carrera todavía usan la
-                versión de escritorio: el rediseño mobile avanza pantalla por
-                pantalla y estas siguen sin handoff propio. */}
-            <Route path="/materias/:id" element={<MateriaDetalle />} />
-            <Route path="/progreso" element={<Progreso />} />
-            <Route path="/premios" element={<Premios />} />
+            <Route path="/materias/:id" element={<MateriaDetalleMobile />} />
+            <Route path="/progreso" element={<ProgresoMobile />} />
+            <Route path="/premios" element={<PremiosMobile />} />
+            {/* Cambiar de carrera todavía usa la versión de escritorio: no
+                tiene handoff mobile propio (queda listado como "Pendiente de
+                diseño" en el README del handoff). */}
             <Route path="/cambiar-carrera" element={<CambiarCarrera />} />
           </Routes>
         </main>

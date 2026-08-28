@@ -1,0 +1,191 @@
+.editar-materia-subtitulo {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editar-materia-campo {
+  display: block;
+  margin-bottom: 0.875rem;
+}
+
+.editar-materia-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 0.4rem;
+}
+
+.editar-materia-ayuda {
+  margin: 0.25rem 0 0;
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.editar-materia-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.875rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 0.90625rem;
+  font-weight: 600;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.editar-materia-input:focus {
+  border-color: var(--accent);
+}
+
+.editar-materia-campo-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.editar-materia-campo-cabecera .editar-materia-label {
+  margin-bottom: 0;
+}
+
+.editar-materia-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.editar-materia-stepper button {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.editar-materia-stepper button:active:not(:disabled) {
+  background: var(--divisor);
+}
+
+.editar-materia-stepper button:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.editar-materia-stepper-valor {
+  min-width: 3.5rem;
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  color: var(--text-h);
+}
+
+.editar-materia-switch-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-bottom: 0.875rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.editar-materia-switch-texto {
+  display: block;
+}
+
+.editar-materia-switch-texto .editar-materia-label {
+  margin-bottom: 0.2rem;
+}
+
+.editar-materia-switch {
+  flex-shrink: 0;
+  display: inline-block;
+  position: relative;
+  width: 3.25rem;
+  height: 1.9375rem;
+  border-radius: 999px;
+  padding: 0.1875rem;
+  background: var(--tick-vacio);
+  box-sizing: border-box;
+  transition: background 0.2s ease;
+}
+
+.editar-materia-switch.activo {
+  background: var(--accent);
+}
+
+.editar-materia-switch-perilla {
+  display: block;
+  width: 1.5625rem;
+  height: 1.5625rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(43, 36, 56, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.editar-materia-switch.activo .editar-materia-switch-perilla {
+  transform: translateX(1.3125rem);
+}
+
+.editar-materia-grilla-chica {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editar-materia-celda-chica {
+  flex: 1;
+  height: 2.875rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.editar-materia-celda-chica.activa {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.editar-materia-forzar {
+  border-top: 1px solid var(--divisor);
+  padding-top: 0.875rem;
+  margin-bottom: 0.875rem;
+}
+
+.editar-materia-volver {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.84375rem;
+  cursor: pointer;
+}

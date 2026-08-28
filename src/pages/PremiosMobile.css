@@ -1,0 +1,255 @@
+.premios-mobile h1 {
+  margin: 0 0 1rem;
+}
+
+.premios-mobile-agregar {
+  margin-bottom: 1.125rem;
+}
+
+.premios-mobile-grupo {
+  margin-bottom: 1.125rem;
+}
+
+.premios-mobile-grupo-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.625rem;
+}
+
+.premios-mobile-grupo-titulo {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.premios-mobile-grupo-conteo {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.premios-mobile-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.premio-fila-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1.125rem;
+  box-shadow: var(--shadow-card);
+  padding: 0.8125rem 0.9375rem;
+}
+
+.premio-fila-mobile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.premio-fila-mobile-nombre {
+  font-size: 0.90625rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.premio-fila-mobile-estado {
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.premio-fila-mobile-estado.ok {
+  color: #2f7a00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .premio-fila-mobile-estado.ok {
+    color: #7be343;
+  }
+}
+
+.premio-fila-mobile-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.premio-fila-mobile-costo {
+  min-height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-disabled);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: not-allowed;
+}
+
+.premio-fila-mobile-costo.alcanza {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.premio-fila-mobile-costo.alcanza:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.premio-fila-mobile-editar {
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+.premio-fila-mobile-confirmar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.premio-fila-mobile-confirmar button {
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: none;
+  cursor: pointer;
+}
+
+.premios-mobile-historial {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+}
+
+.premios-mobile-historial .historial-item {
+  border-radius: 1rem;
+  padding: 0.6875rem 0.875rem;
+}
+
+.premios-mobile-historial .historial-nombre {
+  font-size: 0.84375rem;
+}
+
+.premios-mobile-historial .historial-origen {
+  font-size: 0.6875rem;
+}
+
+.premios-mobile-historial .historial-costo {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.premios-mobile-historial .historial-fecha {
+  font-size: 0.65625rem;
+}
+
+/* ---------- Celebración de canje ---------- */
+
+.celebracion-canje-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2.5rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.94);
+  animation: celebracion-canje-pop 0.4s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .celebracion-canje-overlay {
+    background: rgba(22, 23, 29, 0.94);
+  }
+}
+
+@keyframes celebracion-canje-pop {
+  0% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebracion-canje-overlay {
+    animation: none;
+  }
+}
+
+.celebracion-canje-moneda {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  box-shadow: inset 0 -7px 0 rgba(224, 172, 0, 0.9);
+}
+
+.celebracion-canje-titulo {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.celebracion-canje-subtitulo {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.celebracion-canje-boton {
+  min-width: 8rem;
+  min-height: 3rem;
+  border: none;
+  border-radius: 0.875rem;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.06s ease;
+}
+
+.celebracion-canje-boton:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--accent-dark);
+}

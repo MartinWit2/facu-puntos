@@ -1,25 +1,5 @@
 import { useState } from 'react'
-
-// Reparte el costo del premio entre las materias tildadas, en el orden en
-// que se tildaron: agota la primera, si no alcanza sigue con la segunda, etc.
-function calcularDetalleOrigen(seleccion, origenesDisponibles, costoPuntos) {
-  let restante = costoPuntos
-  const detalle = []
-
-  for (const materiaId of seleccion) {
-    if (restante <= 0) break
-    const origen = origenesDisponibles.find((o) => o.materiaId === materiaId)
-    if (!origen) continue
-
-    const aporte = Math.min(origen.disponible, restante)
-    if (aporte > 0) {
-      detalle.push({ materiaId, materiaNombre: origen.nombre, puntos: Math.round(aporte * 100) / 100 })
-      restante -= aporte
-    }
-  }
-
-  return { detalle, restante: Math.round(restante * 100) / 100 }
-}
+import { calcularDetalleOrigen } from '../utils/canjes'
 
 function CanjeOrigenSelector({ premio, origenesDisponibles, onConfirmar, onCancelar }) {
   const [seleccion, setSeleccion] = useState([])
