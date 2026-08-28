@@ -32,7 +32,7 @@ function agruparPorCategoria(premios) {
 function PremiosMobile() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { premios, cargando: cargandoPremios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
-  const { canjes, cargando: cargandoCanjes, agregarCanje } = useCanjes()
+  const { canjes, cargando: cargandoCanjes, agregarCanje, ocultarHistorialCanjes } = useCanjes()
   const { perfil, reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
@@ -186,7 +186,7 @@ function PremiosMobile() {
         ))
       )}
 
-      <HistorialCanjesMobile canjes={canjes} />
+      <HistorialCanjesMobile canjes={canjes} onBorrarHistorial={ocultarHistorialCanjes} />
 
       <BottomSheet
         abierto={premioEnCanje != null}

@@ -203,6 +203,17 @@
   color: var(--text-h);
 }
 
+.hoja-premio-stepper-input {
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+}
+
+.hoja-premio-stepper-input:focus {
+  color: var(--accent-dark);
+}
+
 .hoja-premio-costo {
   border-top: 1px solid var(--divisor);
   padding-top: 0.875rem;

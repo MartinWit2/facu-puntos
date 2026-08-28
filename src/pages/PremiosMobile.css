@@ -37,7 +37,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 0.75rem;
   background: var(--bg);
   border: 1px solid var(--border-color);
@@ -47,6 +46,7 @@
 }
 
 .premio-fila-mobile-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -57,11 +57,17 @@
   font-size: 0.90625rem;
   font-weight: 600;
   color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .premio-fila-mobile-estado {
   font-size: 0.71875rem;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .premio-fila-mobile-estado.ok {
@@ -82,8 +88,9 @@
 }
 
 .premio-fila-mobile-costo {
+  min-width: 4.75rem;
   min-height: 2.5rem;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
   border-radius: 0.75rem;
   border: 1.5px solid var(--border-color);
   background: transparent;
@@ -92,6 +99,7 @@
   font-family: var(--display);
   font-weight: 700;
   font-size: 0.875rem;
+  text-align: center;
   cursor: not-allowed;
 }
 
@@ -112,12 +120,14 @@
 }
 
 .premio-fila-mobile-editar {
+  min-width: 3.375rem;
   font: inherit;
   font-size: 0.75rem;
   color: var(--text-muted);
   background: none;
   border: none;
   padding: 0.4rem;
+  text-align: center;
   cursor: pointer;
 }
 

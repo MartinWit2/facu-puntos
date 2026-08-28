@@ -64,7 +64,13 @@ function App() {
   const puntosHeader = reglasCarrera
     ? calcularSaldoDisponible(calcularPuntosTotales(materias, reglasCarrera), canjesDesde(canjes, perfil?.carrera_desde))
     : null
-  const carreraActual = carreras.find((carrera) => carrera.id === perfil?.carrera_id)
+  // Si no hay carrera_id pero el perfil ya tiene una carrera propia armada
+  // (ver CarreraMobile/SeleccionCarrera/CambiarCarrera), se arma un objeto
+  // liviano solo con el nombre para que el header lo muestre igual que a
+  // cualquier carrera real, sin universidad.
+  const carreraActual =
+    carreras.find((carrera) => carrera.id === perfil?.carrera_id) ??
+    (perfil?.nombre_custom ? { nombre: perfil.nombre_custom, universidad: null } : undefined)
 
   if (!configurado) {
     return (

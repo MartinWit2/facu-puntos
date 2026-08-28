@@ -22,6 +22,10 @@
 
 .bottom-sheet-cuerpo {
   overflow-y: auto;
+  /* Evita que, al llegar al límite del scroll propio de la hoja, el gesto
+     "encadene" y siga scrolleando la pantalla de atrás (además del bloqueo
+     por JS en BottomSheet.jsx, que cubre el caso de una hoja sin scroll propio). */
+  overscroll-behavior: contain;
 }
 
 .bottom-sheet-pie {

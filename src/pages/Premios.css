@@ -455,6 +455,41 @@
   }
 }
 
+.historial-borrar-boton {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.historial-borrar-confirmar {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.historial-borrar-confirmar button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--border-color);
+  background: none;
+  cursor: pointer;
+}
+
+.historial-borrar-confirmar button.btn-confirmar {
+  border-color: #e5484d;
+  background: #e5484d;
+  color: #fff;
+}
+
 @media (max-width: 480px) {
   .premio-card {
     flex-direction: column;

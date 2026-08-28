@@ -21,7 +21,21 @@ export function PerfilProvider({ children }) {
   const cargandoPerfil = configurado && Boolean(usuario) && perfil === undefined
   const carreraId = perfil?.carrera_id ?? null
 
-  const reglasCarrera = carreraId && reglasCarreraCache?.carreraId === carreraId ? reglasCarreraCache.valor : undefined
+  // Las cuatro columnas *_custom se guardan siempre juntas (ver migración
+  // 0012): con que una esté cargada alcanza para saber que el usuario ya
+  // configuró sus reglas propias.
+  const tieneReglasPropias = perfil?.nota_aprobacion_custom != null
+  const reglasPropias = tieneReglasPropias
+    ? {
+        notaAprobacion: perfil.nota_aprobacion_custom,
+        notaPromocion: perfil.nota_promocion_custom,
+        permitePromocion: perfil.permite_promocion_custom,
+        puntosPorHora: perfil.puntos_por_hora_custom,
+      }
+    : undefined
+
+  const reglasDeCarrera = carreraId && reglasCarreraCache?.carreraId === carreraId ? reglasCarreraCache.valor : undefined
+  const reglasCarrera = carreraId ? reglasDeCarrera : reglasPropias
   const cargandoReglasCarrera = Boolean(carreraId) && reglasCarrera === undefined
 
   useEffect(() => {
@@ -32,7 +46,9 @@ export function PerfilProvider({ children }) {
 
     supabase
       .from('perfiles')
-      .select('user_id, carrera_id, carrera_desde')
+      .select(
+        'user_id, carrera_id, carrera_desde, nombre_custom, nota_aprobacion_custom, nota_promocion_custom, permite_promocion_custom, puntos_por_hora_custom',
+      )
       .eq('user_id', usuario.id)
       .maybeSingle()
       .then(({ data, error: errorConsulta }) => {
@@ -242,15 +258,95 @@ export function PerfilProvider({ children }) {
     }
   }
 
+  const filaReglasPropias = (reglas) => ({
+    nombre_custom: reglas.nombre,
+    nota_aprobacion_custom: reglas.notaAprobacion,
+    nota_promocion_custom: reglas.notaPromocion,
+    permite_promocion_custom: reglas.permitePromocion,
+    puntos_por_hora_custom: reglas.puntosPorHora,
+  })
+
+  // Mismo caso que elegirCarrera (primera vez), pero para alguien cuya
+  // carrera todavía no está en `carreras`: en vez de sacar las reglas del
+  // catálogo, las carga el usuario y quedan guardadas en su perfil. No hay
+  // plan de materias que clonar (no hay catálogo del que clonar), pero sí se
+  // clonan los premios default, igual que en elegirCarrera.
+  const elegirSinCarrera = async (reglas) => {
+    if (!usuario) return
+
+    setEligiendo(true)
+    setError('')
+
+    try {
+      const { error: errorPerfil } = await supabase
+        .from('perfiles')
+        .upsert({ user_id: usuario.id, carrera_id: null, ...filaReglasPropias(reglas) }, { onConflict: 'user_id' })
+      if (errorPerfil) throw errorPerfil
+
+      const { count: countPremios, error: errorConteoPremios } = await supabase
+        .from('premios')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', usuario.id)
+      if (errorConteoPremios) throw errorConteoPremios
+
+      if (!countPremios) {
+        await clonarPremiosDefault()
+      }
+
+      setPerfilCache({
+        usuarioId: usuario.id,
+        valor: {
+          user_id: usuario.id,
+          carrera_id: null,
+          carrera_desde: new Date().toISOString(),
+          ...filaReglasPropias(reglas),
+        },
+      })
+    } catch (errorElegir) {
+      setError(errorElegir.message)
+    } finally {
+      setEligiendo(false)
+    }
+  }
+
+  // Mismo caso que cambiarCarrera, pero hacia "sin carrera fija": se borran
+  // las materias actuales sin condición y no se clona ningún plan nuevo. La
+  // pantalla que llama a esto se sigue encargando de avisar antes si había
+  // progreso cargado, exactamente igual que al cambiar entre dos carreras.
+  const cambiarASinCarrera = async (reglas) => {
+    if (!usuario) return
+
+    setCambiandoCarrera(true)
+    setError('')
+
+    try {
+      const { error: errorBorrado } = await supabase.from('user_materias').delete().eq('user_id', usuario.id)
+      if (errorBorrado) throw errorBorrado
+
+      const { error: errorPerfil } = await supabase
+        .from('perfiles')
+        .update({ carrera_id: null, carrera_desde: new Date().toISOString(), ...filaReglasPropias(reglas) })
+        .eq('user_id', usuario.id)
+      if (errorPerfil) throw errorPerfil
+    } catch (errorCambio) {
+      setError(errorCambio.message)
+      throw errorCambio
+    } finally {
+      setCambiandoCarrera(false)
+    }
+  }
+
   const value = {
     perfil: perfil ?? null,
     cargandoPerfil,
-    carreraElegida: perfil?.carrera_id != null,
+    carreraElegida: perfil?.carrera_id != null || tieneReglasPropias,
     carreras: carreras ?? [],
     cargandoCarreras: configurado && Boolean(usuario) && !cargandoPerfil && carreras === undefined,
     reglasCarrera,
     cargandoReglasCarrera,
     elegirCarrera,
+    elegirSinCarrera,
+    cambiarASinCarrera,
     eligiendo,
     cambiarCarrera,
     cambiandoCarrera,

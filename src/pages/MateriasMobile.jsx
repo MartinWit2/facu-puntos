@@ -85,15 +85,6 @@ function MateriasMobile() {
     )
   }
 
-  if (materias.length === 0) {
-    return (
-      <section className="page-mobile">
-        <h1>Materias</h1>
-        <p className="page-placeholder">Todavía no cargaste ninguna materia.</p>
-      </section>
-    )
-  }
-
   const enriquecidas = materias.map((materia) => {
     const reglas = calcularReglasEfectivas(materia, reglasCarrera)
     return { materia, reglas, evaluacion: evaluarCursada(materia, reglas), puntos: calcularPuntosMateria(materia, reglas) }
@@ -149,109 +140,118 @@ function MateriasMobile() {
     <section className="page-mobile materias-mobile">
       <div className="materias-mobile-encabezado">
         <h1>Materias</h1>
-        <span className="materias-mobile-conteo">
-          {filtrosActivos ? `${totalCoincidentes} de ${materias.length} materias` : `${totalAprobadas} de ${materias.length} aprobadas`}
-        </span>
+        {materias.length > 0 && (
+          <span className="materias-mobile-conteo">
+            {filtrosActivos ? `${totalCoincidentes} de ${materias.length} materias` : `${totalAprobadas} de ${materias.length} aprobadas`}
+          </span>
+        )}
       </div>
 
       <button type="button" className="boton-primario-mobile materias-mobile-agregar" onClick={handleAbrirNuevaMateria}>
         + Agregar materia
       </button>
 
-      <div className="filtros-mobile">
-        {CATEGORIAS.map((categoria) => {
-          const cantidad = filtros[categoria.key].length
-          return (
-            <button
-              key={categoria.key}
-              type="button"
-              className={cantidad > 0 ? 'chip-filtro-mobile activo' : 'chip-filtro-mobile'}
-              onClick={() => setFiltroSheet(categoria.key)}
-            >
-              {categoria.etiqueta}
-              {cantidad > 0 && <span className="chip-filtro-mobile-contador">{cantidad}</span>}
-            </button>
-          )
-        })}
-        {filtrosActivos && (
-          <button type="button" className="chip-filtro-mobile-limpiar" onClick={limpiarFiltros}>
-            Limpiar
-          </button>
-        )}
-      </div>
-
-      {filtrosActivos && totalCoincidentes === 0 ? (
-        <div className="materias-mobile-vacio">
-          <p>Ninguna materia coincide con los filtros</p>
-          <button type="button" onClick={limpiarFiltros}>
-            Limpiar filtros
-          </button>
-        </div>
+      {materias.length === 0 ? (
+        <p className="page-placeholder">Todavía no cargaste ninguna materia.</p>
       ) : (
-        <div className="materias-mobile-lista">
-          {grupos.map(([anio, items]) => {
-            const itemsVisibles = filtrosActivos ? items.filter(coincide) : items
-            if (filtrosActivos && itemsVisibles.length === 0) return null
+        <>
+          <div className="filtros-mobile">
+            {CATEGORIAS.map((categoria) => {
+              const cantidad = filtros[categoria.key].length
+              return (
+                <button
+                  key={categoria.key}
+                  type="button"
+                  className={cantidad > 0 ? 'chip-filtro-mobile activo' : 'chip-filtro-mobile'}
+                  onClick={() => setFiltroSheet(categoria.key)}
+                >
+                  {categoria.etiqueta}
+                  {cantidad > 0 && <span className="chip-filtro-mobile-contador">{cantidad}</span>}
+                </button>
+              )
+            })}
+            {filtrosActivos && (
+              <button type="button" className="chip-filtro-mobile-limpiar" onClick={limpiarFiltros}>
+                Limpiar
+              </button>
+            )}
+          </div>
 
-            const aprobadasAnio = items.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
-            const porcentaje = items.length ? Math.round((aprobadasAnio / items.length) * 100) : 0
-            const forzarAbierto = anioRecienAgregado === anio
+          {filtrosActivos && totalCoincidentes === 0 ? (
+            <div className="materias-mobile-vacio">
+              <p>Ninguna materia coincide con los filtros</p>
+              <button type="button" onClick={limpiarFiltros}>
+                Limpiar filtros
+              </button>
+            </div>
+          ) : (
+            <div className="materias-mobile-lista">
+              {grupos.map(([anio, items]) => {
+                const itemsVisibles = filtrosActivos ? items.filter(coincide) : items
+                if (filtrosActivos && itemsVisibles.length === 0) return null
 
-            return (
-              <details
-                key={`${anio}-${filtrosActivos}-${forzarAbierto}`}
-                className="anio-card-mobile"
-                open={filtrosActivos || forzarAbierto}
-              >
-                <summary className="anio-card-mobile-cabecera">
-                  <div className="anio-card-mobile-info">
-                    <div className="anio-card-mobile-titulo-row">
-                      <span className="anio-card-mobile-titulo">{nombreAnio(anio)} año</span>
-                      <span className="anio-card-mobile-conteo">
-                        {aprobadasAnio}/{items.length} aprobadas
-                      </span>
-                    </div>
-                    <div className="anio-card-mobile-barra">
-                      <div className="anio-card-mobile-relleno" style={{ width: `${porcentaje}%` }} />
-                    </div>
-                  </div>
-                  <span className="anio-card-mobile-chevron" aria-hidden="true">
-                    ▾
-                  </span>
-                </summary>
+                const aprobadasAnio = items.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
+                const porcentaje = items.length ? Math.round((aprobadasAnio / items.length) * 100) : 0
+                const forzarAbierto = anioRecienAgregado === anio
 
-                <ul className="anio-card-mobile-lista">
-                  {itemsVisibles.map(({ materia, reglas, evaluacion, puntos }) => {
-                    const faltanHoras = materia.horasCatedra == null
-                    return (
-                      <li key={materia.id}>
-                        <Link to={`/materias/${materia.id}`} className="materia-fila-mobile">
-                          <div className="materia-fila-mobile-info">
-                            <span className="materia-fila-mobile-nombre">{materia.nombre}</span>
-                            <div className="materia-fila-mobile-meta-row">
-                              <MateriaBadge estado={evaluacion.estado} compacto />
-                              {faltanHoras ? (
-                                <span className="materia-fila-mobile-aviso">Faltan las horas cátedra</span>
-                              ) : (
-                                <span className="materia-fila-mobile-meta">
-                                  {materia.horasCatedra} hs · pool {calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {puntos > 0 && <span className="materia-fila-mobile-puntos">+{puntos}</span>}
-                          <span className="materia-fila-mobile-chevron" aria-hidden="true">
-                            ›
+                return (
+                  <details
+                    key={`${anio}-${filtrosActivos}-${forzarAbierto}`}
+                    className="anio-card-mobile"
+                    open={filtrosActivos || forzarAbierto}
+                  >
+                    <summary className="anio-card-mobile-cabecera">
+                      <div className="anio-card-mobile-info">
+                        <div className="anio-card-mobile-titulo-row">
+                          <span className="anio-card-mobile-titulo">{nombreAnio(anio)} año</span>
+                          <span className="anio-card-mobile-conteo">
+                            {aprobadasAnio}/{items.length} aprobadas
                           </span>
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </details>
-            )
-          })}
-        </div>
+                        </div>
+                        <div className="anio-card-mobile-barra">
+                          <div className="anio-card-mobile-relleno" style={{ width: `${porcentaje}%` }} />
+                        </div>
+                      </div>
+                      <span className="anio-card-mobile-chevron" aria-hidden="true">
+                        ▾
+                      </span>
+                    </summary>
+
+                    <ul className="anio-card-mobile-lista">
+                      {itemsVisibles.map(({ materia, reglas, evaluacion, puntos }) => {
+                        const faltanHoras = materia.horasCatedra == null
+                        return (
+                          <li key={materia.id}>
+                            <Link to={`/materias/${materia.id}`} className="materia-fila-mobile">
+                              <div className="materia-fila-mobile-info">
+                                <span className="materia-fila-mobile-nombre">{materia.nombre}</span>
+                                <div className="materia-fila-mobile-meta-row">
+                                  <MateriaBadge estado={evaluacion.estado} compacto />
+                                  {faltanHoras ? (
+                                    <span className="materia-fila-mobile-aviso">Faltan las horas cátedra</span>
+                                  ) : (
+                                    <span className="materia-fila-mobile-meta">
+                                      {materia.horasCatedra} hs · pool{' '}
+                                      {calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {puntos > 0 && <span className="materia-fila-mobile-puntos">+{puntos}</span>}
+                              <span className="materia-fila-mobile-chevron" aria-hidden="true">
+                                ›
+                              </span>
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </details>
+                )
+              })}
+            </div>
+          )}
+        </>
       )}
 
       <BottomSheet

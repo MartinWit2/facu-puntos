@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { nombreAnio } from '../utils/anio'
 import { calcularPoolPuntos } from '../utils/puntos'
 import './HojaNuevaMateria.css'
@@ -7,6 +8,37 @@ const RANGOS = {
   cantidadParciales: { min: 1, max: 4, step: 1 },
   cantidadRecuperatorios: { min: 0, max: 4, step: 1 },
   cantidadInstanciasFinal: { min: 0, max: 6, step: 1 },
+}
+
+// Borrador local para el input de "otro año": antes estaba atado directo a
+// form.anioCursada con un fallback `|| 1`, así que borrar el "1" para
+// escribir otro número lo volvía a poner en 1 al instante y nunca dejaba
+// quedar el campo vacío mientras se tipea. Acá el input vive de su propio
+// texto (puede quedar vacío o a medio escribir) y solo confirma hacia
+// arriba cuando el texto ya es un año válido; si se deja inválido o vacío
+// al salir del campo, vuelve a mostrar el último valor válido.
+function CampoAnioOtro({ valor, onCambiar }) {
+  const [texto, setTexto] = useState(String(valor))
+  const [valorSincronizado, setValorSincronizado] = useState(valor)
+  if (valor !== valorSincronizado) {
+    setValorSincronizado(valor)
+    setTexto(String(valor))
+  }
+
+  const handleChange = (e) => {
+    const nuevoTexto = e.target.value
+    setTexto(nuevoTexto)
+    const parsed = Number(nuevoTexto)
+    if (nuevoTexto !== '' && Number.isInteger(parsed) && parsed >= 1) {
+      onCambiar(parsed)
+    }
+  }
+
+  const handleBlur = () => {
+    setTexto(String(valor))
+  }
+
+  return <input type="number" min="1" value={texto} onChange={handleChange} onBlur={handleBlur} />
 }
 
 function Stepper({ campo, valor, onCambiar }) {
@@ -62,12 +94,7 @@ function HojaNuevaMateria({ form, aniosDisponibles, puntosPorHora, onCambiar }) 
         </div>
         <label className="hoja-materia-anio-otro">
           <span>¿Otro año?</span>
-          <input
-            type="number"
-            min="1"
-            value={form.anioCursada}
-            onChange={(e) => onCambiar('anioCursada', Math.max(1, Number(e.target.value) || 1))}
-          />
+          <CampoAnioOtro valor={form.anioCursada} onCambiar={(valor) => onCambiar('anioCursada', valor)} />
         </label>
       </div>
 

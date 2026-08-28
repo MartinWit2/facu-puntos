@@ -5,6 +5,9 @@ import { calcularReglasEfectivas } from './reglasMateria'
 
 // Puntos que aporta una materia AHORA MISMO, calculados de forma derivada a
 // partir de su estado actual (no de un historial de transacciones):
+// - Si tiene poolOverride en 0 ("no sumar puntos de esta materia", para una
+//   que ya se tenía aprobada antes de usar la app), no aporta nada, sin
+//   importar las notas cargadas: existe y muestra su estado, pero no cuenta.
 // - Cada parcial aprobado suma su parte proporcional del pool.
 // - Promocionar suma +50% del pool; aprobar por final suma +25%.
 // - Si la materia está en "recursa", no aporta nada (0), sin importar lo que
@@ -13,6 +16,8 @@ import { calcularReglasEfectivas } from './reglasMateria'
 //   separada, se recalcula solo.
 // `reglas` son las reglas EFECTIVAS de esta materia (carrera + overrides).
 export function calcularPuntosMateria(materia, reglas) {
+  if (materia.poolOverride === 0) return 0
+
   const evaluacion = evaluarCursada(materia, reglas)
   if (evaluacion.estado === 'recursa') return 0
 

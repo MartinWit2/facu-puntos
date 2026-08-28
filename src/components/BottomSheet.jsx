@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import './BottomSheet.css'
 
 // Patrón compartido del handoff mobile: overlay + panel pegado abajo que
@@ -5,6 +6,22 @@ import './BottomSheet.css'
 // con el cuerpo) — lo usa la hoja de editar materia para su botón "Listo".
 // `altoMax` (en vh) permite hojas más altas que el default, como esa misma.
 function BottomSheet({ abierto, onCerrar, titulo, footer, altoMax = 80, children }) {
+  // En iOS, arrastrar el dedo dentro de la hoja (sobre todo si el contenido
+  // es corto y no tiene nada propio para scrollear) puede terminar
+  // scrolleando la pantalla de atrás en vez de la hoja. Mientras la hoja
+  // está abierta, se bloquea el scroll del contenedor de atrás y se
+  // restaura al cerrarla.
+  useEffect(() => {
+    if (!abierto) return
+    const contenedor = document.querySelector('.app-content-mobile')
+    if (!contenedor) return
+    const overflowPrevio = contenedor.style.overflow
+    contenedor.style.overflow = 'hidden'
+    return () => {
+      contenedor.style.overflow = overflowPrevio
+    }
+  }, [abierto])
+
   if (!abierto) return null
 
   return (

@@ -50,7 +50,11 @@ function Progreso() {
     })
     // Las materias Pendientes (sin empezar) no aportan puntos todavía, así que
     // no tiene sentido listarlas acá: alargarían la pantalla sin mostrar nada útil.
-    .filter(({ evaluacion, consumidaCompleta }) => evaluacion.estado !== 'pendiente' && !consumidaCompleta)
+    // Tampoco las marcadas "no sumar puntos": no aportan nada (ver calcularPuntosMateria).
+    .filter(
+      ({ materia, evaluacion, consumidaCompleta }) =>
+        materia.poolOverride !== 0 && evaluacion.estado !== 'pendiente' && !consumidaCompleta,
+    )
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
   const total = calcularPuntosTotales(materias, reglasCarrera)

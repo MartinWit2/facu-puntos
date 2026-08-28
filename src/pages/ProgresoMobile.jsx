@@ -49,7 +49,12 @@ function ProgresoMobile() {
         consumidaCompleta: evaluacion.estado !== 'recursa' && usado > 0 && disponible === 0,
       }
     })
-    .filter(({ evaluacion, consumidaCompleta }) => evaluacion.estado !== 'pendiente' && !consumidaCompleta)
+    // Las materias marcadas "no sumar puntos" no aportan nada (ver
+    // calcularPuntosMateria), así que tampoco tiene sentido listarlas acá.
+    .filter(
+      ({ materia, evaluacion, consumidaCompleta }) =>
+        materia.poolOverride !== 0 && evaluacion.estado !== 'pendiente' && !consumidaCompleta,
+    )
     .sort((a, b) => a.materia.nombre.localeCompare(b.materia.nombre))
 
   const ganados = calcularPuntosTotales(materias, reglasCarrera)

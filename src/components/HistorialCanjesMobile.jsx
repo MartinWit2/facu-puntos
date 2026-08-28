@@ -11,24 +11,40 @@ function formatearFecha(fechaIso) {
 // en `canje.detalleOrigen` como una "foto" al momento del canje — no hace
 // falta manejar el caso de una materia borrada, el nombre que se guardó ahí
 // es el que se muestra siempre.
-function HistorialCanjesMobile({ canjes }) {
+function HistorialCanjesMobile({ canjes, onBorrarHistorial }) {
   const [abierto, setAbierto] = useState(false)
   const [canjeAbiertoId, setCanjeAbiertoId] = useState(null)
+  const [confirmandoBorrado, setConfirmandoBorrado] = useState(false)
 
-  if (canjes.length === 0) {
+  // "Borrar historial" no elimina los canjes (eso le devolvería puntos
+  // gastados al saldo, ver useCanjes.js): solo los marca `oculto`. La suma
+  // de puntos y el saldo se siguen calculando sobre todos los canjes,
+  // ocultos o no — acá solo se filtran para no mostrarlos.
+  const visibles = canjes.filter((canje) => !canje.oculto)
+
+  if (visibles.length === 0) {
     return <p className="page-placeholder">Todavía no canjeaste ningún premio.</p>
   }
 
-  const canjesOrdenados = canjes.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+  const canjesOrdenados = visibles.slice().sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
   const totalPuntos = canjesOrdenados.reduce((acc, canje) => acc + canje.costoPuntos, 0)
   const resumen = `${canjesOrdenados.length} canje${canjesOrdenados.length === 1 ? '' : 's'} · ${totalPuntos} pts`
 
   const toggleAbierto = () => {
     setAbierto((prev) => {
       const next = !prev
-      if (!next) setCanjeAbiertoId(null)
+      if (!next) {
+        setCanjeAbiertoId(null)
+        setConfirmandoBorrado(false)
+      }
       return next
     })
+  }
+
+  const handleBorrarHistorial = () => {
+    onBorrarHistorial()
+    setConfirmandoBorrado(false)
+    setCanjeAbiertoId(null)
   }
 
   return (
@@ -79,6 +95,24 @@ function HistorialCanjesMobile({ canjes }) {
               </div>
             )
           })}
+
+          {confirmandoBorrado ? (
+            <div className="historial-mobile-confirmar-borrado">
+              <p>¿Borrar todo el historial? Los puntos ya gastados no se devuelven. Esto no se puede deshacer.</p>
+              <div className="historial-mobile-confirmar-borrado-acciones">
+                <button type="button" className="historial-mobile-borrar-si" onClick={handleBorrarHistorial}>
+                  Sí, borrar
+                </button>
+                <button type="button" onClick={() => setConfirmandoBorrado(false)}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" className="historial-mobile-borrar" onClick={() => setConfirmandoBorrado(true)}>
+              Borrar historial
+            </button>
+          )}
         </div>
       )}
     </div>

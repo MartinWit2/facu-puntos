@@ -147,3 +147,61 @@
   font-size: 0.84375rem;
   color: var(--accent-dark);
 }
+
+.historial-mobile-borrar {
+  margin-top: 0.25rem;
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.historial-mobile-confirmar-borrado {
+  margin-top: 0.25rem;
+  padding: 0.875rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 75, 75, 0.35);
+  background: rgba(255, 75, 75, 0.08);
+}
+
+.historial-mobile-confirmar-borrado p {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: #c22a2f;
+  line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+  .historial-mobile-confirmar-borrado p {
+    color: #f87171;
+  }
+}
+
+.historial-mobile-confirmar-borrado-acciones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.historial-mobile-confirmar-borrado-acciones button {
+  flex: 1;
+  min-height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.historial-mobile-confirmar-borrado-acciones .historial-mobile-borrar-si {
+  border-color: #c22a2f;
+  background: #c22a2f;
+  color: #fff;
+}

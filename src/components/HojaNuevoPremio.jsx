@@ -5,6 +5,44 @@ const COSTO_MIN = 10
 const COSTO_MAX = 2000
 const COSTO_STEP = 10
 
+// Borrador local del valor de costo, igual que CampoAnioOtro en
+// HojaNuevaMateria.jsx: antes el número solo se podía mover con los botones
+// −/+ de a 10; el valor en sí no era un input editable. Acá vive de su
+// propio texto (puede quedar vacío o a medio escribir) y solo confirma
+// hacia arriba cuando el texto ya es un costo válido dentro del rango; si
+// se deja inválido o vacío al salir del campo, vuelve al último valor válido.
+function CampoCostoValor({ valor, onCambiar }) {
+  const [texto, setTexto] = useState(String(valor))
+  const [valorSincronizado, setValorSincronizado] = useState(valor)
+  if (valor !== valorSincronizado) {
+    setValorSincronizado(valor)
+    setTexto(String(valor))
+  }
+
+  const handleChange = (e) => {
+    const nuevoTexto = e.target.value
+    setTexto(nuevoTexto)
+    const parsed = Number(nuevoTexto)
+    if (nuevoTexto !== '' && Number.isFinite(parsed) && parsed >= COSTO_MIN && parsed <= COSTO_MAX) {
+      onCambiar(parsed)
+    }
+  }
+
+  const handleBlur = () => setTexto(String(valor))
+
+  return (
+    <input
+      type="number"
+      min={COSTO_MIN}
+      max={COSTO_MAX}
+      className="hoja-premio-stepper-valor hoja-premio-stepper-input"
+      value={texto}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+  )
+}
+
 // Cuerpo de la hoja de nuevo/editar premio (sección "2d" del handoff),
 // controlado desde PremiosMobile.jsx igual que HojaEditarMateria: sin
 // estado propio salvo el acordeón, todo lo demás vive en el borrador de
@@ -103,7 +141,7 @@ function HojaNuevoPremio({ form, categoriasExistentes, rangoPool, onCambiar }) {
             >
               −
             </button>
-            <span className="hoja-premio-stepper-valor">{form.costoPuntos}</span>
+            <CampoCostoValor valor={form.costoPuntos} onCambiar={(valor) => onCambiar('costoPuntos', valor)} />
             <button
               type="button"
               onClick={() => cambiarCosto(form.costoPuntos + COSTO_STEP)}

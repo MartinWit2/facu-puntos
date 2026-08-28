@@ -15,7 +15,7 @@ function HeaderMobile({ usuario, carrera, puntos, cerrarSesion }) {
         <span className="header-mobile-app">Unipoints</span>
         {carrera && (
           <span className="header-mobile-carrera">
-            {carrera.universidad} · {carrera.nombre}
+            {carrera.universidad ? `${carrera.universidad} · ${carrera.nombre}` : carrera.nombre}
           </span>
         )}
       </div>

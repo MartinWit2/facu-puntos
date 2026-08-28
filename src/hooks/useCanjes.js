@@ -10,6 +10,7 @@ function filaACanje(fila) {
     costoPuntos: fila.costo_puntos,
     fecha: fila.fecha,
     detalleOrigen: fila.detalle_origen,
+    oculto: fila.oculto ?? false,
   }
 }
 
@@ -86,5 +87,26 @@ export function useCanjes() {
     [usuario],
   )
 
-  return { canjes, cargando, agregarCanje }
+  // "Borra" el historial completo del usuario (de todas las carreras, el
+  // mismo conjunto que se ve en pantalla) sin devolver los puntos ya
+  // gastados: en vez de eliminar las filas, las marca `oculto`. El saldo se
+  // sigue calculando sobre TODOS los canjes (ocultos o no) — ver
+  // calcularSaldoDisponible en utils/canjes.js, que no filtra por esto — así
+  // que el gasto sigue contando igual. Las pantallas de historial son las
+  // que filtran los ocultos para no mostrarlos.
+  const ocultarHistorialCanjes = useCallback(async () => {
+    if (!usuario) return
+
+    const { error } = await supabase.from('canjes').update({ oculto: true }).eq('user_id', usuario.id)
+    if (error) {
+      console.error(error)
+      return
+    }
+    actualizarCache((prev) => ({
+      usuarioId: usuario.id,
+      valor: prev.valor.map((canje) => ({ ...canje, oculto: true })),
+    }))
+  }, [usuario])
+
+  return { canjes, cargando, agregarCanje, ocultarHistorialCanjes }
 }

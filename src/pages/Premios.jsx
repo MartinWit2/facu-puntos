@@ -16,7 +16,7 @@ import './Premios.css'
 function Premios() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { premios, cargando: cargandoPremios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
-  const { canjes, cargando: cargandoCanjes, agregarCanje } = useCanjes()
+  const { canjes, cargando: cargandoCanjes, agregarCanje, ocultarHistorialCanjes } = useCanjes()
   const { perfil, reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
@@ -136,7 +136,7 @@ function Premios() {
 
       <section className="premio-seccion">
         <h2>Historial de canjes</h2>
-        <HistorialCanjes canjes={canjes} />
+        <HistorialCanjes canjes={canjes} onBorrarHistorial={ocultarHistorialCanjes} />
       </section>
     </section>
   )
