@@ -45,6 +45,7 @@
 
       <div style="height:100%;display:flex;flex-direction:column;background:#f6f7fb;position:relative;overflow:hidden">
 
+        <sc-if value="{{ chrome }}" hint-placeholder-val="{{ true }}">
         <div style="flex:none;padding:56px 18px 12px;background:#ffffff;border-bottom:1px solid #e5e4e7;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:6">
           <div style="display:flex;flex-direction:column">
             <span style="font-family:'Baloo 2',system-ui;font-weight:800;font-size:19px;color:#9a329d;line-height:1.1">Unipoints</span>
@@ -58,8 +59,129 @@
             <div onClick="{{ usuario.toggle }}" style="width:40px;height:40px;flex:none;border-radius:999px;display:flex;align-items:center;justify-content:center;background:{{ usuario.avatarBg }};color:#fff;font-family:'Baloo 2',system-ui;font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 3px 0 #9a329d">{{ usuario.inicial }}</div>
           </div>
         </div>
+        </sc-if>
 
         <div style="flex:1;overflow:auto;-webkit-overflow-scrolling:touch">
+
+          <sc-if value="{{ esAuth }}" hint-placeholder-val="{{ false }}">
+            <div style="min-height:100%;box-sizing:border-box;padding:76px 26px 40px;display:flex;flex-direction:column;background:#fff">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+                <span style="width:76px;height:76px;border-radius:999px;background:#ffc800;box-shadow:inset 0 -6px 0 rgba(224,172,0,.9)"></span>
+                <span style="font-family:'Baloo 2',system-ui;font-weight:800;font-size:34px;color:#9a329d;line-height:1">Unipoints</span>
+                <span style="font-size:14px;color:#6b6375;text-align:center;line-height:1.5;max-width:250px">{{ auth.bajada }}</span>
+              </div>
+
+              <div style="display:flex;gap:4px;padding:4px;margin-top:34px;border-radius:14px;background:#f2f0f5">
+                <sc-for list="{{ auth.modos }}" as="m" hint-placeholder-count="2">
+                  <div onClick="{{ m.tap }}" style="flex:1;min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:11px;background:{{ m.bg }};color:{{ m.color }};box-shadow:{{ m.sombra }};font-family:'Baloo 2',system-ui;font-weight:700;font-size:14.5px;cursor:pointer">{{ m.label }}</div>
+                </sc-for>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <span style="font-size:13px;font-weight:600;color:#2b2438">Email</span>
+                  <input type="email" value="{{ auth.email }}" onChange="{{ auth.setEmail }}" placeholder="tunombre@mail.com" style="width:100%;box-sizing:border-box;min-height:50px;padding:0 15px;border-radius:14px;border:1.5px solid #e5e4e7;background:#fff;font-family:inherit;font-size:15px;color:#2b2438;outline:none" style-focus="border-color:#c640c9" />
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <span style="font-size:13px;font-weight:600;color:#2b2438">Contraseña</span>
+                  <div style="display:flex;align-items:center;gap:8px;border:1.5px solid #e5e4e7;border-radius:14px;background:#fff;padding-right:6px" style-focus-within="border-color:#c640c9">
+                    <input type="{{ auth.tipoPass }}" value="{{ auth.pass }}" onChange="{{ auth.setPass }}" placeholder="{{ auth.passPlaceholder }}" style="flex:1;min-width:0;min-height:50px;padding:0 15px;border:none;background:transparent;font-family:inherit;font-size:15px;color:#2b2438;outline:none" />
+                    <div onClick="{{ auth.toggleVer }}" style="min-height:38px;padding:0 12px;display:flex;align-items:center;border-radius:10px;font-size:12.5px;font-weight:600;color:#9a329d;cursor:pointer">{{ auth.verLabel }}</div>
+                  </div>
+                  <sc-if value="{{ auth.esSignup }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:11.5px;color:#6b6375">Mínimo 6 caracteres.</span>
+                  </sc-if>
+                </div>
+
+                <sc-if value="{{ auth.esLogin }}" hint-placeholder-val="{{ true }}">
+                  <span onClick="{{ auth.olvide }}" style="align-self:flex-end;font-size:12.5px;font-weight:600;color:#9a329d;cursor:pointer">Olvidé mi contraseña</span>
+                </sc-if>
+
+                <sc-if value="{{ auth.hayAviso }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:9px;padding:12px 14px;border-radius:14px;background:{{ auth.avisoBg }};border:1px solid {{ auth.avisoBorde }}">
+                    <span style="font-size:12.5px;line-height:1.45;color:{{ auth.avisoColor }}">{{ auth.aviso }}</span>
+                  </div>
+                </sc-if>
+
+                <div onClick="{{ auth.submit }}" style="min-height:52px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:{{ auth.btnBg }};color:{{ auth.btnColor }};box-shadow:{{ auth.btnSombra }};font-family:'Baloo 2',system-ui;font-weight:700;font-size:16.5px;cursor:pointer">{{ auth.btnLabel }}</div>
+              </div>
+
+              <div onClick="{{ auth.cambiarModo }}" style="margin-top:26px;text-align:center;font-size:13.5px;color:#6b6375;cursor:pointer">{{ auth.pie }}</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ esCarrera }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:16px 16px 28px;display:flex;flex-direction:column;gap:16px">
+              <div onClick="{{ carreraVista.volver }}" style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:#6b6375;cursor:pointer;min-height:44px">‹ {{ carreraVista.volverLabel }}</div>
+
+              <sc-if value="{{ carreraVista.confirmando }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:18px">
+                  <div style="display:flex;flex-direction:column;gap:9px">
+                    <h1 style="font-family:'Baloo 2',system-ui;font-weight:800;font-size:25px;color:#2b2438;margin:0;line-height:1.2">¿Cambiar a {{ carreraVista.elegidaNombre }}?</h1>
+                    <span style="font-size:12.5px;color:#6b6375">{{ carreraVista.elegidaUni }}</span>
+                  </div>
+
+                  <div style="border:1.5px solid {{ carreraVista.avisoBorde }};background:{{ carreraVista.avisoBg }};border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:8px">
+                    <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:15px;color:{{ carreraVista.avisoTitColor }}">{{ carreraVista.avisoTitulo }}</span>
+                    <span style="font-size:13px;line-height:1.5;color:#3f3b46">{{ carreraVista.avisoTexto }}</span>
+                  </div>
+
+                  <sc-if value="{{ carreraVista.hayProgreso }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:9px">
+                      <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">Lo que se borra</div>
+                      <sc-for list="{{ carreraVista.perdidas }}" as="p" hint-placeholder-count="3">
+                        <div style="display:flex;align-items:center;gap:12px;padding:12px 15px;background:#fff;border:1px solid #e5e4e7;border-radius:16px">
+                          <span style="flex:1;font-size:13.5px;color:#3f3b46">{{ p.label }}</span>
+                          <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:15px;color:#2b2438">{{ p.valor }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+
+                  <div style="display:flex;flex-direction:column;gap:9px">
+                    <div onClick="{{ carreraVista.confirmar }}" style="min-height:52px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:{{ carreraVista.okBg }};color:#fff;box-shadow:{{ carreraVista.okSombra }};font-family:'Baloo 2',system-ui;font-weight:700;font-size:16px;cursor:pointer">Sí, cambiar de carrera</div>
+                    <div onClick="{{ carreraVista.cancelar }}" style="min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:1.5px solid #e5e4e7;font-size:14px;font-weight:600;color:#6b6375;cursor:pointer">Cancelar</div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ carreraVista.eligiendo }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <h1 style="font-family:'Baloo 2',system-ui;font-weight:800;font-size:27px;color:#2b2438;margin:0">{{ carreraVista.titulo }}</h1>
+
+                  <sc-if value="{{ carreraVista.hayActual }}" hint-placeholder-val="{{ true }}">
+                    <div style="border:1.5px solid #e5e4e7;background:#fff;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:3px">
+                      <span style="font-size:11px;color:#6b6375">Tu carrera actual</span>
+                      <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:16px;color:#2b2438;line-height:1.25">{{ carreraVista.actualNombre }}</span>
+                      <span style="font-size:12px;color:#6b6375">{{ carreraVista.actualMeta }}</span>
+                    </div>
+                  </sc-if>
+
+                  <input type="search" value="{{ carreraVista.busqueda }}" onChange="{{ carreraVista.setBusqueda }}" placeholder="Buscar universidad o carrera" style="width:100%;box-sizing:border-box;min-height:48px;padding:0 15px;border-radius:14px;border:1.5px solid #e5e4e7;background:#fff;font-family:inherit;font-size:14.5px;color:#2b2438;outline:none" style-focus="border-color:#c640c9" />
+
+                  <sc-for list="{{ carreraVista.grupos }}" as="g" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:9px">
+                      <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">{{ g.universidad }}</div>
+                      <sc-for list="{{ g.carreras }}" as="c" hint-placeholder-count="2">
+                        <div onClick="{{ c.tap }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid #e5e4e7;border-radius:18px;box-shadow:0 3px 12px rgba(43,36,56,.08);cursor:pointer;min-height:44px;box-sizing:border-box">
+                          <div style="flex:1;display:flex;flex-direction:column;gap:3px;min-width:0">
+                            <span style="font-size:14.5px;font-weight:600;color:#2b2438;line-height:1.25">{{ c.nombre }}</span>
+                            <span style="font-size:11.5px;color:#6b6375">{{ c.meta }}</span>
+                          </div>
+                          <span style="font-size:12px;color:#c3bfc9">›</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+
+                  <sc-if value="{{ carreraVista.sinResultados }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:26px 20px;background:#fff;border:1px solid #e5e4e7;border-radius:18px;text-align:center;font-size:13.5px;color:#6b6375">{{ carreraVista.vacioTexto }}</div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
 
           <sc-if value="{{ esMaterias }}" hint-placeholder-val="{{ true }}">
             <div style="padding:18px 16px 28px;display:flex;flex-direction:column;gap:18px">
@@ -283,25 +405,46 @@
               </sc-for>
 
               <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid #e5e4e7;padding-top:16px">
-                <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:16px;color:#2b2438">Historial</span>
-                <sc-for list="{{ historial }}" as="h" hint-placeholder-count="2">
-                  <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:#fff;border:1px solid #e5e4e7;border-radius:16px">
-                    <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
-                      <span style="font-weight:600;font-size:13.5px;color:#2b2438">{{ h.nombre }}</span>
-                      <span style="font-size:11px;color:#6b6375">{{ h.origen }}</span>
-                    </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end">
-                      <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:14px;color:#c22a2f">{{ h.costo }}</span>
-                      <span style="font-size:10.5px;color:#6b6375">{{ h.fecha }}</span>
-                    </div>
+                <div onClick="{{ histToggle }}" style="display:flex;align-items:center;gap:10px;min-height:48px;cursor:pointer">
+                  <span style="flex:1;font-family:'Baloo 2',system-ui;font-weight:700;font-size:16px;color:#2b2438">Historial</span>
+                  <span style="font-size:11.5px;color:#6b6375">{{ histResumen }}</span>
+                  <span style="font-size:13px;color:#6b6375;transform:rotate({{ histRot }});transition:transform .2s ease">▾</span>
+                </div>
+
+                <sc-if value="{{ histAbierto }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{ historial }}" as="h" hint-placeholder-count="2">
+                      <div style="background:#fff;border:1px solid #e5e4e7;border-radius:16px;overflow:hidden">
+                        <div onClick="{{ h.toggle }}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;min-height:44px;box-sizing:border-box">
+                          <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                            <span style="font-weight:600;font-size:13.5px;color:#2b2438">{{ h.nombre }}</span>
+                            <span style="font-size:11px;color:#6b6375">{{ h.fecha }}</span>
+                          </div>
+                          <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:14px;color:#c22a2f">{{ h.costo }}</span>
+                          <span style="font-size:12px;color:#6b6375;transform:rotate({{ h.rot }});transition:transform .2s ease">▾</span>
+                        </div>
+                        <sc-if value="{{ h.abierto }}" hint-placeholder-val="{{ false }}">
+                          <div style="border-top:1px solid #f2f0f5;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+                            <span style="font:600 10.5px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">De dónde salieron</span>
+                            <sc-for list="{{ h.detalle }}" as="d" hint-placeholder-count="2">
+                              <div style="display:flex;align-items:center;gap:10px">
+                                <span style="flex:1;font-size:13px;color:#3f3b46;min-width:0">{{ d.nombre }}</span>
+                                <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:13.5px;color:#9a329d;white-space:nowrap">{{ d.pts }}</span>
+                              </div>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
                   </div>
-                </sc-for>
+                </sc-if>
               </div>
             </div>
           </sc-if>
 
         </div>
 
+        <sc-if value="{{ chrome }}" hint-placeholder-val="{{ true }}">
         <div style="flex:none;display:flex;gap:6px;padding:8px 10px 30px;background:#fff;border-top:1px solid #e5e4e7;z-index:6">
           <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
             <div onClick="{{ t.tap }}" style="flex:1;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:14px;background:{{ t.bg }};cursor:pointer">
@@ -310,6 +453,7 @@
             </div>
           </sc-for>
         </div>
+        </sc-if>
 
         <sc-if value="{{ hayMenu }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;inset:0;z-index:34">
@@ -322,10 +466,10 @@
                   <span style="font-size:11.5px;color:#6b6375;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ usuario.email }}</span>
                 </div>
               </div>
-              <div onClick="{{ usuario.cerrar }}" style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-size:14px;color:#3f3b46;cursor:pointer;border-bottom:1px solid #f2f0f5">
+              <div onClick="{{ usuario.irCarrera }}" style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-size:14px;color:#3f3b46;cursor:pointer;border-bottom:1px solid #f2f0f5">
                 <span style="width:14px;height:14px;border-radius:4px;border:2px solid #c640c9;flex:none"></span>Cambiar de carrera
               </div>
-              <div onClick="{{ usuario.cerrar }}" style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-size:14px;color:#c22a2f;cursor:pointer">
+              <div onClick="{{ usuario.salir }}" style="display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;font-size:14px;color:#c22a2f;cursor:pointer">
                 <span style="width:14px;height:14px;border-radius:999px;border:2px solid #c22a2f;flex:none"></span>Cerrar sesión
               </div>
             </div>
@@ -646,7 +790,10 @@ class Component extends DCLogic {
   ];
   state = {
     screen: 'materias', detalleId: null, picker: null, editar: null,
-    premiosList: null, nuevaMat: null, nuevoPre: null, canje: null, origen: [], celebra: null,
+    premiosList: null, nuevaMat: null, nuevoPre: null,
+    histAbierto: false, histItem: null,
+    authModo: 'login', authEmail: '', authPass: '', authVer: false, authAviso: null,
+    carreraBusqueda: '', carreraElegida: null, carreraActualId: 'utn-sis', canje: null, origen: [], celebra: null,
     abiertos: { 1: false, 2: true },
     filtros: { anios: [], horas: [], estados: [] }, filtroSheet: null, menu: false,
     materias: null,
@@ -658,6 +805,36 @@ class Component extends DCLogic {
 
   ms() { return this.state.materias || this.seed; }
   ps() { return this.state.premiosList || this.premios; }
+
+  planDe(id) {
+    if (id === 'utn-sis') return this.seed;
+    const c = this.carreras.find((x) => x.id === id);
+    if (!c) return this.seed;
+    const base = {
+      'utn-ind': ['Análisis Matemático I', 'Química General', 'Sistemas de Representación', 'Física I', 'Álgebra y Geometría Analítica', 'Estabilidad', 'Termodinámica', 'Economía General', 'Investigación Operativa', 'Higiene y Seguridad'],
+      'utn-mec': ['Análisis Matemático I', 'Química General', 'Sistemas de Representación', 'Física I', 'Álgebra y Geometría Analítica', 'Estática y Resistencia', 'Termodinámica', 'Mecanismos', 'Elementos de Máquinas', 'Mecánica de los Fluidos'],
+      'uba-inf': ['Álgebra I', 'Análisis I', 'Algoritmos y Estructuras de Datos I', 'Algoritmos y Estructuras de Datos II', 'Organización del Computador', 'Lógica y Computabilidad', 'Sistemas Operativos', 'Bases de Datos', 'Teoría de Lenguajes', 'Redes'],
+      'uba-mat': ['Álgebra I', 'Análisis I', 'Análisis II', 'Álgebra II', 'Análisis III', 'Álgebra Lineal', 'Probabilidades y Estadística', 'Topología', 'Análisis Complejo', 'Álgebra III'],
+      'unlp-inf': ['Conceptos de Algoritmos y Datos', 'Organización de Computadoras', 'Matemática 1', 'Taller de Programación', 'Análisis Matemático 2', 'Bases de Datos', 'Ingeniería de Software I', 'Redes y Comunicaciones', 'Sistemas Operativos', 'Inteligencia Artificial'],
+      'unlp-sis': ['Conceptos de Algoritmos y Datos', 'Organización de Computadoras', 'Matemática 1', 'Taller de Programación', 'Bases de Datos', 'Ingeniería de Software I', 'Redes y Comunicaciones', 'Sistemas Operativos'],
+    }[id] || [];
+    const horas = [160, 96, 128, 160, 96, 128, 96, 64, 128, 96];
+    return base.map((nombre, i) => ({
+      id: id + '-' + i, nombre, anio: Math.floor(i / 2) + 1, horas: horas[i % horas.length],
+      parciales: [[null, null, null], [null, null, null]], final: [null, null, null, null],
+      empezada: false, tick: null, notaFinal: null,
+    }));
+  }
+
+  carreras = [
+    { id: 'utn-sis', nombre: 'Ingeniería en Sistemas de Información', uni: 'UTN — Facultad Regional Buenos Aires', materias: 22 },
+    { id: 'utn-ind', nombre: 'Ingeniería Industrial', uni: 'UTN — Facultad Regional Buenos Aires', materias: 41 },
+    { id: 'utn-mec', nombre: 'Ingeniería Mecánica', uni: 'UTN — Facultad Regional Buenos Aires', materias: 43 },
+    { id: 'uba-inf', nombre: 'Licenciatura en Ciencias de la Computación', uni: 'UBA — Exactas', materias: 34 },
+    { id: 'uba-mat', nombre: 'Licenciatura en Matemática', uni: 'UBA — Exactas', materias: 30 },
+    { id: 'unlp-inf', nombre: 'Licenciatura en Informática', uni: 'UNLP — Informática', materias: 32 },
+    { id: 'unlp-sis', nombre: 'Analista Programador Universitario', uni: 'UNLP — Informática', materias: 20 },
+  ];
 
   nuevaMateria(datos) {
     const nueva = {
@@ -835,7 +1012,11 @@ class Component extends DCLogic {
     const activo = st.screen === 'detalle' ? 'materias' : st.screen;
 
     const vals = {
-      carrera: 'UTN · Ing. en Sistemas',
+      carrera: (() => {
+        const c = this.carreras.find((x) => x.id === st.carreraActualId);
+        if (!c) return 'Sin carrera elegida';
+        return c.uni.split(' — ')[0] + ' · ' + c.nombre;
+      })(),
       saldo, ganados: this.ganados(), canjeados: this.canjeados(),
       resumenSaldo: this.canjeados() + ' pts ya canjeados',
       esMaterias: st.screen === 'materias', esDetalle: st.screen === 'detalle',
@@ -941,6 +1122,8 @@ class Component extends DCLogic {
       toggle: () => this.setState((s) => ({ menu: !s.menu })),
       cerrar: () => this.setState({ menu: false }),
       avatarBg: st.menu ? '#9a329d' : '#c640c9',
+      irCarrera: () => this.setState({ menu: false, screen: 'carrera', carreraElegida: null, carreraBusqueda: '' }),
+      salir: () => this.setState({ menu: false, screen: 'auth', authModo: 'login', authPass: '', authAviso: null }),
     };
     vals.hayMenu = st.menu;
 
@@ -1006,6 +1189,113 @@ class Component extends DCLogic {
           };
         }),
         borrar: () => { this.setNota(pk.id, pk.kind, pk.p, pk.i, null); this.setState({ picker: null }); },
+      };
+    }
+
+    vals.esAuth = st.screen === 'auth';
+    vals.esCarrera = st.screen === 'carrera';
+    vals.chrome = !vals.esAuth && !(vals.esCarrera && !st.carreraActualId);
+
+    {
+      const esLogin = st.authModo === 'login';
+      const emailOk = /.+@.+\..+/.test(st.authEmail.trim());
+      const passOk = st.authPass.length >= (esLogin ? 1 : 6);
+      const valido = emailOk && passOk;
+      const av = st.authAviso;
+      vals.auth = {
+        esLogin, esSignup: !esLogin,
+        bajada: esLogin ? 'Cargá tus notas, ganá puntos y canjealos por lo que quieras.' : 'Armá tu cuenta y elegí tu carrera para empezar.',
+        modos: [['login', 'Iniciar sesión'], ['signup', 'Registrarme']].map(([id, label]) => ({
+          label,
+          tap: () => this.setState({ authModo: id, authAviso: null }),
+          bg: st.authModo === id ? '#fff' : 'transparent',
+          color: st.authModo === id ? '#9a329d' : '#6b6375',
+          sombra: st.authModo === id ? '0 1px 3px rgba(43,36,56,.14)' : 'none',
+        })),
+        email: st.authEmail,
+        setEmail: (e) => this.setState({ authEmail: e.target.value, authAviso: null }),
+        pass: st.authPass,
+        setPass: (e) => this.setState({ authPass: e.target.value, authAviso: null }),
+        passPlaceholder: esLogin ? 'Tu contraseña' : 'Elegí una contraseña',
+        tipoPass: st.authVer ? 'text' : 'password',
+        verLabel: st.authVer ? 'Ocultar' : 'Ver',
+        toggleVer: () => this.setState((s) => ({ authVer: !s.authVer })),
+        olvide: () => this.setState({ authAviso: { tipo: 'info', texto: 'Te vamos a mandar un mail para recuperarla. Revisá tu casilla.' } }),
+        cambiarModo: () => this.setState({ authModo: esLogin ? 'signup' : 'login', authAviso: null, authPass: '' }),
+        pie: esLogin ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión',
+        hayAviso: !!av,
+        aviso: av ? av.texto : '',
+        avisoBg: av && av.tipo === 'error' ? 'rgba(255,75,75,.10)' : 'rgba(28,176,246,.10)',
+        avisoBorde: av && av.tipo === 'error' ? 'rgba(255,75,75,.35)' : 'rgba(28,176,246,.35)',
+        avisoColor: av && av.tipo === 'error' ? '#c22a2f' : '#0f7ab0',
+        btnLabel: esLogin ? 'Iniciar sesión' : 'Crear cuenta',
+        btnBg: valido ? '#c640c9' : '#f2f0f5',
+        btnColor: valido ? '#fff' : '#a9a4b0',
+        btnSombra: valido ? '0 4px 0 #9a329d' : 'none',
+        submit: () => {
+          if (!emailOk) return this.setState({ authAviso: { tipo: 'error', texto: 'Revisá el email: parece incompleto.' } });
+          if (!passOk) return this.setState({ authAviso: { tipo: 'error', texto: esLogin ? 'Poné tu contraseña.' : 'La contraseña necesita al menos 6 caracteres.' } });
+          if (esLogin) return this.setState({ screen: 'materias', authPass: '', authAviso: null });
+          this.setState({ screen: 'carrera', authPass: '', authAviso: null, carreraActualId: null, carreraElegida: null, carreraBusqueda: '' });
+        },
+      };
+    }
+
+    {
+      const actual = this.carreras.find((c) => c.id === st.carreraActualId);
+      const elegida = this.carreras.find((c) => c.id === st.carreraElegida);
+      const q = st.carreraBusqueda.trim().toLowerCase();
+      const cands = this.carreras.filter((c) => c.id !== st.carreraActualId && (!q || c.nombre.toLowerCase().includes(q) || c.uni.toLowerCase().includes(q)));
+      const unis = [...new Set(cands.map((c) => c.uni))];
+      const conNotas = materias.filter((x) => x.parciales.some((ns) => ns.some((n) => n != null)) || x.final.some((n) => n != null)).length;
+      const hayProgreso = conNotas > 0;
+      const primeraVez = !actual;
+      vals.carreraVista = {
+        confirmando: !!elegida, eligiendo: !elegida,
+        titulo: primeraVez ? '¿Qué carrera estás cursando?' : 'Cambiar de carrera',
+        volverLabel: primeraVez ? 'Volver al registro' : 'Materias',
+        volver: () => this.setState({ screen: primeraVez ? 'auth' : 'materias', carreraElegida: null, carreraBusqueda: '' }),
+        hayActual: !!actual,
+        actualNombre: actual ? actual.nombre : '',
+        actualMeta: actual ? actual.uni + ' · ' + materias.length + ' materias' : '',
+        primeraVez,
+        busqueda: st.carreraBusqueda,
+        setBusqueda: (e) => this.setState({ carreraBusqueda: e.target.value }),
+        grupos: unis.map((uni) => ({
+          universidad: uni,
+          carreras: cands.filter((c) => c.uni === uni).map((c) => ({
+            nombre: c.nombre, meta: c.materias + ' materias en el plan',
+            tap: () => this.setState({ carreraElegida: c.id }),
+          })),
+        })),
+        sinResultados: cands.length === 0,
+        vacioTexto: q ? 'Ninguna carrera coincide con "' + st.carreraBusqueda.trim() + '".' : 'Todavía no hay carreras cargadas.',
+        elegidaNombre: elegida ? elegida.nombre : '',
+        elegidaUni: elegida ? elegida.uni : '',
+        hayProgreso: hayProgreso && !primeraVez,
+        avisoTitulo: primeraVez ? 'Arrancás de cero' : hayProgreso ? 'Vas a perder tu progreso' : 'No hay nada que perder',
+        avisoTexto: primeraVez
+          ? 'Vamos a armar tu plan de estudio con las materias de esta carrera.'
+          : hayProgreso
+            ? 'Las notas y los puntos que cargaste en tu carrera actual se borran. Esto no se puede deshacer.'
+            : 'Todavía no cargaste notas ni puntos, así que el cambio no borra nada.',
+        avisoBg: hayProgreso && !primeraVez ? 'rgba(255,75,75,.08)' : 'rgba(28,176,246,.08)',
+        avisoBorde: hayProgreso && !primeraVez ? 'rgba(255,75,75,.35)' : 'rgba(28,176,246,.3)',
+        avisoTitColor: hayProgreso && !primeraVez ? '#c22a2f' : '#0f7ab0',
+        perdidas: [
+          { label: 'Materias con notas cargadas', valor: String(conNotas) },
+          { label: 'Puntos ganados', valor: this.ganados() + ' pts' },
+          { label: 'Canjes en el historial', valor: String(this.state.canjes.length) },
+        ],
+        okBg: hayProgreso && !primeraVez ? '#c22a2f' : '#c640c9',
+        okSombra: hayProgreso && !primeraVez ? '0 4px 0 #8f1f23' : '0 4px 0 #9a329d',
+        confirmar: () => this.setState({
+          screen: 'materias', carreraActualId: st.carreraElegida, carreraElegida: null, carreraBusqueda: '',
+          materias: this.planDe(st.carreraElegida), premiosList: null, canjes: [],
+          detalleId: null, editar: null, picker: null, histAbierto: false, histItem: null,
+          filtros: { anios: [], horas: [], estados: [] }, abiertos: { 1: true },
+        }),
+        cancelar: () => this.setState({ carreraElegida: null }),
       };
     }
 
@@ -1136,9 +1426,20 @@ class Component extends DCLogic {
         }),
       };
     });
+    const totalCanj = this.canjeados();
+    vals.histAbierto = !!st.histAbierto;
+    vals.histRot = st.histAbierto ? '180deg' : '0deg';
+    vals.histResumen = this.state.canjes.length + (this.state.canjes.length === 1 ? ' canje · ' : ' canjes · ') + totalCanj + ' pts';
+    vals.histToggle = () => this.setState((s) => ({ histAbierto: !s.histAbierto }));
     vals.historial = this.state.canjes.map((c) => ({
       nombre: c.nombre, costo: '−' + c.costo + ' pts', fecha: c.fecha,
-      origen: c.detalle.map(([id, pts]) => (materias.find((x) => x.id === id) || { nombre: id }).nombre.split(' ')[0] + ' ' + pts).join(' · '),
+      abierto: st.histItem === c.id,
+      rot: st.histItem === c.id ? '180deg' : '0deg',
+      toggle: () => this.setState((s) => ({ histItem: s.histItem === c.id ? null : c.id })),
+      detalle: c.detalle.map(([id, pts]) => ({
+        nombre: (materias.find((x) => x.id === id) || { nombre: 'Materia borrada' }).nombre,
+        pts: pts + ' pts',
+      })),
     }));
 
     if (st.canje) {

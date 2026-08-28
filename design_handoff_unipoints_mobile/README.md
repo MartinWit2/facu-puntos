@@ -30,10 +30,12 @@ Si algo del prototipo contradice a `docs/SPEC.md` o a esos utils, **gana el repo
 
 ### Chrome común (header + tabs)
 
-**Header** — fijo arriba, siempre visible, no scrollea.
+El chrome (header + tabs) **se oculta** en dos casos: la pantalla de login/registro, y la selección de carrera de primera vez (cuando el usuario todavía no tiene ninguna). En el resto está siempre.
+
+**Header** — fijo arriba, no scrollea.
 - Fondo `#ffffff`, borde inferior `1px solid #e5e4e7`, padding `56px 18px 12px` (los 56px superiores son el safe area del status bar de iOS; en la app real usar `env(safe-area-inset-top)`).
 - Layout: `flex`, `align-items:center`, `justify-content:space-between`, `gap:12px`.
-- Izquierda, columna: "Unipoints" en Baloo 2 800, 19px, `#9a329d`, `line-height:1.1`; debajo el nombre de la carrera en 11px `#6b6375` ("UTN · Ing. en Sistemas").
+- Izquierda, columna: "Unipoints" en Baloo 2 800, 19px, `#9a329d`, `line-height:1.1`; debajo la carrera activa en 11px `#6b6375`, derivada del perfil — `"UTN · Ingeniería en Sistemas de Información"`, o "Sin carrera elegida" si no hay ninguna. Nunca hardcodeada.
 - Derecha, fila con `gap:9px`:
   - **Píldora de saldo**: `border-radius:999px`, fondo `rgba(198,64,201,.14)`, padding `8px 14px`, `gap:7px`. Contiene un círculo de 14px `#ffc800` con `box-shadow: inset 0 -2px 0 rgba(224,172,0,.9)` (la moneda) y el saldo en Baloo 2 800, 16px, `#9a329d`.
   - **Avatar**: 40×40, `border-radius:999px`, fondo `#c640c9` (`#9a329d` cuando el menú está abierto), `box-shadow:0 3px 0 #9a329d`, inicial del usuario en Baloo 2 800, 15px, `#fff`. Al presionar: `transform:translateY(2px)` y sombra a `0 1px 0`.
@@ -152,7 +154,52 @@ Padding `18px 16px 28px`, `gap:18px`.
 - **Agrupado por categoría** (`ComboboxCategoria` en el repo): título de categoría en Baloo 2 700 16px `#2b2438`, y a la derecha el conteo en 11px `#6b6375`.
 - **Fila de premio**: `#fff`, borde `1px solid #e5e4e7`, radio 18px, sombra `0 3px 12px rgba(43,36,56,.08)`, padding `13px 15px`, `gap:12px`. Nombre en 14.5px 600 `#2b2438`; debajo, "Podés canjearlo" en `#2f7a00` o "Te faltan N pts" en `#6b6375`, 11.5px.
   - **Botón de costo** a la derecha, `min-height:40px`, padding `0 16px`, radio 12px, Baloo 2 700 14px, con el costo ("250 pts"). Alcanza: fondo y borde `#c640c9`, texto `#fff`, `box-shadow:0 4px 0 #9a329d`. No alcanza: transparente, borde `#e5e4e7`, texto `#a9a4b0`, sin sombra, no clickeable.
-- **Historial**: título "Historial" en Baloo 2 700 16px, separado por un borde superior `1px solid #e5e4e7` con `padding-top:16px`. Cada fila: `#fff`, borde `1px solid #e5e4e7`, radio 16px, padding `11px 14px`. Nombre en 13.5px 600; debajo, el origen resumido en 11px `#6b6375` (`"Análisis 240 · Álgebra 10"`). A la derecha, `"−250 pts"` en Baloo 2 700 14px `#c22a2f` y la fecha en 10.5px `#6b6375`.
+- **Historial (acordeón de dos niveles)** — separado por un borde superior `1px solid #e5e4e7` con `padding-top:16px`. Se colapsa entero para que la pantalla no crezca con la cantidad de canjes.
+  - **Cabecera**: fila clickeable de `min-height:48px` con "Historial" en Baloo 2 700 16px `#2b2438`, a la derecha un resumen en 11.5px `#6b6375` (`"2 canjes · 370 pts"`, singular "1 canje") y un chevron `▾` que rota 180° al abrir. Cerrado por defecto.
+  - **Fila de canje** (abierta la cabecera): tarjeta `#fff`, borde `1px solid #e5e4e7`, radio 16px, `overflow:hidden`, con `gap:8px` entre tarjetas. Fila clickeable de `min-height:44px`, padding `12px 14px`: nombre en 13.5px 600 `#2b2438`, fecha debajo en 11px `#6b6375`, el costo `"−250 pts"` en Baloo 2 700 14px `#c22a2f`, y su propio chevron.
+  - **Detalle** (al abrir un canje): borde superior `1px solid #f2f0f5`, padding `12px 14px`, label "DE DÓNDE SALIERON" en 10.5px 600 mayúsculas `#6b6375`, y una fila por materia con el nombre completo en 13px `#3f3b46` y los puntos aportados en Baloo 2 700 13.5px `#9a329d`. Si la materia ya no existe, "Materia borrada".
+  - Solo un canje abierto a la vez (abrir otro cierra el anterior).
+
+## Pantallas de acceso y carrera
+
+### A. Login / Registro
+
+Pantalla **sin header ni tabs** — el chrome se oculta por completo. Fondo `#fff`, padding `76px 26px 40px`, columna.
+
+- **Marca**: círculo-moneda de 76px `#ffc800` con `inset 0 -6px 0 rgba(224,172,0,.9)`, "Unipoints" en Baloo 2 800 34px `#9a329d`, y una bajada centrada en 14px `#6b6375`, `max-width:250px`: "Cargá tus notas, ganá puntos y canjealos por lo que quieras." en login, "Armá tu cuenta y elegí tu carrera para empezar." en registro.
+- **Switch de modo**: control segmentado de dos opciones, `margin-top:34px`, fondo `#f2f0f5`, radio 14px, padding 4px. Cada opción `flex:1`, `min-height:42px`, radio 11px, Baloo 2 700 14.5px. Activa: fondo `#fff`, texto `#9a329d`, `box-shadow:0 1px 3px rgba(43,36,56,.14)`. Inactiva: transparente, `#6b6375`. Etiquetas "Iniciar sesión" y "Registrarme". Reemplaza al `auth-toggle` de texto de `Auth.jsx`, que en mobile es un target muy chico.
+- **Email**: label 13px 600 y un `<input type="email">` de `min-height:50px`, padding `0 15px`, radio 14px, borde `1.5px solid #e5e4e7` → `#c640c9` en foco, texto 15px. Placeholder "tunombre@mail.com".
+- **Contraseña**: el input va dentro de un contenedor que lleva el borde (para que el foco lo pinte entero, vía `:focus-within`), y a la derecha un botón de texto "Ver" / "Ocultar" en 12.5px 600 `#9a329d` que alterna `type` entre `password` y `text`. Placeholder "Tu contraseña" en login, "Elegí una contraseña" en registro. En registro, ayuda debajo: "Mínimo 6 caracteres."
+- **"Olvidé mi contraseña"** — solo en login, alineado a la derecha, 12.5px 600 `#9a329d`. Dispara el aviso informativo "Te vamos a mandar un mail para recuperarla. Revisá tu casilla." En la app real, `supabase.auth.resetPasswordForEmail`.
+- **Aviso**: un único bloque para errores y mensajes, padding `12px 14px`, radio 14px, texto 12.5px `line-height:1.45`. Error: fondo `rgba(255,75,75,.10)`, borde `rgba(255,75,75,.35)`, texto `#c22a2f`. Info: fondo `rgba(28,176,246,.10)`, borde `rgba(28,176,246,.35)`, texto `#0f7ab0`. Reemplaza a `auth-error` y `auth-mensaje`. Se limpia al tipear o cambiar de modo.
+- **Submit**: `min-height:52px`, radio 15px, Baloo 2 700 16.5px, "Iniciar sesión" o "Crear cuenta". Habilitado solo con email con forma válida y contraseña de largo suficiente (1 en login, 6 en registro); deshabilitado en `#f2f0f5` / `#a9a4b0` sin sombra. En la app real agregar el estado de carga "Un momento…" y `disabled` mientras responde Supabase.
+- **Pie**: "¿No tenés cuenta? Registrate" / "¿Ya tenés cuenta? Iniciá sesión" en 13.5px `#6b6375`, centrado, `margin-top:26px`. Hace lo mismo que el switch.
+- **Errores de validación**: si el email no tiene forma de email, "Revisá el email: parece incompleto."; si falta la contraseña, "Poné tu contraseña." o "La contraseña necesita al menos 6 caracteres." Los errores de Supabase van en el mismo bloque de aviso.
+- **Después del submit**: login entra a Materias; registro va a la selección de carrera de primera vez. En la app real, el signup sin sesión muestra "Te enviamos un email para confirmar la cuenta." y vuelve a login, como hoy hace `Auth.jsx`.
+
+### B. Elegir / cambiar de carrera
+
+Una sola pantalla que cubre los dos casos del repo — `SeleccionCarrera` (primera vez) y `CambiarCarrera` — en dos pasos: elegir y confirmar. Padding `16px 16px 28px`, `gap:16px`.
+
+**Chrome.** En el caso de **primera vez no hay header ni tabs**: es una pantalla bloqueante, y la única salida es elegir una carrera (o volver al registro). Sin eso el onboarding se puede saltear tocando un tab. En el caso de cambio, el chrome se mantiene.
+
+**Paso 1 — elegir**
+- "‹ Materias" arriba, o "‹ Volver al registro" en primera vez.
+- h1 "Cambiar de carrera", o "¿Qué carrera estás cursando?" en primera vez.
+- **Tarjeta de carrera actual** (solo si hay una): borde `1.5px solid #e5e4e7`, fondo `#fff`, radio 18px, padding `14px 16px`. Label "Tu carrera actual" en 11px `#6b6375`, el nombre en Baloo 2 700 16px `#2b2438`, y debajo `"UTN — FRBA · 22 materias"` en 12px `#6b6375`.
+- **Buscador**: `<input type="search">` de `min-height:48px`, radio 14px, mismo borde y foco que el resto. Placeholder "Buscar universidad o carrera". Filtra por nombre y por universidad, igual que `coincide()` en `SelectorCarreras.jsx`.
+- **Lista agrupada por universidad**: label de grupo en 11px 600 mayúsculas `letter-spacing:.08em` `#6b6375`, y una tarjeta por carrera (`#fff`, borde `1px solid #e5e4e7`, radio 18px, sombra de tarjeta, padding `14px 16px`, `min-height:44px`) con el nombre en 14.5px 600, la meta `"34 materias en el plan"` en 11.5px `#6b6375`, y un chevron `›`. El agrupado es un cambio respecto de la lista plana de la web: en mobile ayuda a escanear cuando hay varias carreras por facultad.
+- La carrera actual se excluye de la lista. Vacío: tarjeta centrada con `Ninguna carrera coincide con "…".` o "Todavía no hay carreras cargadas."
+
+**Paso 2 — confirmar**
+- h1 "¿Cambiar a {nombre}?" en Baloo 2 800 25px, y la universidad debajo en 12.5px `#6b6375`.
+- **Bloque de aviso**: radio 18px, padding 16px, título en Baloo 2 700 15px y cuerpo en 13px `line-height:1.5` `#3f3b46`. Tres variantes, según `tieneProgresoCargado(materias)`:
+  - Con progreso: "Vas a perder tu progreso" / "Las notas y los puntos que cargaste en tu carrera actual se borran. Esto no se puede deshacer." Fondo `rgba(255,75,75,.08)`, borde `rgba(255,75,75,.35)`, título `#c22a2f`.
+  - Sin progreso: "No hay nada que perder" / "Todavía no cargaste notas ni puntos, así que el cambio no borra nada." Fondo `rgba(28,176,246,.08)`, borde `rgba(28,176,246,.3)`, título `#0f7ab0`.
+  - Primera vez: "Arrancás de cero" / "Vamos a armar tu plan de estudio con las materias de esta carrera." Mismos colores que la variante info.
+- **"LO QUE SE BORRA"** (solo con progreso): tres filas `#fff`, borde `1px solid #e5e4e7`, radio 16px, padding `12px 15px` — "Materias con notas cargadas", "Puntos ganados", "Canjes en el historial" — con el valor a la derecha en Baloo 2 700 15px. Hace concreto el costo del cambio en vez de solo advertirlo.
+- **Acciones**: "Sí, cambiar de carrera", `min-height:52px`, radio 15px, Baloo 2 700 16px, texto `#fff`. Con progreso el botón es `#c22a2f` con `box-shadow:0 4px 0 #8f1f23` (destructivo); sin progreso es el violeta normal. Debajo, "Cancelar" en `min-height:48px`, borde `1.5px solid #e5e4e7`, 14px 600 `#6b6375`, que vuelve al paso 1.
+- **Al confirmar, el cambio es real**: se carga el plan de la carrera nueva y se limpian notas, puntos, canjes, filtros y el detalle abierto. El repo consigue lo mismo con `window.location.assign('/')` después de `cambiarCarrera`, justamente porque las materias y reglas viejas quedan cacheadas en otros hooks — mantené ese enfoque salvo que refactorices los hooks.
 
 ## Hojas inferiores (bottom sheets)
 
@@ -179,6 +226,9 @@ Patrón compartido: overlay `position:absolute; inset:0` con fondo `rgba(43,36,5
 
 ## Interactions & Behavior
 
+- **Acceso**: login entra a Materias; registro va a la selección de carrera, que es bloqueante hasta elegir una. "Cerrar sesión" desde el menú de usuario vuelve al login.
+- **Historial**: la cabecera abre la lista; cada canje abre su detalle de origen. Abrir un canje cierra el anterior.
+- **Cambiar de carrera**: menú de usuario → elegir → confirmar. Cancelar en el paso 2 vuelve a la lista; confirmar reinicia todo con el plan nuevo.
 - **Navegación**: tabs abajo entre Materias / Progreso / Premios. Materias → detalle de materia, y "‹ Materias" vuelve. Cambiar de tab resetea el detalle abierto. En el codebase, mantener las rutas de React Router que ya existen.
 - **Cargar una nota**: tocar chip → hoja de notas → tocar la nota → se guarda y la hoja cierra. Todo lo dependiente se recalcula al instante: estado del parcial, badge de la materia, puntos de la materia, saldo del header, barra de avance del año, disponibles en el canje. Sin botón de guardar.
 - **Filtrar**: tocar chip → hoja → tildar → "Ver N materias". Los años que quedan sin materias visibles se ocultan; el conteo del encabezado pasa a "N de M materias". "Limpiar" resetea las tres categorías a `FILTROS_VACIOS`.
@@ -208,6 +258,9 @@ Estado que necesita la vista mobile (el resto vive en los hooks y contexts que y
 - `nuevoPremioSheet` — borrador del premio nuevo (`{ nombre, cat, costo, catsAbierto }`), o null. `catsAbierto` es el estado del acordeón de categorías.
 - `celebracion` — `{ nombre, costo }` tras confirmar, o null.
 - `menuUsuario` — booleano.
+- `histAbierto` — booleano, el acordeón del historial. `histItem` — id del canje expandido, o null (uno a la vez).
+- `authModo` — `'login' | 'signup'`. `authEmail`, `authPass`, `authVer` (mostrar contraseña), `authAviso` — `{ tipo: 'error' | 'info', texto }` o null.
+- `carreraBusqueda` — texto del buscador. `carreraElegida` — id de la carrera en confirmación, o null (null = paso 1, con valor = paso 2).
 
 Derivados, siempre calculados con los utils del repo, nunca guardados: estado de cada materia, puntos por materia, disponibles por materia, ganados, canjeados, saldo, y la lista filtrada.
 
@@ -277,6 +330,8 @@ En `screenshots/` están las capturas del prototipo, a 2x sobre un marco de iPho
 | `11-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
 | `12-menu-usuario.png` | Menú de usuario anclado al avatar |
 
+Las tres pantallas más nuevas (historial acordeón, login/registro y cambiar de carrera) todavía no tienen captura: abrí `Unipoints Mobile.dc.html` para verlas — al login se llega con "Cerrar sesión" desde el avatar.
+
 Son capturas con datos de ejemplo. Las medidas y colores exactos están en las secciones de arriba — no los midas sobre la imagen.
 
 ## Files
@@ -287,6 +342,6 @@ Son capturas con datos de ejemplo. Las medidas y colores exactos están en las s
 Referencias en el repo: `docs/SPEC.md` para el modelo, `src/index.css` para los tokens, `src/pages/*.css` y `src/components/*.css` para los estilos actuales, y los utils listados más arriba para la lógica.
 
 ## Pendiente de diseño
-- Pantalla de **cambiar de carrera** (hoy el menú solo cierra).
 - **Estados vacíos** de primera vez: sin materias, sin premios, sin canjes.
-- **Login / selección inicial de carrera** (`Auth`, `SeleccionCarrera`) en mobile.
+- **Recuperar contraseña**: hoy solo muestra el aviso; falta la pantalla de "revisá tu mail" y la de nueva contraseña.
+- **Confirmación de email** después del registro (el signup sin sesión de Supabase).
