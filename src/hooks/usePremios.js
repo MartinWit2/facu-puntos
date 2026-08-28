@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { useAuth } from '../context/useAuth.js'
 import { supabase } from '../lib/supabaseClient'
 
@@ -6,12 +6,33 @@ function filaAPremio(fila) {
   return { id: fila.id, nombre: fila.nombre, categoria: fila.categoria, costoPuntos: fila.costo_puntos }
 }
 
+// Cache compartida entre todas las instancias de usePremios() — ver el
+// comentario equivalente en useMaterias.js: sin esto, agregar/editar un
+// premio desde una pantalla no se reflejaba en otra (ej. el saldo del
+// header) hasta recargar la página entera.
+let cache = null
+const listeners = new Set()
+
+function actualizarCache(actualizador) {
+  cache = actualizador(cache)
+  listeners.forEach((listener) => listener())
+}
+
+function suscribirse(listener) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+function obtenerCache() {
+  return cache
+}
+
 export function usePremios() {
   const { usuario } = useAuth()
-  const [cache, setCache] = useState(null)
+  const cacheActual = useSyncExternalStore(suscribirse, obtenerCache)
 
-  const premios = usuario && cache?.usuarioId === usuario.id ? cache.valor : []
-  const cargando = Boolean(usuario) && cache?.usuarioId !== usuario?.id
+  const premios = usuario && cacheActual?.usuarioId === usuario.id ? cacheActual.valor : []
+  const cargando = Boolean(usuario) && cacheActual?.usuarioId !== usuario?.id
 
   useEffect(() => {
     if (!usuario) return
@@ -26,13 +47,13 @@ export function usePremios() {
       .then(({ data, error }) => {
         if (cancelado) return
         if (error) console.error(error)
-        setCache({ usuarioId: usuario.id, valor: (data ?? []).map(filaAPremio) })
+        actualizarCache(() => ({ usuarioId: usuario.id, valor: (data ?? []).map(filaAPremio) }))
       })
 
     return () => {
       cancelado = true
     }
-  }, [usuario, cache])
+  }, [usuario, cacheActual])
 
   const agregarPremio = useCallback(
     async (datos) => {
@@ -49,7 +70,7 @@ export function usePremios() {
         console.error(error)
         return
       }
-      setCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaAPremio(data)] }))
+      actualizarCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaAPremio(data)] }))
     },
     [usuario],
   )
@@ -65,7 +86,10 @@ export function usePremios() {
       console.error(error)
       return
     }
-    setCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.map((p) => (p.id === id ? filaAPremio(data) : p)) }))
+    actualizarCache((prev) => ({
+      usuarioId: prev.usuarioId,
+      valor: prev.valor.map((p) => (p.id === id ? filaAPremio(data) : p)),
+    }))
   }, [])
 
   const eliminarPremio = useCallback(async (id) => {
@@ -74,7 +98,7 @@ export function usePremios() {
       console.error(error)
       return
     }
-    setCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.filter((p) => p.id !== id) }))
+    actualizarCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.filter((p) => p.id !== id) }))
   }, [])
 
   return { premios, cargando, agregarPremio, editarPremio, eliminarPremio }

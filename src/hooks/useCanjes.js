@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { useAuth } from '../context/useAuth.js'
 import { supabase } from '../lib/supabaseClient'
 
@@ -13,12 +13,33 @@ function filaACanje(fila) {
   }
 }
 
+// Cache compartida entre todas las instancias de useCanjes() — ver el
+// comentario equivalente en useMaterias.js: sin esto, confirmar un canje
+// desde una pantalla no se reflejaba en otra (ej. el saldo del header)
+// hasta recargar la página entera.
+let cache = null
+const listeners = new Set()
+
+function actualizarCache(actualizador) {
+  cache = actualizador(cache)
+  listeners.forEach((listener) => listener())
+}
+
+function suscribirse(listener) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+function obtenerCache() {
+  return cache
+}
+
 export function useCanjes() {
   const { usuario } = useAuth()
-  const [cache, setCache] = useState(null)
+  const cacheActual = useSyncExternalStore(suscribirse, obtenerCache)
 
-  const canjes = usuario && cache?.usuarioId === usuario.id ? cache.valor : []
-  const cargando = Boolean(usuario) && cache?.usuarioId !== usuario?.id
+  const canjes = usuario && cacheActual?.usuarioId === usuario.id ? cacheActual.valor : []
+  const cargando = Boolean(usuario) && cacheActual?.usuarioId !== usuario?.id
 
   useEffect(() => {
     if (!usuario) return
@@ -33,13 +54,13 @@ export function useCanjes() {
       .then(({ data, error }) => {
         if (cancelado) return
         if (error) console.error(error)
-        setCache({ usuarioId: usuario.id, valor: (data ?? []).map(filaACanje) })
+        actualizarCache(() => ({ usuarioId: usuario.id, valor: (data ?? []).map(filaACanje) }))
       })
 
     return () => {
       cancelado = true
     }
-  }, [usuario, cache])
+  }, [usuario, cacheActual])
 
   // Se guarda una "foto" del nombre y costo del premio en ese momento: un
   // canje ya hecho no se revierte ni cambia aunque el premio se edite o
@@ -60,7 +81,7 @@ export function useCanjes() {
         console.error(error)
         return
       }
-      setCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaACanje(data)] }))
+      actualizarCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaACanje(data)] }))
     },
     [usuario],
   )

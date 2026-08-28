@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import BottomSheet from '../components/BottomSheet.jsx'
+import HojaNuevaMateria from '../components/HojaNuevaMateria.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useMaterias } from '../hooks/useMaterias.js'
@@ -9,9 +10,29 @@ import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import { FILTROS_VACIOS, RANGOS_HORAS, materiaCoincideFiltros } from '../utils/filtrosMaterias'
-import { RANGO_HORAS_UMBRAL_1, RANGO_HORAS_UMBRAL_2 } from '../constants'
+import {
+  DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
+  DEFAULT_CANTIDAD_PARCIALES,
+  DEFAULT_CANTIDAD_RECUPERATORIOS,
+  RANGO_HORAS_UMBRAL_1,
+  RANGO_HORAS_UMBRAL_2,
+} from '../constants'
 import { useState } from 'react'
 import './MateriasMobile.css'
+
+const HORAS_CATEDRA_DEFAULT_NUEVA = 128
+
+function valoresNuevaMateria() {
+  return {
+    nombre: '',
+    anioCursada: 1,
+    horasCatedra: HORAS_CATEDRA_DEFAULT_NUEVA,
+    cantidadParciales: DEFAULT_CANTIDAD_PARCIALES,
+    cantidadRecuperatorios: DEFAULT_CANTIDAD_RECUPERATORIOS,
+    cantidadInstanciasFinal: DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
+    noSumaPuntos: false,
+  }
+}
 
 // Mismas 4 opciones agrupadas que ya usa materiaCoincideFiltros (ver
 // utils/filtrosMaterias.js) — se repiten acá solo como lista para la hoja,
@@ -48,10 +69,12 @@ function agruparPorAnio(items) {
 }
 
 function MateriasMobile() {
-  const { materias, cargando } = useMaterias()
+  const { materias, cargando, agregarMateria } = useMaterias()
   const { reglasCarrera } = usePerfil()
   const [filtros, setFiltros] = useState(FILTROS_VACIOS)
   const [filtroSheet, setFiltroSheet] = useState(null)
+  const [nuevaMateria, setNuevaMateria] = useState(null)
+  const [anioRecienAgregado, setAnioRecienAgregado] = useState(null)
 
   if (cargando) {
     return (
@@ -81,9 +104,8 @@ function MateriasMobile() {
   const totalAprobadas = enriquecidas.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
   const totalCoincidentes = enriquecidas.filter(coincide).length
 
-  const opcionesAnios = [...new Set(materias.map((m) => m.anioCursada))]
-    .sort((a, b) => a - b)
-    .map((anio) => ({ valor: String(anio), etiqueta: `${nombreAnio(anio)} año` }))
+  const aniosPresentes = [...new Set(materias.map((m) => m.anioCursada))].sort((a, b) => a - b)
+  const opcionesAnios = aniosPresentes.map((anio) => ({ valor: String(anio), etiqueta: `${nombreAnio(anio)} año` }))
   const opcionesHoras = RANGOS_HORAS.map((r) => ({ valor: r.valor, etiqueta: ETIQUETAS_HORAS_MOBILE[r.valor] }))
 
   const CATEGORIAS = [
@@ -102,6 +124,25 @@ function MateriasMobile() {
 
   const limpiarFiltros = () => setFiltros(FILTROS_VACIOS)
 
+  const handleAbrirNuevaMateria = () => setNuevaMateria(valoresNuevaMateria())
+  const handleCerrarNuevaMateria = () => setNuevaMateria(null)
+  const handleCambiarNuevaMateria = (campo, valor) => setNuevaMateria((prev) => ({ ...prev, [campo]: valor }))
+
+  const handleConfirmarNuevaMateria = () => {
+    if (!nuevaMateria.nombre.trim()) return
+    agregarMateria({
+      nombre: nuevaMateria.nombre.trim(),
+      anioCursada: nuevaMateria.anioCursada,
+      horasCatedra: nuevaMateria.horasCatedra,
+      cantidadParciales: nuevaMateria.cantidadParciales,
+      cantidadRecuperatorios: nuevaMateria.cantidadRecuperatorios,
+      cantidadInstanciasFinal: nuevaMateria.cantidadInstanciasFinal,
+      poolOverride: nuevaMateria.noSumaPuntos ? 0 : null,
+    })
+    setAnioRecienAgregado(nuevaMateria.anioCursada)
+    setNuevaMateria(null)
+  }
+
   const grupos = agruparPorAnio(enriquecidas)
 
   return (
@@ -112,6 +153,10 @@ function MateriasMobile() {
           {filtrosActivos ? `${totalCoincidentes} de ${materias.length} materias` : `${totalAprobadas} de ${materias.length} aprobadas`}
         </span>
       </div>
+
+      <button type="button" className="boton-primario-mobile materias-mobile-agregar" onClick={handleAbrirNuevaMateria}>
+        + Agregar materia
+      </button>
 
       <div className="filtros-mobile">
         {CATEGORIAS.map((categoria) => {
@@ -150,9 +195,14 @@ function MateriasMobile() {
 
             const aprobadasAnio = items.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
             const porcentaje = items.length ? Math.round((aprobadasAnio / items.length) * 100) : 0
+            const forzarAbierto = anioRecienAgregado === anio
 
             return (
-              <details key={`${anio}-${filtrosActivos}`} className="anio-card-mobile" open={filtrosActivos}>
+              <details
+                key={`${anio}-${filtrosActivos}-${forzarAbierto}`}
+                className="anio-card-mobile"
+                open={filtrosActivos || forzarAbierto}
+              >
                 <summary className="anio-card-mobile-cabecera">
                   <div className="anio-card-mobile-info">
                     <div className="anio-card-mobile-titulo-row">
@@ -234,6 +284,34 @@ function MateriasMobile() {
               Ver {totalCoincidentes} materias
             </button>
           </>
+        )}
+      </BottomSheet>
+
+      <BottomSheet
+        abierto={nuevaMateria != null}
+        onCerrar={handleCerrarNuevaMateria}
+        titulo="Nueva materia"
+        altoMax={88}
+        footer={
+          nuevaMateria && (
+            <button
+              type="button"
+              className="boton-primario-mobile"
+              disabled={!nuevaMateria.nombre.trim()}
+              onClick={handleConfirmarNuevaMateria}
+            >
+              {nuevaMateria.nombre.trim() ? 'Agregar materia' : 'Ponele un nombre'}
+            </button>
+          )
+        }
+      >
+        {nuevaMateria && (
+          <HojaNuevaMateria
+            form={nuevaMateria}
+            aniosDisponibles={aniosPresentes}
+            puntosPorHora={reglasCarrera.puntosPorHora}
+            onCambiar={handleCambiarNuevaMateria}
+          />
         )}
       </BottomSheet>
     </section>

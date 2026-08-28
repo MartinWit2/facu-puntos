@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './HojaEditarMateria.css'
 
 // Rangos de los steppers. El handoff dice que Recuperatorios arranca en 1,
@@ -25,6 +26,42 @@ function Stepper({ campo, valor, onCambiar }) {
         +
       </button>
     </div>
+  )
+}
+
+// Borrador local para el nombre: antes escribía directo sobre `materia.nombre`
+// y guardaba en Supabase en cada letra (con el cache compartido, cada una de
+// esas escrituras ahora además hace re-renderizar toda la app). Acá el campo
+// vive de su propio estado mientras se escribe y recién confirma el cambio
+// al perder el foco, sin tocar la red por cada tecla.
+function CampoNombre({ valor, onConfirmar }) {
+  const [borrador, setBorrador] = useState(valor)
+  // Ajuste de estado durante el render (patrón recomendado por React para
+  // "resetear" un borrador cuando cambia el valor de afuera) en vez de un
+  // efecto, para no disparar una vuelta extra de render por cada cambio.
+  const [valorSincronizado, setValorSincronizado] = useState(valor)
+  if (valor !== valorSincronizado) {
+    setValorSincronizado(valor)
+    setBorrador(valor)
+  }
+
+  const confirmar = () => {
+    const limpio = borrador.trim()
+    if (!limpio) {
+      setBorrador(valor)
+      return
+    }
+    if (limpio !== valor) onConfirmar(limpio)
+  }
+
+  return (
+    <input
+      type="text"
+      className="editar-materia-input"
+      value={borrador}
+      onChange={(e) => setBorrador(e.target.value)}
+      onBlur={confirmar}
+    />
   )
 }
 
@@ -69,12 +106,7 @@ function HojaEditarMateria({
 
       <label className="editar-materia-campo">
         <span className="editar-materia-label">Nombre</span>
-        <input
-          type="text"
-          className="editar-materia-input"
-          value={materia.nombre}
-          onChange={(e) => onEditarCampo('nombre', e.target.value)}
-        />
+        <CampoNombre valor={materia.nombre} onConfirmar={(valor) => onEditarCampo('nombre', valor)} />
       </label>
 
       <div className="editar-materia-campo">

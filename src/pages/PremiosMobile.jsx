@@ -3,7 +3,7 @@ import BottomSheet from '../components/BottomSheet.jsx'
 import { useCelebracion } from '../components/Celebracion.jsx'
 import HistorialCanjes from '../components/HistorialCanjes.jsx'
 import HojaCanje from '../components/HojaCanje.jsx'
-import PremioForm from '../components/PremioForm.jsx'
+import HojaNuevoPremio from '../components/HojaNuevoPremio.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
@@ -14,6 +14,8 @@ import { calcularOrigenesDisponibles, calcularPuntosTotales } from '../utils/pun
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import '../pages/Premios.css'
 import './PremiosMobile.css'
+
+const COSTO_PREMIO_DEFAULT = 120
 
 function agruparPorCategoria(premios) {
   const grupos = new Map()
@@ -34,7 +36,7 @@ function PremiosMobile() {
   const { perfil, reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
-  const [formularioAbierto, setFormularioAbierto] = useState(false)
+  const [premioDraft, setPremioDraft] = useState(null)
   const [confirmandoEliminarId, setConfirmandoEliminarId] = useState(null)
   const [canjeSheetId, setCanjeSheetId] = useState(null)
   const [celebracionCanje, setCelebracionCanje] = useState(null)
@@ -64,26 +66,35 @@ function PremiosMobile() {
 
   const handleAgregarClick = () => {
     setPremioEditandoId(null)
-    setFormularioAbierto(true)
-  }
-
-  const handleSubmitAgregar = (datos) => {
-    agregarPremio(datos)
-    setFormularioAbierto(false)
+    setPremioDraft({ nombre: '', categoria: '', costoPuntos: COSTO_PREMIO_DEFAULT })
   }
 
   const handleIniciarEdicion = (premio) => {
-    setFormularioAbierto(false)
     setPremioEditandoId(premio.id)
+    setPremioDraft({ nombre: premio.nombre, categoria: premio.categoria, costoPuntos: premio.costoPuntos })
   }
 
-  const handleGuardarEdicion = (datos) => {
-    editarPremio(premioEditandoId, datos)
+  const handleCerrarPremioSheet = () => {
+    setPremioDraft(null)
     setPremioEditandoId(null)
   }
 
+  const handleCambiarPremioDraft = (campo, valor) => setPremioDraft((prev) => ({ ...prev, [campo]: valor }))
+
+  const handleConfirmarPremio = () => {
+    if (!premioDraft.nombre.trim() || !premioDraft.categoria.trim()) return
+    const datos = {
+      nombre: premioDraft.nombre.trim(),
+      categoria: premioDraft.categoria.trim(),
+      costoPuntos: premioDraft.costoPuntos,
+    }
+    if (premioEditandoId) editarPremio(premioEditandoId, datos)
+    else agregarPremio(datos)
+    handleCerrarPremioSheet()
+  }
+
   const handleEliminar = (id) => {
-    if (premioEditandoId === id) setPremioEditandoId(null)
+    if (premioEditandoId === id) handleCerrarPremioSheet()
     eliminarPremio(id)
     setConfirmandoEliminarId(null)
   }
@@ -112,25 +123,9 @@ function PremiosMobile() {
           repetir una tarjeta de saldo (el handoff mobile no la pide en esta
           pantalla, a diferencia de Progreso). */}
 
-      {!formularioAbierto && (
-        <button type="button" className="boton-primario-mobile premios-mobile-agregar" onClick={handleAgregarClick}>
-          + Agregar premio
-        </button>
-      )}
-
-      {formularioAbierto && (
-        <div className="premio-form-card">
-          <h2>Agregar premio</h2>
-          <PremioForm
-            key="nuevo"
-            categoriasExistentes={categoriasExistentes}
-            rangoPool={rangoPool}
-            submitLabel="Agregar premio"
-            onSubmit={handleSubmitAgregar}
-            onCancel={() => setFormularioAbierto(false)}
-          />
-        </div>
-      )}
+      <button type="button" className="boton-primario-mobile premios-mobile-agregar" onClick={handleAgregarClick}>
+        + Agregar premio
+      </button>
 
       {premios.length === 0 ? (
         <p className="page-placeholder">Todavía no cargaste ningún premio.</p>
@@ -144,21 +139,6 @@ function PremiosMobile() {
 
             <div className="premios-mobile-lista">
               {items.map((premio) => {
-                if (premio.id === premioEditandoId) {
-                  return (
-                    <div key={premio.id} className="premio-card premio-card-editando">
-                      <PremioForm
-                        valoresIniciales={premio}
-                        categoriasExistentes={categoriasExistentes}
-                        rangoPool={rangoPool}
-                        submitLabel="Guardar cambios"
-                        onSubmit={handleGuardarEdicion}
-                        onCancel={() => setPremioEditandoId(null)}
-                      />
-                    </div>
-                  )
-                }
-
                 const alcanza = saldoDisponible >= premio.costoPuntos
 
                 return (
@@ -222,6 +202,38 @@ function PremiosMobile() {
             saldoDisponible={saldoDisponible}
             origenesDisponibles={origenesDisponibles}
             onConfirmar={handleConfirmarCanje}
+          />
+        )}
+      </BottomSheet>
+
+      <BottomSheet
+        abierto={premioDraft != null}
+        onCerrar={handleCerrarPremioSheet}
+        titulo={premioEditandoId ? 'Editar premio' : 'Nuevo premio'}
+        altoMax={88}
+        footer={
+          premioDraft && (
+            <button
+              type="button"
+              className="boton-primario-mobile"
+              disabled={!premioDraft.nombre.trim() || !premioDraft.categoria.trim()}
+              onClick={handleConfirmarPremio}
+            >
+              {!premioDraft.nombre.trim() || !premioDraft.categoria.trim()
+                ? 'Completá nombre y categoría'
+                : premioEditandoId
+                  ? 'Guardar cambios'
+                  : 'Agregar premio'}
+            </button>
+          )
+        }
+      >
+        {premioDraft && (
+          <HojaNuevoPremio
+            form={premioDraft}
+            categoriasExistentes={categoriasExistentes}
+            rangoPool={rangoPool}
+            onCambiar={handleCambiarPremioDraft}
           />
         )}
       </BottomSheet>

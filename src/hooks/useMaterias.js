@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { useAuth } from '../context/useAuth.js'
 import { supabase } from '../lib/supabaseClient'
 import { ajustarEstructuraNotas, crearEstructuraNotas } from '../utils/materiaEstructura'
@@ -54,14 +54,39 @@ function materiaAFila(datos) {
   return fila
 }
 
+// Cache compartida entre TODAS las instancias de useMaterias(), sin importar
+// qué componente la llame. Antes cada llamada tenía su propio useState
+// aislado: si se cargaba una nota desde el detalle de una materia, la página
+// que lo hizo se enteraba, pero el saldo del header (calculado en App.jsx,
+// que nunca se desmonta) seguía mostrando el valor de cuando cargó por
+// primera vez, hasta recargar la página entera. Con un store a nivel de
+// módulo + suscripción (useSyncExternalStore), todos los componentes que
+// usan useMaterias() leen y se enteran del mismo estado al instante.
+let cache = null
+const listeners = new Set()
+
+function actualizarCache(actualizador) {
+  cache = actualizador(cache)
+  listeners.forEach((listener) => listener())
+}
+
+function suscribirse(listener) {
+  listeners.add(listener)
+  return () => listeners.delete(listener)
+}
+
+function obtenerCache() {
+  return cache
+}
+
 export function useMaterias() {
   const { usuario } = useAuth()
   // Se cachea junto con el id del usuario, igual que en PerfilContext: si el
   // usuario cambia, el cache deja de "valer" solo, sin resetearlo a mano.
-  const [cache, setCache] = useState(null)
+  const cacheActual = useSyncExternalStore(suscribirse, obtenerCache)
 
-  const materias = usuario && cache?.usuarioId === usuario.id ? cache.valor : []
-  const cargando = Boolean(usuario) && cache?.usuarioId !== usuario?.id
+  const materias = usuario && cacheActual?.usuarioId === usuario.id ? cacheActual.valor : []
+  const cargando = Boolean(usuario) && cacheActual?.usuarioId !== usuario?.id
 
   useEffect(() => {
     if (!usuario) return
@@ -76,13 +101,13 @@ export function useMaterias() {
       .then(({ data, error }) => {
         if (cancelado) return
         if (error) console.error(error)
-        setCache({ usuarioId: usuario.id, valor: (data ?? []).map(filaAMateria) })
+        actualizarCache(() => ({ usuarioId: usuario.id, valor: (data ?? []).map(filaAMateria) }))
       })
 
     return () => {
       cancelado = true
     }
-  }, [usuario, cache])
+  }, [usuario, cacheActual])
 
   const agregarMateria = useCallback(
     async (datos) => {
@@ -96,40 +121,37 @@ export function useMaterias() {
         console.error(error)
         return
       }
-      setCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaAMateria(data)] }))
+      actualizarCache((prev) => ({ usuarioId: usuario.id, valor: [...(prev?.valor ?? []), filaAMateria(data)] }))
     },
     [usuario],
   )
 
-  const editarMateria = useCallback(
-    async (id, datos) => {
-      const materiaActual = cache?.valor.find((m) => m.id === id)
-      const cambiaEstructura =
-        datos.cantidadParciales !== undefined ||
-        datos.cantidadRecuperatorios !== undefined ||
-        datos.cantidadInstanciasFinal !== undefined
+  const editarMateria = useCallback(async (id, datos) => {
+    const materiaActual = cache?.valor.find((m) => m.id === id)
+    const cambiaEstructura =
+      datos.cantidadParciales !== undefined ||
+      datos.cantidadRecuperatorios !== undefined ||
+      datos.cantidadInstanciasFinal !== undefined
 
-      const datosCompletos =
-        cambiaEstructura && materiaActual ? { ...datos, ...ajustarEstructuraNotas(materiaActual, datos) } : datos
+    const datosCompletos =
+      cambiaEstructura && materiaActual ? { ...datos, ...ajustarEstructuraNotas(materiaActual, datos) } : datos
 
-      const { data, error } = await supabase
-        .from('user_materias')
-        .update(materiaAFila(datosCompletos))
-        .eq('id', id)
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from('user_materias')
+      .update(materiaAFila(datosCompletos))
+      .eq('id', id)
+      .select()
+      .single()
 
-      if (error) {
-        console.error(error)
-        return
-      }
-      setCache((prev) => ({
-        usuarioId: prev.usuarioId,
-        valor: prev.valor.map((m) => (m.id === id ? filaAMateria(data) : m)),
-      }))
-    },
-    [cache],
-  )
+    if (error) {
+      console.error(error)
+      return
+    }
+    actualizarCache((prev) => ({
+      usuarioId: prev.usuarioId,
+      valor: prev.valor.map((m) => (m.id === id ? filaAMateria(data) : m)),
+    }))
+  }, [])
 
   const eliminarMateria = useCallback(async (id) => {
     const { error } = await supabase.from('user_materias').delete().eq('id', id)
@@ -137,7 +159,7 @@ export function useMaterias() {
       console.error(error)
       return
     }
-    setCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.filter((m) => m.id !== id) }))
+    actualizarCache((prev) => ({ usuarioId: prev.usuarioId, valor: prev.valor.filter((m) => m.id !== id) }))
   }, [])
 
   return { materias, cargando, agregarMateria, editarMateria, eliminarMateria }

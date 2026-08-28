@@ -1,0 +1,209 @@
+.hoja-premio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.hoja-premio-campo {
+  display: block;
+}
+
+.hoja-premio-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 0.4rem;
+}
+
+.hoja-premio-ayuda-campo {
+  margin: 0 0 0.5rem;
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.hoja-premio-ayuda {
+  margin: 0.25rem 0 0;
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.hoja-premio-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.875rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 0.90625rem;
+  font-weight: 600;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.hoja-premio-input:focus {
+  border-color: var(--accent);
+}
+
+.hoja-premio-categoria-libre {
+  margin-top: 0.625rem;
+}
+
+.hoja-premio-acordeon {
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.875rem;
+  overflow: hidden;
+}
+
+.hoja-premio-acordeon-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.875rem;
+  border: none;
+  background: var(--bg);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.hoja-premio-acordeon-valor {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.90625rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.hoja-premio-acordeon-valor.vacio {
+  color: var(--text-disabled);
+  font-weight: 400;
+}
+
+.hoja-premio-acordeon-chevron {
+  flex-shrink: 0;
+  color: var(--chevron);
+  transition: transform 0.2s ease;
+}
+
+.hoja-premio-acordeon-chevron.abierto {
+  transform: rotate(180deg);
+}
+
+.hoja-premio-acordeon-lista {
+  max-height: 11.5rem;
+  overflow-y: auto;
+  border-top: 1px solid var(--divisor);
+}
+
+.hoja-premio-acordeon-vacio {
+  margin: 0;
+  padding: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.hoja-premio-acordeon-opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 2.875rem;
+  padding: 0 0.875rem;
+  border: none;
+  border-bottom: 1px solid var(--divisor);
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  cursor: pointer;
+  text-align: left;
+}
+
+.hoja-premio-acordeon-lista .hoja-premio-acordeon-opcion:last-child {
+  border-bottom: none;
+}
+
+.hoja-premio-acordeon-opcion.elegida {
+  background: rgba(198, 64, 201, 0.08);
+}
+
+.hoja-premio-acordeon-circulo {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--tick-vacio);
+  color: #fff;
+  font-size: 0.6875rem;
+}
+
+.hoja-premio-acordeon-circulo.activo {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.hoja-premio-campo-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.hoja-premio-campo-cabecera .hoja-premio-label {
+  margin-bottom: 0;
+}
+
+.hoja-premio-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.hoja-premio-stepper button {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hoja-premio-stepper button:active:not(:disabled) {
+  background: var(--divisor);
+}
+
+.hoja-premio-stepper button:disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.hoja-premio-stepper-valor {
+  min-width: 3.5rem;
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  color: var(--text-h);
+}
+
+.hoja-premio-costo {
+  border-top: 1px solid var(--divisor);
+  padding-top: 0.875rem;
+}
