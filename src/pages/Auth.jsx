@@ -1,49 +1,9 @@
-import { useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { useAuthForm } from '../hooks/useAuthForm.js'
 import './Auth.css'
 
 function Auth() {
-  const [modo, setModo] = useState('login')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [mensaje, setMensaje] = useState('')
-  const [cargando, setCargando] = useState(false)
-
-  const cambiarModo = () => {
-    setModo((prev) => (prev === 'login' ? 'signup' : 'login'))
-    setError('')
-    setMensaje('')
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-
-    if (!email.trim() || !password) {
-      setError('Completá el email y la contraseña.')
-      return
-    }
-
-    setError('')
-    setMensaje('')
-    setCargando(true)
-
-    if (modo === 'login') {
-      const { error: errorLogin } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-      if (errorLogin) setError(errorLogin.message)
-    } else {
-      const { data, error: errorSignup } = await supabase.auth.signUp({ email: email.trim(), password })
-      if (errorSignup) {
-        setError(errorSignup.message)
-      } else if (!data.session) {
-        setMensaje('Te enviamos un email para confirmar la cuenta. Confirmalo y después iniciá sesión.')
-        setModo('login')
-        setPassword('')
-      }
-    }
-
-    setCargando(false)
-  }
+  const { modo, email, setEmail, password, setPassword, error, mensaje, cargando, cambiarModo, handleSubmit } =
+    useAuthForm()
 
   return (
     <div className="auth-wrapper">
@@ -80,7 +40,11 @@ function Auth() {
           </button>
         </form>
 
-        <button type="button" className="auth-toggle" onClick={cambiarModo}>
+        <button
+          type="button"
+          className="auth-toggle"
+          onClick={() => cambiarModo(modo === 'login' ? 'signup' : 'login')}
+        >
           {modo === 'login' ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión'}
         </button>
       </div>

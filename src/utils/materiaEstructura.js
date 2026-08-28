@@ -38,16 +38,27 @@ export function ajustarEstructuraNotas(materiaAnterior, datosNuevos) {
   return { parciales, final }
 }
 
-// Si el usuario tiene algo cargado en sus materias actuales (alguna nota,
-// un resultado forzado a mano, o una materia agregada por fuera del plan
-// clonado). Se usa para decidir si hace falta advertir antes de un cambio
-// de carrera, que borra y reclona todo user_materias.
-export function tieneProgresoCargado(materias) {
-  return materias.some(
-    (materia) =>
-      materia.materiaCatalogoId == null ||
-      materia.tickManual != null ||
-      materia.parciales.some((parcial) => parcial.notas.some((nota) => nota != null)) ||
-      materia.final.notas.some((nota) => nota != null),
+// Si una materia puntual tiene algo cargado (alguna nota, un resultado
+// forzado a mano, o fue agregada por fuera del plan clonado).
+function materiaTieneProgreso(materia) {
+  return (
+    materia.materiaCatalogoId == null ||
+    materia.tickManual != null ||
+    materia.parciales.some((parcial) => parcial.notas.some((nota) => nota != null)) ||
+    materia.final.notas.some((nota) => nota != null)
   )
+}
+
+// Si el usuario tiene algo cargado en sus materias actuales. Se usa para
+// decidir si hace falta advertir antes de un cambio de carrera, que borra y
+// reclona todo user_materias.
+export function tieneProgresoCargado(materias) {
+  return materias.some(materiaTieneProgreso)
+}
+
+// Cuántas materias tienen algo cargado — mismo criterio que
+// tieneProgresoCargado, pero como cantidad en vez de booleano (para mostrar
+// "esto es lo que se pierde" antes de confirmar un cambio de carrera).
+export function contarMateriasConProgreso(materias) {
+  return materias.filter(materiaTieneProgreso).length
 }

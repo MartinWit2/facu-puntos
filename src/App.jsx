@@ -1,6 +1,8 @@
 import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import Auth from './pages/Auth.jsx'
+import AuthMobile from './pages/AuthMobile.jsx'
 import SeleccionCarrera from './pages/SeleccionCarrera.jsx'
+import CarreraMobile from './pages/CarreraMobile.jsx'
 import { useAuth } from './context/useAuth.js'
 import { usePerfil } from './context/usePerfil.js'
 import { useMaterias } from './hooks/useMaterias.js'
@@ -85,6 +87,7 @@ function App() {
   }
 
   if (!session) {
+    if (esMobil) return <AuthMobile />
     return (
       <div className="app-shell">
         <Auth />
@@ -101,6 +104,7 @@ function App() {
   }
 
   if (!carreraElegida) {
+    if (esMobil) return <CarreraMobile />
     return (
       <div className="app-shell">
         <CabeceraApp usuario={usuario} cerrarSesion={cerrarSesion} />
@@ -128,10 +132,7 @@ function App() {
             <Route path="/materias/:id" element={<MateriaDetalleMobile />} />
             <Route path="/progreso" element={<ProgresoMobile />} />
             <Route path="/premios" element={<PremiosMobile />} />
-            {/* Cambiar de carrera todavía usa la versión de escritorio: no
-                tiene handoff mobile propio (queda listado como "Pendiente de
-                diseño" en el README del handoff). */}
-            <Route path="/cambiar-carrera" element={<CambiarCarrera />} />
+            <Route path="/cambiar-carrera" element={<CarreraMobile />} />
           </Routes>
         </main>
 

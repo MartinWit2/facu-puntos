@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import BottomSheet from '../components/BottomSheet.jsx'
 import { useCelebracion } from '../components/Celebracion.jsx'
-import HistorialCanjes from '../components/HistorialCanjes.jsx'
+import HistorialCanjesMobile from '../components/HistorialCanjesMobile.jsx'
 import HojaCanje from '../components/HojaCanje.jsx'
 import HojaNuevoPremio from '../components/HojaNuevoPremio.jsx'
 import { usePerfil } from '../context/usePerfil.js'
@@ -186,10 +186,7 @@ function PremiosMobile() {
         ))
       )}
 
-      <section className="mobile-seccion premios-mobile-historial">
-        <h4 className="seccion-mobile-label">Historial</h4>
-        <HistorialCanjes canjes={canjes} />
-      </section>
+      <HistorialCanjesMobile canjes={canjes} />
 
       <BottomSheet
         abierto={premioEnCanje != null}

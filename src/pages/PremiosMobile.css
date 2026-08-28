@@ -139,35 +139,6 @@
   cursor: pointer;
 }
 
-.premios-mobile-historial {
-  border-top: 1px solid var(--border-color);
-  padding-top: 1rem;
-  margin-top: 0.25rem;
-}
-
-.premios-mobile-historial .historial-item {
-  border-radius: 1rem;
-  padding: 0.6875rem 0.875rem;
-}
-
-.premios-mobile-historial .historial-nombre {
-  font-size: 0.84375rem;
-}
-
-.premios-mobile-historial .historial-origen {
-  font-size: 0.6875rem;
-}
-
-.premios-mobile-historial .historial-costo {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.premios-mobile-historial .historial-fecha {
-  font-size: 0.65625rem;
-}
-
 /* ---------- Celebración de canje ---------- */
 
 .celebracion-canje-overlay {
