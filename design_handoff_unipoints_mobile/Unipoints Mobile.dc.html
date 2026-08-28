@@ -132,6 +132,13 @@
                 </div>
               </div>
 
+              <div onClick="{{ det.abrirEditar }}" style="display:flex;align-items:center;gap:11px;min-height:48px;padding:0 15px;border-radius:14px;border:1.5px solid #e5e4e7;background:#fff;cursor:pointer" style-active="transform:translateY(2px)">
+                <span style="width:16px;height:16px;flex:none;border-radius:5px;border:2px solid #9a329d"></span>
+                <span style="flex:1;font-size:14px;font-weight:600;color:#2b2438">Editar materia</span>
+                <span style="font-size:11.5px;color:#6b6375;white-space:nowrap">{{ det.reglasResumen }}</span>
+                <span style="font-size:12px;color:#c3bfc9">›</span>
+              </div>
+
               <div style="display:flex;gap:10px">
                 <div style="flex:1;background:#fff;border:2px solid #c640c9;background:rgba(198,64,201,.10);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:2px">
                   <span style="font-size:11px;color:#6b6375">Puntos de esta materia</span>
@@ -145,7 +152,10 @@
               </sc-if>
 
               <div style="display:flex;flex-direction:column;gap:11px">
-                <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">Parciales</div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">Parciales</div>
+                  <span style="font-size:11.5px;color:#6b6375">Tocá una nota para cambiarla</span>
+                </div>
                 <sc-for list="{{ det.parciales }}" as="p" hint-placeholder-count="2">
                   <div style="background:#fff;border:1px solid #e5e4e7;border-radius:18px;box-shadow:0 3px 12px rgba(43,36,56,.08);padding:14px 16px;display:flex;flex-direction:column;gap:11px">
                     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
@@ -181,12 +191,15 @@
                 </div>
               </sc-if>
 
-              <div style="display:flex;flex-direction:column;gap:9px;padding-top:4px">
-                <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">Forzar resultado</div>
-                <div style="font-size:12px;color:#6b6375;line-height:1.45">Si el profesor decide por fuera de la regla, marcalo acá.</div>
-                <div style="display:flex;gap:9px">
-                  <div onClick="{{ det.tickPromo }}" style="flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:13.5px;font-weight:600;border:1.5px solid {{ det.tickPromoBorde }};background:{{ det.tickPromoBg }};color:{{ det.tickPromoColor }};cursor:pointer">Promocionó</div>
-                  <div onClick="{{ det.tickFirma }}" style="flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:13.5px;font-weight:600;border:1.5px solid {{ det.tickFirmaBorde }};background:{{ det.tickFirmaBg }};color:{{ det.tickFirmaColor }};cursor:pointer">Firmó</div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <div style="font:600 11px/1 system-ui;letter-spacing:.08em;text-transform:uppercase;color:#6b6375">Nota final de la materia</div>
+                  <span style="font-size:11.5px;color:#6b6375">{{ det.notaFinalAyuda }}</span>
+                </div>
+                <div style="background:#fff;border:1px solid #e5e4e7;border-radius:18px;box-shadow:0 3px 12px rgba(43,36,56,.08);padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+                  <sc-for list="{{ det.notaFinal }}" as="o" hint-placeholder-count="8">
+                    <div onClick="{{ o.tap }}" style="height:50px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1.5px solid {{ o.borde }};background:{{ o.fondo }};color:{{ o.color }};font-family:'Baloo 2',system-ui;font-weight:800;font-size:{{ o.tam }};cursor:pointer">{{ o.valor }}</div>
+                  </sc-for>
                 </div>
               </div>
             </div>
@@ -329,6 +342,83 @@
           </div>
         </sc-if>
 
+        <sc-if value="{{ hayEditar }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;z-index:33;display:flex;flex-direction:column;justify-content:flex-end">
+            <div onClick="{{ cerrarEditar }}" style="position:absolute;inset:0;background:rgba(43,36,56,.4)"></div>
+            <div style="position:relative;background:#fff;border-radius:26px 26px 0 0;padding:20px 18px 30px;display:flex;flex-direction:column;gap:14px;max-height:88%;animation:uslide .22s ease">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+                <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                  <span style="font-family:'Baloo 2',system-ui;font-weight:700;font-size:18px;color:#2b2438">Editar materia</span>
+                  <span style="font-size:12px;color:#6b6375;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ editar.nombre }}</span>
+                </div>
+                <span onClick="{{ cerrarEditar }}" style="font-size:13px;color:#6b6375;cursor:pointer;padding-top:3px">Cerrar</span>
+              </div>
+
+              <div style="overflow:auto;display:flex;flex-direction:column;gap:16px;padding:2px 0">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <span style="font-size:14px;font-weight:600;color:#2b2438">Nombre</span>
+                  <input value="{{ editar.nombre }}" onChange="{{ editar.setNombre }}" style="width:100%;box-sizing:border-box;min-height:48px;padding:0 14px;border-radius:14px;border:1.5px solid #e5e4e7;background:#fff;font-family:inherit;font-size:14.5px;font-weight:600;color:#2b2438;outline:none" style-focus="border-color:#c640c9" />
+                </div>
+
+                <sc-for list="{{ editar.numeros }}" as="n" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                      <span style="font-size:14px;font-weight:600;color:#2b2438">{{ n.label }}</span>
+                      <span style="font-size:11.5px;color:#6b6375">{{ n.ayuda }}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px;flex:none">
+                      <div onClick="{{ n.menos }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1.5px solid #e5e4e7;background:#fff;font-family:'Baloo 2',system-ui;font-weight:700;font-size:20px;color:#3f3b46;cursor:pointer" style-active="background:#f2f0f5">−</div>
+                      <span style="min-width:56px;text-align:center;font-family:'Baloo 2',system-ui;font-weight:800;font-size:17px;color:#2b2438">{{ n.valor }}</span>
+                      <div onClick="{{ n.mas }}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1.5px solid #e5e4e7;background:#fff;font-family:'Baloo 2',system-ui;font-weight:700;font-size:20px;color:#3f3b46;cursor:pointer" style-active="background:#f2f0f5">+</div>
+                    </div>
+                  </div>
+                </sc-for>
+
+                <div onClick="{{ editar.togglePromo }}" style="display:flex;align-items:center;gap:12px;min-height:48px;cursor:pointer">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                    <span style="font-size:14px;font-weight:600;color:#2b2438">Permite promoción</span>
+                    <span style="font-size:11.5px;color:#6b6375">{{ editar.promoAyuda }}</span>
+                  </div>
+                  <div style="width:52px;height:31px;flex:none;border-radius:999px;padding:3px;box-sizing:border-box;display:flex;align-items:center;justify-content:{{ editar.swPos }};background:{{ editar.swBg }};transition:background .2s ease">
+                    <span style="width:25px;height:25px;border-radius:999px;background:#fff;box-shadow:0 1px 3px rgba(43,36,56,.3)"></span>
+                  </div>
+                </div>
+
+                <sc-for list="{{ editar.notas }}" as="f" hint-placeholder-count="2">
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;flex-direction:column;gap:2px">
+                      <span style="font-size:14px;font-weight:600;color:#2b2438">{{ f.label }}</span>
+                      <span style="font-size:11.5px;color:#6b6375">{{ f.ayuda }}</span>
+                    </div>
+                    <div style="display:flex;gap:7px">
+                      <sc-for list="{{ f.opciones }}" as="o" hint-placeholder-count="5">
+                        <div onClick="{{ o.tap }}" style="flex:1;height:46px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:1.5px solid {{ o.borde }};background:{{ o.fondo }};color:{{ o.color }};font-family:'Baloo 2',system-ui;font-weight:800;font-size:18px;cursor:pointer">{{ o.valor }}</div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+
+                <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #f2f0f5;padding-top:14px">
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:14px;font-weight:600;color:#2b2438">Forzar resultado</span>
+                    <span style="font-size:11.5px;color:#6b6375">Si el profesor decide por fuera de la regla, marcalo acá.</span>
+                  </div>
+                  <div style="display:flex;gap:9px">
+                    <div onClick="{{ editar.tickPromo }}" style="flex:1;min-height:46px;display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:13.5px;font-weight:600;border:1.5px solid {{ editar.tickPromoBorde }};background:{{ editar.tickPromoBg }};color:{{ editar.tickPromoColor }};cursor:pointer">Promocionó</div>
+                    <div onClick="{{ editar.tickFirma }}" style="flex:1;min-height:46px;display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:13.5px;font-weight:600;border:1.5px solid {{ editar.tickFirmaBorde }};background:{{ editar.tickFirmaBg }};color:{{ editar.tickFirmaColor }};cursor:pointer">Firmó</div>
+                  </div>
+                </div>
+
+                <sc-if value="{{ editar.hayOverride }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ editar.reset }}" style="min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:14px;border:1.5px solid #e5e4e7;font-size:13.5px;color:#6b6375;cursor:pointer">Volver a las reglas de la carrera</div>
+                </sc-if>
+              </div>
+
+              <div onClick="{{ cerrarEditar }}" style="min-height:50px;display:flex;align-items:center;justify-content:center;border-radius:15px;background:#c640c9;color:#fff;font-family:'Baloo 2',system-ui;font-weight:700;font-size:16px;box-shadow:0 4px 0 #9a329d;cursor:pointer" style-active="transform:translateY(3px);box-shadow:0 1px 0 #9a329d">Listo</div>
+            </div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ hayPicker }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:flex-end">
             <div onClick="{{ cerrarPicker }}" style="position:absolute;inset:0;background:rgba(43,36,56,.4)"></div>
@@ -389,7 +479,7 @@
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;puntosPorHora&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0.5,&quot;max&quot;:3,&quot;step&quot;:0.25,&quot;section&quot;:&quot;Reglas de la carrera&quot;},&quot;notaAprobacion&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:4,&quot;max&quot;:8,&quot;section&quot;:&quot;Reglas de la carrera&quot;},&quot;permitePromocion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Reglas de la carrera&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;puntosPorHora&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:0.5,&quot;max&quot;:3,&quot;step&quot;:0.25,&quot;section&quot;:&quot;Reglas de la carrera&quot;},&quot;notaAprobacion&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:4,&quot;max&quot;:8,&quot;section&quot;:&quot;Reglas de la carrera&quot;},&quot;notaPromocion&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:8,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:6,&quot;max&quot;:10,&quot;section&quot;:&quot;Reglas de la carrera&quot;},&quot;permitePromocion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Reglas de la carrera&quot;}}">
 const BADGES = {
   pendiente: ['Pendiente', '#e5e4e7', '#6b6375'],
   cursando: ['Cursando', 'rgba(255,200,0,.22)', '#a66a00'],
@@ -434,7 +524,7 @@ class Component extends DCLogic {
     { id: 'p6', nombre: 'Auriculares nuevos', cat: 'Compras', costo: 600 },
   ];
   state = {
-    screen: 'materias', detalleId: null, picker: null, canje: null, origen: [], celebra: null,
+    screen: 'materias', detalleId: null, picker: null, editar: null, canje: null, origen: [], celebra: null,
     abiertos: { 1: false, 2: true },
     filtros: { anios: [], horas: [], estados: [] }, filtroSheet: null, menu: false,
     materias: null,
@@ -445,23 +535,29 @@ class Component extends DCLogic {
   };
 
   ms() { return this.state.materias || this.seed; }
-  reglas() {
+  reglas(m) {
+    const o = (m && m.reglas) || {};
     return {
-      aprob: this.props.notaAprobacion ?? 6,
-      promo: 8,
+      aprob: o.aprob ?? this.props.notaAprobacion ?? 6,
+      promo: o.promo ?? this.props.notaPromocion ?? 8,
       pph: this.props.puntosPorHora ?? 1,
-      permite: this.props.permitePromocion ?? true,
+      permite: o.permite ?? this.props.permitePromocion ?? true,
     };
   }
-  pool(m) { return m.horas == null ? 0 : m.horas * this.reglas().pph; }
+  pool(m) { return m.horas == null ? 0 : m.horas * this.reglas(m).pph; }
 
   evaluar(m) {
-    const r = this.reglas();
+    if (m.tick === 'promocion') return 'promocion';
+    const r = this.reglas(m);
     const inst = m.parciales.map((notas) => {
       const idx = notas.findIndex((n) => n != null && n >= r.aprob);
       const llenas = notas.every((n) => n != null);
       return { aprobado: idx >= 0, agotado: idx < 0 && llenas };
     });
+    if (m.tick === 'firma') {
+      const finalOkT = m.final.some((n) => n != null && n >= r.aprob);
+      return finalOkT ? 'aprobada' : 'firma';
+    }
     if (inst.some((p) => p.agotado)) return 'recursa';
     const todos = inst.every((p) => p.aprobado);
     const finalOk = m.final.some((n) => n != null && n >= r.aprob);
@@ -476,7 +572,6 @@ class Component extends DCLogic {
       if (finalAgotado) return 'recursa';
       return 'firma';
     }
-    if (m.tick === 'firma') return 'firma';
     const alguna = m.parciales.some((notas) => notas.some((n) => n != null));
     return (alguna || m.empezada) ? 'cursando' : 'pendiente';
   }
@@ -484,10 +579,11 @@ class Component extends DCLogic {
   puntos(m) {
     const est = this.evaluar(m);
     if (est === 'recursa') return 0;
-    const r = this.reglas();
+    const r = this.reglas(m);
     const pool = this.pool(m);
     const porParcial = pool / m.parciales.length;
-    let p = m.parciales.reduce((acc, notas) => acc + (notas.some((n) => n != null && n >= r.aprob) ? porParcial : 0), 0);
+    const forzado = m.tick === 'promocion' || m.tick === 'firma';
+    let p = forzado ? pool : m.parciales.reduce((acc, notas) => acc + (notas.some((n) => n != null && n >= r.aprob) ? porParcial : 0), 0);
     if (est === 'promocion') p += pool * 0.5;
     else if (est === 'aprobada') p += pool * 0.25;
     return r2(p);
@@ -544,8 +640,40 @@ class Component extends DCLogic {
     });
   }
 
-  chip(valor, tap, label) {
-    const r = this.reglas();
+  setReglaMateria(id, clave, valor) {
+    this.setMateria(id, (m) => {
+      const reglas = { ...(m.reglas || {}) };
+      if (valor == null) delete reglas[clave]; else reglas[clave] = valor;
+      return { ...m, reglas };
+    });
+  }
+  setHoras(id, delta) {
+    this.setMateria(id, (m) => ({ ...m, horas: Math.max(32, Math.min(320, (m.horas || 0) + delta)) }));
+  }
+  setCantParciales(id, delta) {
+    this.setMateria(id, (m) => {
+      const n = Math.max(1, Math.min(4, m.parciales.length + delta));
+      const ancho = m.parciales[0].length;
+      const parciales = Array.from({ length: n }, (_, i) => m.parciales[i] || Array(ancho).fill(null));
+      return { ...m, parciales };
+    });
+  }
+  setCantRecus(id, delta) {
+    this.setMateria(id, (m) => {
+      const n = Math.max(1, Math.min(4, m.parciales[0].length + delta));
+      const parciales = m.parciales.map((notas) => Array.from({ length: n }, (_, i) => (i < notas.length ? notas[i] : null)));
+      return { ...m, parciales };
+    });
+  }
+  setCantFinales(id, delta) {
+    this.setMateria(id, (m) => {
+      const n = Math.max(1, Math.min(6, m.final.length + delta));
+      return { ...m, final: Array.from({ length: n }, (_, i) => (i < m.final.length ? m.final[i] : null)) };
+    });
+  }
+
+  chip(valor, tap, label, mat) {
+    const r = this.reglas(mat);
     const vacio = valor == null;
     const ok = !vacio && valor >= r.aprob;
     return {
@@ -575,8 +703,9 @@ class Component extends DCLogic {
         bg: activo === id ? 'rgba(198,64,201,.14)' : 'transparent',
         color: activo === id ? '#9a329d' : '#6b6375',
       })),
-      hayPicker: !!st.picker, hayCanje: !!st.canje, hayCelebra: !!st.celebra,
+      hayPicker: !!st.picker, hayCanje: !!st.canje, hayCelebra: !!st.celebra, hayEditar: !!st.editar,
       cerrarPicker: () => this.setState({ picker: null }),
+      cerrarEditar: () => this.setState({ editar: null }),
       cerrarCanje: () => this.setState({ canje: null, origen: [] }),
       cerrarCelebra: () => this.setState({ celebra: null }),
     };
@@ -673,18 +802,22 @@ class Component extends DCLogic {
       const [badge, badgeBg, badgeFg] = BADGES[est];
       const pool = this.pool(m);
       const bonus = est === 'promocion' ? ' · +50% por promoción' : est === 'aprobada' ? ' · +25% por final' : '';
+      const rm = this.reglas(m);
       vals.det = {
+        abrirEditar: () => this.setState({ editar: m.id }),
+        reglasResumen: 'Aprueba ' + rm.aprob + ' · promo ' + (rm.permite ? rm.promo : 'no'),
+        reglasPropias: !!(m.reglas && Object.keys(m.reglas).length),
         nombre: m.nombre, badge, badgeBg, badgeFg,
-        meta: m.horas + ' hs cátedra · ' + m.parciales.length + ' parciales',
+        meta: m.horas + ' hs cátedra · ' + m.parciales.length + ' parciales' + (m.notaFinal != null ? ' · nota final ' + m.notaFinal : ''),
         puntos: this.puntos(m) + ' pts',
         puntosDetalle: 'Pool base ' + pool + bonus,
         esPendiente: est === 'pendiente',
         empezar: () => this.setMateria(m.id, (x) => ({ ...x, empezada: true })),
         mostrarFinal: est === 'firma' || est === 'aprobada',
         finalNota: est === 'aprobada' ? 'Final aprobado.' : 'Firmaste: te quedan ' + m.final.filter((n) => n == null).length + ' instancias de final.',
-        finales: m.final.map((n, i) => this.chip(n, () => this.setState({ picker: { id: m.id, kind: 'final', p: 0, i, titulo: 'Final · instancia ' + (i + 1) } }), 'Inst. ' + (i + 1))),
+        finales: m.final.map((n, i) => this.chip(n, () => this.setState({ picker: { id: m.id, kind: 'final', p: 0, i, titulo: 'Final · instancia ' + (i + 1) } }), 'Inst. ' + (i + 1), m)),
         parciales: m.parciales.map((notas, pIdx) => {
-          const r = this.reglas();
+          const r = rm;
           const j = notas.findIndex((n) => n != null && n >= r.aprob);
           const llenas = notas.every((n) => n != null);
           const estado = j >= 0 ? (notas[j] >= r.promo ? 'Aprobado con ' + notas[j] : 'Aprobado') : llenas ? 'Sin aprobar' : 'Sin rendir';
@@ -692,27 +825,30 @@ class Component extends DCLogic {
             titulo: 'Parcial ' + (pIdx + 1),
             estado,
             estadoColor: j >= 0 ? '#2f7a00' : llenas ? '#c22a2f' : '#6b6375',
-            instancias: notas.map((n, i) => this.chip(n, () => this.setState({ picker: { id: m.id, kind: 'parcial', p: pIdx, i, titulo: 'Parcial ' + (pIdx + 1) + (i === 0 ? ' · original' : ' · recu ' + i) } }), i === 0 ? 'Original' : 'Recu ' + i)),
+            instancias: notas.map((n, i) => this.chip(n, () => this.setState({ picker: { id: m.id, kind: 'parcial', p: pIdx, i, titulo: 'Parcial ' + (pIdx + 1) + (i === 0 ? ' · original' : ' · recu ' + i) } }), i === 0 ? 'Original' : 'Recu ' + i, m)),
           };
         }),
-        tickPromo: () => this.setMateria(m.id, (x) => ({ ...x, tick: x.tick === 'promocion' ? null : 'promocion' })),
-        tickFirma: () => this.setMateria(m.id, (x) => ({ ...x, tick: x.tick === 'firma' ? null : 'firma' })),
-        tickPromoBg: m.tick === 'promocion' ? '#c640c9' : 'transparent',
-        tickPromoColor: m.tick === 'promocion' ? '#fff' : '#3f3b46',
-        tickPromoBorde: m.tick === 'promocion' ? '#c640c9' : '#e5e4e7',
-        tickFirmaBg: m.tick === 'firma' ? '#c640c9' : 'transparent',
-        tickFirmaColor: m.tick === 'firma' ? '#fff' : '#3f3b46',
-        tickFirmaBorde: m.tick === 'firma' ? '#c640c9' : '#e5e4e7',
+        notaFinalAyuda: m.notaFinal == null ? 'Sin cargar' : 'Cargada',
+        notaFinal: [4, 5, 6, 7, 8, 9, 10, null].map((v) => ({
+          valor: v == null ? 'Sin nota' : String(v),
+          tap: () => this.setMateria(m.id, (x) => ({ ...x, notaFinal: v })),
+          tam: v == null ? '13px' : '19px',
+          borde: (m.notaFinal ?? null) === v ? '#c640c9' : '#e5e4e7',
+          fondo: (m.notaFinal ?? null) === v ? '#c640c9' : '#fff',
+          color: (m.notaFinal ?? null) === v ? '#fff' : (v == null ? '#a9a4b0' : '#3f3b46'),
+        })),
       };
     }
 
     if (st.picker) {
       const pk = st.picker;
+      const mp = materias.find((x) => x.id === pk.id);
+      const rp = this.reglas(mp);
       vals.picker = {
         titulo: pk.titulo,
-        ayuda: 'Se aprueba con ' + this.reglas().aprob + ' o más. Con 8 en el original o el primer recu, promociona.',
+        ayuda: 'Se aprueba con ' + rp.aprob + ' o más.' + (rp.permite ? ' Con ' + rp.promo + ' en el original o el primer recu, promociona.' : ' Esta materia no permite promoción.'),
         notas: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => {
-          const ok = v >= this.reglas().aprob;
+          const ok = v >= rp.aprob;
           return {
             valor: String(v),
             borde: ok ? 'rgba(88,204,2,.45)' : '#e5e4e7',
@@ -722,6 +858,46 @@ class Component extends DCLogic {
           };
         }),
         borrar: () => { this.setNota(pk.id, pk.kind, pk.p, pk.i, null); this.setState({ picker: null }); },
+      };
+    }
+
+    if (st.editar) {
+      const me = materias.find((x) => x.id === st.editar);
+      const re = this.reglas(me);
+      const opt = (v, activo, tap) => ({
+        valor: String(v), tap,
+        borde: activo ? '#c640c9' : '#e5e4e7',
+        fondo: activo ? '#c640c9' : '#fff',
+        color: activo ? '#fff' : '#3f3b46',
+      });
+      const filas = [
+        { label: 'Nota de aprobación', ayuda: 'Mínimo para aprobar un parcial o el final.', opciones: [4, 5, 6, 7, 8].map((v) => opt(v, re.aprob === v, () => this.setReglaMateria(me.id, 'aprob', v))) },
+      ];
+      if (re.permite) filas.push({ label: 'Nota de promoción', ayuda: 'Con esta nota en el original o el primer recu, promociona.', opciones: [6, 7, 8, 9, 10].map((v) => opt(v, re.promo === v, () => this.setReglaMateria(me.id, 'promo', v))) });
+      vals.editar = {
+        nombre: me.nombre,
+        setNombre: (e) => this.setMateria(me.id, (x) => ({ ...x, nombre: e.target.value })),
+        tickPromo: () => this.setMateria(me.id, (x) => ({ ...x, tick: x.tick === 'promocion' ? null : 'promocion' })),
+        tickFirma: () => this.setMateria(me.id, (x) => ({ ...x, tick: x.tick === 'firma' ? null : 'firma' })),
+        tickPromoBg: me.tick === 'promocion' ? '#c640c9' : 'transparent',
+        tickPromoColor: me.tick === 'promocion' ? '#fff' : '#3f3b46',
+        tickPromoBorde: me.tick === 'promocion' ? '#c640c9' : '#e5e4e7',
+        tickFirmaBg: me.tick === 'firma' ? '#c640c9' : 'transparent',
+        tickFirmaColor: me.tick === 'firma' ? '#fff' : '#3f3b46',
+        tickFirmaBorde: me.tick === 'firma' ? '#c640c9' : '#e5e4e7',
+        numeros: [
+          { label: 'Horas cátedra', ayuda: 'Definen el pool: ' + this.pool(me) + ' pts', valor: me.horas + ' hs', menos: () => this.setHoras(me.id, -16), mas: () => this.setHoras(me.id, 16) },
+          { label: 'Parciales', ayuda: 'Cada uno vale ' + r2(this.pool(me) / me.parciales.length) + ' pts', valor: String(me.parciales.length), menos: () => this.setCantParciales(me.id, -1), mas: () => this.setCantParciales(me.id, 1) },
+          { label: 'Recuperatorios', ayuda: 'Por parcial, sin contar el original', valor: String(me.parciales[0].length - 1), menos: () => this.setCantRecus(me.id, -1), mas: () => this.setCantRecus(me.id, 1) },
+          { label: 'Instancias de final', ayuda: 'Cuántas veces podés rendir el final', valor: String(me.final.length), menos: () => this.setCantFinales(me.id, -1), mas: () => this.setCantFinales(me.id, 1) },
+        ],
+        notas: filas,
+        promoAyuda: re.permite ? 'La materia puede promocionar sin final.' : 'La materia siempre va a final.',
+        togglePromo: () => this.setReglaMateria(me.id, 'permite', !re.permite),
+        swBg: re.permite ? '#c640c9' : '#d8d4dd',
+        swPos: re.permite ? 'flex-end' : 'flex-start',
+        hayOverride: !!(me.reglas && Object.keys(me.reglas).length),
+        reset: () => this.setMateria(me.id, (x) => ({ ...x, reglas: {} })),
       };
     }
 

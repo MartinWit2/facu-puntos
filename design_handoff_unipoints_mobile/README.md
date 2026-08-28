@@ -88,7 +88,28 @@ Padding `16px 16px 28px`, columna con `gap:16px`.
     - Desaprobado: borde `rgba(255,75,75,.45)`, fondo `rgba(255,75,75,.12)`, texto `#c22a2f`.
   - **Tocar un chip abre la hoja de notas** — este es el cambio más importante respecto de la web: no hay inputs numéricos ni teclado. Ver "Hojas inferiores".
 - **Final**: se muestra solo si el estado es `firma` o `aprobada`. Misma tarjeta, con 4 chips (`DEFAULT_CANTIDAD_INSTANCIAS_FINAL`) etiquetados "Inst. 1"…"Inst. 4". Arriba, en 12px `#6b6375`: "Final aprobado." o "Firmaste: te quedan N instancias de final."
-- **Forzar resultado**: label de sección, una línea de ayuda en 12px `#6b6375` ("Si el profesor decide por fuera de la regla, marcalo acá.") y dos botones toggle en fila, `min-height:44px`, `border-radius:13px`, 13.5px 600 — "Promocionó" y "Firmó". Apagado: borde `1.5px solid #e5e4e7`, fondo transparente, texto `#3f3b46`. Encendido: borde y fondo `#c640c9`, texto `#fff`. Son excluyentes en la práctica y equivalen al override manual del spec.
+- **Nota final de la materia**: sección propia después del final. Label de sección a la izquierda y a la derecha, en 11.5px `#6b6375`, "Sin cargar" o "Cargada". Dentro de una tarjeta (`#fff`, borde `1px solid #e5e4e7`, radio 18px, sombra de tarjeta, padding `14px 16px`), una **grilla de 4 columnas** con `gap:8px` y ocho celdas de 50px de alto y radio 13px: las notas 4 a 10 en Baloo 2 800 19px, más una celda "Sin nota" en 13px para limpiarla. Elegida: fondo y borde `#c640c9`, texto `#fff`. Sin elegir: borde `1.5px solid #e5e4e7`, fondo `#fff`, texto `#3f3b46` (`#a9a4b0` en "Sin nota"). Es la nota de la materia, distinta de las instancias de final: se guarda como dato y no interviene en el cálculo de puntos. Cuando está cargada, se suma a la línea de meta del título: `" · nota final 7"`.
+
+### 2b. Editar materia (hoja)
+
+Botón **Editar materia** en el detalle, entre el título y la tarjeta de puntos: fila de `min-height:48px`, padding `0 15px`, radio 14px, borde `1.5px solid #e5e4e7`, fondo `#fff`. Icono placeholder de 16px con borde `2px solid #9a329d`, label "Editar materia" en 14px 600 `#2b2438`, y a la derecha un resumen de las reglas vigentes en 11.5px `#6b6375` (`"Aprueba 6 · promo 8"`, o `"Aprueba 6 · promo no"` si no permite) más un chevron `›`. Al presionar baja `translateY(2px)`.
+
+Abre una hoja inferior (`max-height:88%`, padding `20px 18px 30px`, `gap:14px`) titulada "Editar materia" con el nombre de la materia debajo en 12px `#6b6375` con elipsis. El cuerpo scrollea con `gap:16px`; el botón "Listo" queda fijo al pie (mismo botón primario de siempre). Contenido, en orden:
+
+1. **Nombre** — label 14px 600 y un `<input>` de ancho completo, `min-height:48px`, padding `0 14px`, radio 14px, borde `1.5px solid #e5e4e7` que pasa a `#c640c9` en foco, texto 14.5px 600 `#2b2438`, sin outline. Edita en vivo.
+2. **Steppers numéricos** — cuatro filas con label 14px 600, ayuda dinámica en 11.5px `#6b6375`, y a la derecha un control de −/valor/+ (botones de 44×44 con radio 13px y borde `1.5px solid #e5e4e7`, fondo `#f2f0f5` al presionar; valor centrado en Baloo 2 800 17px con `min-width:56px`):
+   - Horas cátedra, de a 16, entre 32 y 320. Ayuda: "Definen el pool: 128 pts".
+   - Parciales, 1 a 4. Ayuda: "Cada uno vale 64 pts". Agregar o quitar preserva las notas de los parciales que quedan.
+   - Recuperatorios por parcial, 1 a 4 (sin contar el original). Aplica a todos los parciales por igual.
+   - Instancias de final, 1 a 6.
+3. **Permite promoción** — fila clickeable con label, ayuda ("La materia puede promocionar sin final." / "La materia siempre va a final.") y un switch de 52×31, radio 999px, padding 3px, con perilla blanca de 25px y sombra `0 1px 3px rgba(43,36,56,.3)`. Encendido `#c640c9`, apagado `#d8d4dd`, `transition:background .2s ease`. Apagarlo oculta la fila de nota de promoción.
+4. **Nota de aprobación** (4 a 8) y, solo si permite promoción, **nota de promoción** (6 a 10) — cada una con label, ayuda y una fila de cinco celdas de 46px, radio 13px, Baloo 2 800 18px. Elegida: fondo y borde `#c640c9`, texto `#fff`.
+5. **Forzar resultado** — separado por un borde superior `1px solid #f2f0f5` con `padding-top:14px`. Label, ayuda ("Si el profesor decide por fuera de la regla, marcalo acá.") y dos toggles en fila de `min-height:46px`, radio 13px, 13.5px 600: "Promocionó" y "Firmó". Apagado: borde `1.5px solid #e5e4e7`, transparente, texto `#3f3b46`. Encendido: fondo y borde `#c640c9`, texto `#fff`.
+6. **"Volver a las reglas de la carrera"** — aparece solo si la materia tiene overrides. `min-height:44px`, borde `1.5px solid #e5e4e7`, texto 13.5px `#6b6375`. Borra los overrides y devuelve la materia a las reglas de la carrera.
+
+**Reglas por materia.** Los valores de nota de aprobación, nota de promoción y permite-promoción son **overrides por materia** que pisan a los de la carrera, exactamente como `calcularReglasEfectivas(materia, reglasCarrera)` en el repo. Guardar solo las claves que el usuario tocó; las demás se resuelven contra la carrera. Todo lo derivado recalcula en vivo al cambiar cualquiera de estos valores: badge de estado, puntos de la materia, saldo del header, barra de avance del año y disponibles en el canje. La ayuda de la hoja de notas también refleja las reglas de esa materia ("Se aprueba con 6 o más. Con 8 en el original o el primer recu, promociona." / "...Esta materia no permite promoción.").
+
+**Forzar resultado, semántica.** El tick es un override duro: se aplica aunque falten parciales por cargar, no requiere que la evaluación normal ya dé ese resultado. `tick === 'promocion'` devuelve `promocion` sin más; `tick === 'firma'` devuelve `aprobada` si hay un final aprobado, y `firma` si no. En ambos casos los puntos parten del **pool completo** (no de la suma por parcial aprobado), más el +50% de promoción o el +25% de final según corresponda. Sin esto el control es un no-op en el caso común, que es justamente cuando el usuario lo necesita.
 
 ### 3. Progreso
 
@@ -137,6 +158,8 @@ Patrón compartido: overlay `position:absolute; inset:0` con fondo `rgba(43,36,5
 - **Navegación**: tabs abajo entre Materias / Progreso / Premios. Materias → detalle de materia, y "‹ Materias" vuelve. Cambiar de tab resetea el detalle abierto. En el codebase, mantener las rutas de React Router que ya existen.
 - **Cargar una nota**: tocar chip → hoja de notas → tocar la nota → se guarda y la hoja cierra. Todo lo dependiente se recalcula al instante: estado del parcial, badge de la materia, puntos de la materia, saldo del header, barra de avance del año, disponibles en el canje. Sin botón de guardar.
 - **Filtrar**: tocar chip → hoja → tildar → "Ver N materias". Los años que quedan sin materias visibles se ocultan; el conteo del encabezado pasa a "N de M materias". "Limpiar" resetea las tres categorías a `FILTROS_VACIOS`.
+- **Editar materia**: botón en el detalle → hoja → todo se aplica en vivo, sin guardar. "Listo" solo cierra. Cambiar horas, parciales o reglas recalcula puntos y saldo al instante; achicar la cantidad de parciales o recuperatorios descarta las notas que quedan fuera.
+- **Nota final de la materia**: se elige tocando una celda de la grilla en el detalle, y "Sin nota" la limpia. No afecta los puntos.
 - **Colapsar años**: tocar la cabecera. Es estado local de UI; conviene conservarlo al ir y volver del detalle.
 - **Canjear**: botón de costo → hoja de canje → tildar materias en orden → confirmar → overlay de celebración → "Listo". El canje se agrega al historial con el detalle de cuántos puntos salieron de cada materia.
 - **Estados de presionado**: los botones con sombra sólida bajan `translateY(2–3px)` y reducen la sombra a `0 1px 0`. No hay hover — es táctil.
@@ -155,12 +178,15 @@ Estado que necesita la vista mobile (el resto vive en los hooks y contexts que y
 - `notaSheet` — `{ materiaId, tipo: 'parcial' | 'final', parcialIdx, instanciaIdx }`, o null.
 - `canjeSheet` — id del premio en curso, o null.
 - `ordenOrigen` — array ordenado de ids de materia elegidos en la hoja de canje. El orden importa: define el descuento. Se limpia al cerrar.
+- `editarSheet` — id de la materia que se está editando, o null.
 - `celebracion` — `{ nombre, costo }` tras confirmar, o null.
 - `menuUsuario` — booleano.
 
 Derivados, siempre calculados con los utils del repo, nunca guardados: estado de cada materia, puntos por materia, disponibles por materia, ganados, canjeados, saldo, y la lista filtrada.
 
-Solo una capa modal a la vez. Z-index del prototipo: menú 34, hoja de nota/filtro 30, hoja de canje 32, celebración 40.
+Por materia, además de lo que ya modela el repo: `reglas` (objeto de overrides con `aprob`, `promo`, `permite` — solo las claves tocadas), `tick` (`'promocion' | 'firma' | null`) y `notaFinal` (número o null).
+
+Solo una capa modal a la vez. Z-index del prototipo: menú 34, hoja de editar 33, hoja de canje 32, hoja de nota/filtro 30, celebración 40.
 
 ## Design Tokens
 
@@ -212,12 +238,15 @@ En `screenshots/` están las capturas del prototipo, a 2x sobre un marco de iPho
 | Archivo | Qué muestra |
 | --- | --- |
 | `01-materias.png` | Materias con la barra de filtros y los años colapsables |
-| `02-detalle-materia.png` | Detalle de materia: puntos, parciales con chips, forzar resultado |
-| `03-hoja-nota.png` | Hoja inferior para cargar una nota |
-| `04-progreso.png` | Progreso: saldo, ganados/canjeados y origen de los puntos |
-| `05-premios.png` | Premios por categoría e historial |
-| `06-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
-| `07-menu-usuario.png` | Menú de usuario anclado al avatar |
+| `02-detalle-materia.png` | Detalle: botón Editar materia, puntos, parciales con chips |
+| `03-nota-final.png` | Detalle scrolleado: final y la grilla de nota final de la materia |
+| `04-editar-materia.png` | Hoja de editar: nombre, steppers, permite promoción, notas |
+| `05-editar-forzar.png` | Hoja de editar scrolleada: notas de aprobación/promoción y forzar resultado |
+| `06-hoja-nota.png` | Hoja inferior para cargar la nota de un parcial |
+| `07-progreso.png` | Progreso: saldo, ganados/canjeados y origen de los puntos |
+| `08-premios.png` | Premios por categoría e historial |
+| `09-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
+| `10-menu-usuario.png` | Menú de usuario anclado al avatar |
 
 Son capturas con datos de ejemplo. Las medidas y colores exactos están en las secciones de arriba — no los midas sobre la imagen.
 
