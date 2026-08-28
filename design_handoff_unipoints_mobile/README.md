@@ -50,6 +50,7 @@ Lista completa de las materias de la carrera, agrupadas por año.
 
 - Contenedor scrolleable, padding `18px 16px 28px`, columna con `gap:18px`.
 - **Encabezado**: h1 "Materias" en Baloo 2 800, 27px, `#2b2438`, margen 0. A la derecha, 12px `#6b6375`, con el conteo: `"N de M aprobadas"` sin filtros activos, o `"N de M materias"` cuando hay filtros.
+- **Botón "+ Agregar materia"**: botón primario de ancho completo, `min-height:48px`, radio 14px, fondo `#c640c9`, `box-shadow:0 4px 0 #9a329d`, contenido centrado con `gap:8px` — un "+" en Baloo 2 800 20px y el label en Baloo 2 700 15px, ambos `#fff`. Al presionar baja `translateY(3px)` y la sombra pasa a `0 1px 0`. Va entre el encabezado y la barra de filtros. Abre la hoja de nueva materia.
 - **Barra de filtros**: fila horizontal scrolleable con `gap:8px`, tres chips (Año, Horas, Estado) más "Limpiar" cuando hay alguno activo.
   - Chip: `min-height:38px`, padding `0 14px`, `border-radius:999px`, `font-size:13px`, `font-weight:600`. Sin selección: borde `1.5px solid #e5e4e7`, fondo `#fff`, texto `#3f3b46`. Con selección: borde y fondo `#c640c9`, texto `#fff`, y un contador circular de 18px con el número de opciones elegidas.
   - Tocar un chip abre una **hoja inferior** con las opciones como filas tildables (ver "Hojas inferiores"). En la web esto es un dropdown (`MateriaFiltros.jsx`); en mobile es una hoja, porque los dropdowns anclados no funcionan bien con el teclado y el scroll del teléfono.
@@ -111,6 +112,29 @@ Abre una hoja inferior (`max-height:88%`, padding `20px 18px 30px`, `gap:14px`) 
 
 **Forzar resultado, semántica.** El tick es un override duro: se aplica aunque falten parciales por cargar, no requiere que la evaluación normal ya dé ese resultado. `tick === 'promocion'` devuelve `promocion` sin más; `tick === 'firma'` devuelve `aprobada` si hay un final aprobado, y `firma` si no. En ambos casos los puntos parten del **pool completo** (no de la suma por parcial aprobado), más el +50% de promoción o el +25% de final según corresponda. Sin esto el control es un no-op en el caso común, que es justamente cuando el usuario lo necesita.
 
+### 2c. Nueva materia (hoja)
+
+Se abre desde "+ Agregar materia" en la pantalla de Materias. Misma estructura de hoja que Editar materia (`max-height:88%`, padding `20px 18px 30px`, `gap:14px`, cuerpo scrolleable con `gap:16px`, botón fijo al pie). Título "Nueva materia" en Baloo 2 700 18px y "Cerrar" a la derecha. Cubre los mismos campos que `MateriaForm.jsx`:
+
+1. **Nombre** — input de ancho completo (mismo estilo que en Editar materia), placeholder "Sistemas Operativos".
+2. **Año de cursada** — fila de cinco celdas de 48px, radio 13px, Baloo 2 800 17px, con "1°" a "5°". Elegida: fondo y borde `#c640c9`, texto `#fff`. Default 1°. En la app real, si el plan tiene más años que 5, esto debe derivarse del plan y no quedar fijo en cinco opciones.
+3. **Steppers** — Horas cátedra (default 128, de a 16, entre 32 y 320; ayuda "Pool de puntos: 128"), Parciales (default 2, 1 a 4), Recuperatorios (default 2, 0 a 4), Instancias de final (default 4, 0 a 6). Mismos controles de −/valor/+ de 44×44 que en Editar materia.
+4. **No sumar puntos** — separado por un borde superior `1px solid #f2f0f5` con `padding-top:14px`. Switch de 52×31 con la ayuda "Ya la tenía aprobada antes de usar la app." Equivale a `poolOverride: 0`: la materia existe y muestra su estado, pero su pool es 0 y no aporta puntos. Cuando está encendido, la ayuda del stepper de horas pasa a "No va a sumar puntos".
+5. **Botón de submit** — "Agregar materia" habilitado, o "Ponele un nombre" en gris (`#f2f0f5` / `#a9a4b0`, sin sombra) mientras el nombre esté vacío. El único campo obligatorio es el nombre; el resto tiene defaults válidos. En la app real, validar además horas > 0 como hace `MateriaForm`.
+
+Al confirmar, la materia se agrega y **el año donde cayó se abre** en la lista, para que se vea el resultado sin buscarlo.
+
+### 2d. Nuevo premio (hoja)
+
+Se abre desde "+ Agregar premio" en la pantalla de Premios (mismo botón primario de ancho completo, entre el h1 y la primera categoría). Título "Nuevo premio". Campos, equivalentes a `PremioForm.jsx`:
+
+1. **Nombre** — input de ancho completo, placeholder "Salir a comer afuera".
+2. **Categoría** — label con ayuda "Elegí una o escribí una nueva.", y dos controles:
+   - Un **acordeón**: contenedor con borde `1.5px solid #e5e4e7`, radio 14px, `overflow:hidden`. Fila cerrada de `min-height:48px`, padding `0 14px`, que muestra la categoría elegida en 14.5px 600 `#2b2438` (o "Elegir categoría" en `#a9a4b0` si no hay ninguna) con elipsis, más un chevron `▾` que rota 180° al abrir. Abierto, despliega la lista con un borde superior `1px solid #f2f0f5` y **`max-height:184px` con scroll propio** — así el alto de la hoja no crece con la cantidad de categorías. Cada opción: `min-height:46px`, padding `0 14px`, borde inferior `1px solid #f2f0f5`, un círculo de 22px a la izquierda (elegida: fondo y borde `#c640c9` con un `✓` blanco de 12px; sin elegir: borde `1.5px solid #d8d4dd`) y el nombre en 14px 600. La fila elegida además lleva fondo `rgba(198,64,201,.08)`. Elegir una opción la escribe en el campo y **cierra el acordeón**.
+   - Un **input libre** debajo, placeholder "O escribí una nueva". Escribir ahí y elegir del acordeón son el mismo dato: el input es la fuente de verdad, y el acordeón solo lo setea. Es el patrón de `ComboboxCategoria`, adaptado para que no empuje la pantalla cuando hay muchas categorías.
+3. **Costo en puntos** — separado por borde superior, con stepper de a 10 entre 10 y 2000 (default 120). Ayuda con la referencia real: "Tus materias van de 64 a 240 pts." (mín y máx de los puntos ya ganados), o "Todavía no tenés puntos cargados." si no hay ninguno. Equivale al `rangoPool` de `PremioForm`.
+4. **Botón de submit** — "Agregar premio", o "Completá nombre y categoría" en gris mientras falte alguno de los dos. Costo debe ser > 0.
+
 ### 3. Progreso
 
 Padding `18px 16px 28px`, `gap:16px`.
@@ -158,6 +182,7 @@ Patrón compartido: overlay `position:absolute; inset:0` con fondo `rgba(43,36,5
 - **Navegación**: tabs abajo entre Materias / Progreso / Premios. Materias → detalle de materia, y "‹ Materias" vuelve. Cambiar de tab resetea el detalle abierto. En el codebase, mantener las rutas de React Router que ya existen.
 - **Cargar una nota**: tocar chip → hoja de notas → tocar la nota → se guarda y la hoja cierra. Todo lo dependiente se recalcula al instante: estado del parcial, badge de la materia, puntos de la materia, saldo del header, barra de avance del año, disponibles en el canje. Sin botón de guardar.
 - **Filtrar**: tocar chip → hoja → tildar → "Ver N materias". Los años que quedan sin materias visibles se ocultan; el conteo del encabezado pasa a "N de M materias". "Limpiar" resetea las tres categorías a `FILTROS_VACIOS`.
+- **Agregar materia / premio**: botón primario arriba de la lista → hoja → los campos se editan sobre un borrador local, y solo al confirmar se agrega. El submit queda deshabilitado (gris, no clickeable) hasta que estén los campos obligatorios. Cerrar descarta el borrador.
 - **Editar materia**: botón en el detalle → hoja → todo se aplica en vivo, sin guardar. "Listo" solo cierra. Cambiar horas, parciales o reglas recalcula puntos y saldo al instante; achicar la cantidad de parciales o recuperatorios descarta las notas que quedan fuera.
 - **Nota final de la materia**: se elige tocando una celda de la grilla en el detalle, y "Sin nota" la limpia. No afecta los puntos.
 - **Colapsar años**: tocar la cabecera. Es estado local de UI; conviene conservarlo al ir y volver del detalle.
@@ -179,12 +204,14 @@ Estado que necesita la vista mobile (el resto vive en los hooks y contexts que y
 - `canjeSheet` — id del premio en curso, o null.
 - `ordenOrigen` — array ordenado de ids de materia elegidos en la hoja de canje. El orden importa: define el descuento. Se limpia al cerrar.
 - `editarSheet` — id de la materia que se está editando, o null.
+- `nuevaMateriaSheet` — borrador de la materia nueva (`{ nombre, anio, horas, parciales, recus, finales, noSuma }`), o null.
+- `nuevoPremioSheet` — borrador del premio nuevo (`{ nombre, cat, costo, catsAbierto }`), o null. `catsAbierto` es el estado del acordeón de categorías.
 - `celebracion` — `{ nombre, costo }` tras confirmar, o null.
 - `menuUsuario` — booleano.
 
 Derivados, siempre calculados con los utils del repo, nunca guardados: estado de cada materia, puntos por materia, disponibles por materia, ganados, canjeados, saldo, y la lista filtrada.
 
-Por materia, además de lo que ya modela el repo: `reglas` (objeto de overrides con `aprob`, `promo`, `permite` — solo las claves tocadas), `tick` (`'promocion' | 'firma' | null`) y `notaFinal` (número o null).
+Por materia, además de lo que ya modela el repo: `noSuma` (booleano, el `poolOverride: 0` del repo), `reglas` (objeto de overrides con `aprob`, `promo`, `permite` — solo las claves tocadas), `tick` (`'promocion' | 'firma' | null`) y `notaFinal` (número o null).
 
 Solo una capa modal a la vez. Z-index del prototipo: menú 34, hoja de editar 33, hoja de canje 32, hoja de nota/filtro 30, celebración 40.
 
@@ -242,11 +269,13 @@ En `screenshots/` están las capturas del prototipo, a 2x sobre un marco de iPho
 | `03-nota-final.png` | Detalle scrolleado: final y la grilla de nota final de la materia |
 | `04-editar-materia.png` | Hoja de editar: nombre, steppers, permite promoción, notas |
 | `05-editar-forzar.png` | Hoja de editar scrolleada: notas de aprobación/promoción y forzar resultado |
-| `06-hoja-nota.png` | Hoja inferior para cargar la nota de un parcial |
-| `07-progreso.png` | Progreso: saldo, ganados/canjeados y origen de los puntos |
-| `08-premios.png` | Premios por categoría e historial |
-| `09-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
-| `10-menu-usuario.png` | Menú de usuario anclado al avatar |
+| `06-nueva-materia.png` | Hoja de nueva materia |
+| `07-nuevo-premio.png` | Hoja de nuevo premio con el acordeón de categorías abierto |
+| `08-hoja-nota.png` | Hoja inferior para cargar la nota de un parcial |
+| `09-progreso.png` | Progreso: saldo, ganados/canjeados y origen de los puntos |
+| `10-premios.png` | Premios por categoría e historial |
+| `11-hoja-canje.png` | Hoja de canje con selección de origen y cobertura en vivo |
+| `12-menu-usuario.png` | Menú de usuario anclado al avatar |
 
 Son capturas con datos de ejemplo. Las medidas y colores exactos están en las secciones de arriba — no los midas sobre la imagen.
 
@@ -259,6 +288,5 @@ Referencias en el repo: `docs/SPEC.md` para el modelo, `src/index.css` para los 
 
 ## Pendiente de diseño
 - Pantalla de **cambiar de carrera** (hoy el menú solo cierra).
-- **Alta de materia** desde el catálogo (`MateriaForm`) y **alta de premio** (`PremioForm`) en mobile.
 - **Estados vacíos** de primera vez: sin materias, sin premios, sin canjes.
 - **Login / selección inicial de carrera** (`Auth`, `SeleccionCarrera`) en mobile.
