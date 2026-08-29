@@ -7,6 +7,7 @@ export function calcularReglasEfectivas(materia, reglasCarrera) {
     notaAprobacion: materia.notaAprobacionOverride ?? reglasCarrera.notaAprobacion,
     notaPromocion: materia.notaPromocionOverride ?? reglasCarrera.notaPromocion,
     permitePromocion: materia.permitePromocionOverride ?? reglasCarrera.permitePromocion,
+    promocionPorPromedio: materia.promocionPorPromedioOverride ?? reglasCarrera.promocionPorPromedio,
     puntosPorHora: reglasCarrera.puntosPorHora,
   }
 }

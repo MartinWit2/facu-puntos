@@ -30,6 +30,7 @@ export function PerfilProvider({ children }) {
         notaAprobacion: perfil.nota_aprobacion_custom,
         notaPromocion: perfil.nota_promocion_custom,
         permitePromocion: perfil.permite_promocion_custom,
+        promocionPorPromedio: perfil.promocion_por_promedio_custom,
         puntosPorHora: perfil.puntos_por_hora_custom,
       }
     : undefined
@@ -47,7 +48,7 @@ export function PerfilProvider({ children }) {
     supabase
       .from('perfiles')
       .select(
-        'user_id, carrera_id, carrera_desde, nombre_custom, nota_aprobacion_custom, nota_promocion_custom, permite_promocion_custom, puntos_por_hora_custom',
+        'user_id, carrera_id, carrera_desde, nombre_custom, nota_aprobacion_custom, nota_promocion_custom, permite_promocion_custom, promocion_por_promedio_custom, puntos_por_hora_custom',
       )
       .eq('user_id', usuario.id)
       .maybeSingle()
@@ -98,7 +99,7 @@ export function PerfilProvider({ children }) {
 
     supabase
       .from('carreras')
-      .select('nota_aprobacion, nota_promocion, permite_promocion, puntos_por_hora')
+      .select('nota_aprobacion, nota_promocion, permite_promocion, promocion_por_promedio, puntos_por_hora')
       .eq('id', carreraId)
       .maybeSingle()
       .then(({ data, error: errorConsulta }) => {
@@ -109,6 +110,7 @@ export function PerfilProvider({ children }) {
               notaAprobacion: data.nota_aprobacion,
               notaPromocion: data.nota_promocion,
               permitePromocion: data.permite_promocion,
+              promocionPorPromedio: data.promocion_por_promedio,
               puntosPorHora: data.puntos_por_hora,
             }
           : null
@@ -263,6 +265,7 @@ export function PerfilProvider({ children }) {
     nota_aprobacion_custom: reglas.notaAprobacion,
     nota_promocion_custom: reglas.notaPromocion,
     permite_promocion_custom: reglas.permitePromocion,
+    promocion_por_promedio_custom: reglas.promocionPorPromedio,
     puntos_por_hora_custom: reglas.puntosPorHora,
   })
 

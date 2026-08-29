@@ -145,6 +145,28 @@
   padding-top: 0.875rem;
 }
 
+.hoja-materia-input-chico {
+  width: 6rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+}
+
+.hoja-materia-input-chico:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.hoja-materia-horas-switch {
+  margin-top: 0.625rem;
+}
+
 .hoja-materia-switch-fila {
   display: flex;
   align-items: center;

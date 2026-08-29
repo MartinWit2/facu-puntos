@@ -57,13 +57,57 @@ function Stepper({ campo, valor, onCambiar }) {
 }
 
 // Cuerpo de la hoja de nueva materia (sección "2c" del handoff), controlado
-// desde MateriasMobile.jsx igual que HojaEditarMateria: sin estado propio,
-// solo onCambiar(campo, valor) sobre el borrador que vive en la página.
+// desde MateriasMobile.jsx igual que HojaEditarMateria: sin estado propio
+// para el borrador, solo onCambiar(campo, valor) sobre el que vive en la
+// página. La excepción es el modo "horas por clase × cantidad de clases"
+// (ver más abajo): es una ayuda de carga puramente efímera, no forma parte
+// del borrador que se termina guardando.
 function HojaNuevaMateria({ form, aniosDisponibles, puntosPorHora, onCambiar }) {
   const poolPuntos = calcularPoolPuntos(form.horasCatedra, puntosPorHora)
   // El año elegido siempre aparece como chip, aunque no esté entre los años
   // que ya tienen materias cargadas (ej. la primera materia de un año nuevo).
   const opcionesAnio = [...new Set([...aniosDisponibles, form.anioCursada])].sort((a, b) => a - b)
+
+  // Carga alternativa de horas cátedra: útil cuando la fuente del plan da
+  // "horas por clase" y "cantidad de clases" en vez del total. Estado 100%
+  // local — al calcularse el total, se manda hacia arriba con el mismo
+  // onCambiar('horasCatedra', total) de siempre, como si se hubiera tipeado
+  // directo. No se guarda ni "horas por clase" ni "cantidad de clases".
+  const [porClase, setPorClase] = useState(false)
+  const [horasPorClase, setHorasPorClase] = useState('')
+  const [cantidadClases, setCantidadClases] = useState('')
+
+  const actualizarTotalPorClase = (horasTexto, clasesTexto) => {
+    const horas = Number(horasTexto)
+    const clases = Number(clasesTexto)
+    if (horasTexto === '' || clasesTexto === '' || !Number.isFinite(horas) || horas <= 0) return
+    if (!Number.isInteger(clases) || clases < 1) return
+    onCambiar('horasCatedra', Math.round(horas * clases * 100) / 100)
+  }
+
+  const handleHorasPorClaseChange = (e) => {
+    const valor = e.target.value
+    setHorasPorClase(valor)
+    actualizarTotalPorClase(valor, cantidadClases)
+  }
+
+  const handleCantidadClasesChange = (e) => {
+    const valor = e.target.value
+    setCantidadClases(valor)
+    actualizarTotalPorClase(horasPorClase, valor)
+  }
+
+  const handleTogglePorClase = () => {
+    const activado = !porClase
+    setPorClase(activado)
+    // Al pasar a "Por clase" no hay forma de "deshacer" un total en sus dos
+    // factores: los inputs arrancan vacíos y el total existente (form.horasCatedra)
+    // queda como estaba hasta que se completen los dos.
+    if (activado) {
+      setHorasPorClase('')
+      setCantidadClases('')
+    }
+  }
 
   return (
     <div className="hoja-materia-form">
@@ -99,11 +143,54 @@ function HojaNuevaMateria({ form, aniosDisponibles, puntosPorHora, onCambiar }) 
       </div>
 
       <div className="hoja-materia-campo">
-        <div className="hoja-materia-campo-cabecera">
-          <span className="hoja-materia-label">Horas cátedra</span>
-          <Stepper campo="horasCatedra" valor={form.horasCatedra} onCambiar={(v) => onCambiar('horasCatedra', v)} />
-        </div>
+        {porClase ? (
+          <>
+            <div className="hoja-materia-campo-cabecera">
+              <span className="hoja-materia-label">Horas por clase</span>
+              <input
+                type="number"
+                min="0.1"
+                step="0.5"
+                className="hoja-materia-input-chico"
+                value={horasPorClase}
+                onChange={handleHorasPorClaseChange}
+                placeholder="2"
+              />
+            </div>
+            <div className="hoja-materia-campo-cabecera">
+              <span className="hoja-materia-label">Cantidad de clases</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                className="hoja-materia-input-chico"
+                value={cantidadClases}
+                onChange={handleCantidadClasesChange}
+                placeholder="34"
+              />
+            </div>
+            <p className="hoja-materia-ayuda">
+              Total de clases en todo el período (ej: 2 veces por semana × 17 semanas = 34).
+            </p>
+            <p className="hoja-materia-ayuda">= {form.horasCatedra || 0} hs cátedra</p>
+          </>
+        ) : (
+          <div className="hoja-materia-campo-cabecera">
+            <span className="hoja-materia-label">Horas cátedra</span>
+            <Stepper campo="horasCatedra" valor={form.horasCatedra} onCambiar={(v) => onCambiar('horasCatedra', v)} />
+          </div>
+        )}
         <p className="hoja-materia-ayuda">{form.noSumaPuntos ? 'No va a sumar puntos' : `Pool de puntos: ${poolPuntos}`}</p>
+
+        <button type="button" className="hoja-materia-switch-fila hoja-materia-horas-switch" onClick={handleTogglePorClase}>
+          <span className="hoja-materia-switch-texto">
+            <span className="hoja-materia-label">Cargar por clase</span>
+            <span className="hoja-materia-ayuda">Horas por clase × cantidad de clases, en vez del total.</span>
+          </span>
+          <span className={porClase ? 'hoja-materia-switch activo' : 'hoja-materia-switch'} aria-hidden="true">
+            <span className="hoja-materia-switch-perilla" />
+          </span>
+        </button>
       </div>
 
       <div className="hoja-materia-campo">

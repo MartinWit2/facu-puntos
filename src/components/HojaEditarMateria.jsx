@@ -92,13 +92,56 @@ function HojaEditarMateria({
   onEditarCampo,
   onOverrideNumero,
   onPermitePromocionOverride,
+  onPromocionPorPromedioOverride,
   onTick,
   onVolverReglasCarrera,
 }) {
-  const poolBase = materia.horasCatedra ? materia.horasCatedra * reglas.puntosPorHora : 0
-  const puntosPorParcial = materia.cantidadParciales ? Math.round((poolBase / materia.cantidadParciales) * 100) / 100 : 0
+  // Carga alternativa de horas cátedra: útil cuando la fuente del plan da
+  // "horas por clase" y "cantidad de clases" en vez del total. Estado 100%
+  // local — al calcularse el total, se manda hacia arriba con el mismo
+  // onEditarCampo('horasCatedra', total) de siempre. No se guarda ni "horas
+  // por clase" ni "cantidad de clases".
+  const [porClase, setPorClase] = useState(false)
+  const [horasPorClase, setHorasPorClase] = useState('')
+  const [cantidadClases, setCantidadClases] = useState('')
+
+  const actualizarTotalPorClase = (horasTexto, clasesTexto) => {
+    const horas = Number(horasTexto)
+    const clases = Number(clasesTexto)
+    if (horasTexto === '' || clasesTexto === '' || !Number.isFinite(horas) || horas <= 0) return
+    if (!Number.isInteger(clases) || clases < 1) return
+    onEditarCampo('horasCatedra', Math.round(horas * clases * 100) / 100)
+  }
+
+  const handleHorasPorClaseChange = (e) => {
+    const valor = e.target.value
+    setHorasPorClase(valor)
+    actualizarTotalPorClase(valor, cantidadClases)
+  }
+
+  const handleCantidadClasesChange = (e) => {
+    const valor = e.target.value
+    setCantidadClases(valor)
+    actualizarTotalPorClase(horasPorClase, valor)
+  }
+
+  const handleTogglePorClase = () => {
+    const activado = !porClase
+    setPorClase(activado)
+    // Al pasar a "Por clase" no hay forma de "deshacer" un total en sus dos
+    // factores: los inputs arrancan vacíos y el total existente
+    // (materia.horasCatedra) queda como estaba hasta que se completen los dos.
+    if (activado) {
+      setHorasPorClase('')
+      setCantidadClases('')
+    }
+  }
+
   const tieneOverrides =
-    materia.notaAprobacionOverride != null || materia.notaPromocionOverride != null || materia.permitePromocionOverride != null
+    materia.notaAprobacionOverride != null ||
+    materia.notaPromocionOverride != null ||
+    materia.permitePromocionOverride != null ||
+    materia.promocionPorPromedioOverride != null
 
   return (
     <>
@@ -110,15 +153,52 @@ function HojaEditarMateria({
       </label>
 
       <div className="editar-materia-campo">
-        <div className="editar-materia-campo-cabecera">
-          <span className="editar-materia-label">Horas cátedra</span>
-          <Stepper
-            campo="horasCatedra"
-            valor={materia.horasCatedra ?? RANGOS.horasCatedra.min}
-            onCambiar={(valor) => onEditarCampo('horasCatedra', valor)}
-          />
-        </div>
-        <p className="editar-materia-ayuda">Definen el pool: {poolBase} pts</p>
+        {porClase ? (
+          <>
+            <div className="editar-materia-campo-cabecera">
+              <span className="editar-materia-label">Horas por clase</span>
+              <input
+                type="number"
+                min="0.1"
+                step="0.5"
+                className="editar-materia-input-chico"
+                value={horasPorClase}
+                onChange={handleHorasPorClaseChange}
+                placeholder="2"
+              />
+            </div>
+            <div className="editar-materia-campo-cabecera">
+              <span className="editar-materia-label">Cantidad de clases</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                className="editar-materia-input-chico"
+                value={cantidadClases}
+                onChange={handleCantidadClasesChange}
+                placeholder="34"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="editar-materia-campo-cabecera">
+            <span className="editar-materia-label">Horas cátedra</span>
+            <Stepper
+              campo="horasCatedra"
+              valor={materia.horasCatedra ?? RANGOS.horasCatedra.min}
+              onCambiar={(valor) => onEditarCampo('horasCatedra', valor)}
+            />
+          </div>
+        )}
+
+        <button type="button" className="editar-materia-switch-fila editar-materia-horas-switch" onClick={handleTogglePorClase}>
+          <span className="editar-materia-switch-texto">
+            <span className="editar-materia-label">Cargar por clase</span>
+          </span>
+          <span className={porClase ? 'editar-materia-switch activo' : 'editar-materia-switch'} aria-hidden="true">
+            <span className="editar-materia-switch-perilla" />
+          </span>
+        </button>
       </div>
 
       <div className="editar-materia-campo">
@@ -130,7 +210,6 @@ function HojaEditarMateria({
             onCambiar={(valor) => onEditarCampo('cantidadParciales', valor)}
           />
         </div>
-        <p className="editar-materia-ayuda">Cada uno vale {puntosPorParcial} pts</p>
       </div>
 
       <div className="editar-materia-campo">
@@ -142,7 +221,6 @@ function HojaEditarMateria({
             onCambiar={(valor) => onEditarCampo('cantidadRecuperatorios', valor)}
           />
         </div>
-        <p className="editar-materia-ayuda">Aplica a todos los parciales por igual.</p>
       </div>
 
       <div className="editar-materia-campo">
@@ -163,9 +241,6 @@ function HojaEditarMateria({
       >
         <span className="editar-materia-switch-texto">
           <span className="editar-materia-label">Permite promoción</span>
-          <span className="editar-materia-ayuda">
-            {reglas.permitePromocion ? 'La materia puede promocionar sin final.' : 'La materia siempre va a final.'}
-          </span>
         </span>
         <span className={reglas.permitePromocion ? 'editar-materia-switch activo' : 'editar-materia-switch'} aria-hidden="true">
           <span className="editar-materia-switch-perilla" />
@@ -182,19 +257,36 @@ function HojaEditarMateria({
       </div>
 
       {reglas.permitePromocion && (
-        <div className="editar-materia-campo">
-          <span className="editar-materia-label">Nota de promoción</span>
-          <GrillaNotaChica
-            valores={NOTAS_PROMOCION}
-            seleccionado={reglas.notaPromocion}
-            onElegir={(valor) => onOverrideNumero('notaPromocionOverride', valor)}
-          />
-        </div>
+        <>
+          <div className="editar-materia-campo">
+            <span className="editar-materia-label">Nota de promoción</span>
+            <GrillaNotaChica
+              valores={NOTAS_PROMOCION}
+              seleccionado={reglas.notaPromocion}
+              onElegir={(valor) => onOverrideNumero('notaPromocionOverride', valor)}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="editar-materia-switch-fila"
+            onClick={() => onPromocionPorPromedioOverride(!reglas.promocionPorPromedio)}
+          >
+            <span className="editar-materia-switch-texto">
+              <span className="editar-materia-label">Promoción por promedio</span>
+            </span>
+            <span
+              className={reglas.promocionPorPromedio ? 'editar-materia-switch activo' : 'editar-materia-switch'}
+              aria-hidden="true"
+            >
+              <span className="editar-materia-switch-perilla" />
+            </span>
+          </button>
+        </>
       )}
 
       <div className="editar-materia-forzar">
         <span className="editar-materia-label">Forzar resultado</span>
-        <p className="editar-materia-ayuda">Si el profesor decide por fuera de la regla, marcalo acá.</p>
         <div className="detalle-mobile-toggles">
           <button
             type="button"

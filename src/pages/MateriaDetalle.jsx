@@ -130,6 +130,12 @@ function MateriaDetalle() {
     })
   }
 
+  const handlePromocionPorPromedioOverride = (valor) => {
+    editarMateria(materia.id, {
+      promocionPorPromedioOverride: materia.promocionPorPromedioOverride === valor ? null : valor,
+    })
+  }
+
   return (
     <section className="page materia-detalle">
       {celebracion}
@@ -280,6 +286,25 @@ function MateriaDetalle() {
               onChange={(e) => handleOverrideNumero('notaPromocionOverride', e.target.value)}
             />
           </label>
+          <div className="override-promocion-por-promedio">
+            <span className="tick-label">Promoción por promedio (override)</span>
+            <div className="tick-botones">
+              <button
+                type="button"
+                className={materia.promocionPorPromedioOverride === true ? 'tick-boton activo' : 'tick-boton'}
+                onClick={() => handlePromocionPorPromedioOverride(true)}
+              >
+                Sí
+              </button>
+              <button
+                type="button"
+                className={materia.promocionPorPromedioOverride === false ? 'tick-boton activo' : 'tick-boton'}
+                onClick={() => handlePromocionPorPromedioOverride(false)}
+              >
+                No
+              </button>
+            </div>
+          </div>
           <div className="override-permite-promocion">
             <span className="tick-label">Permite promoción (override)</span>
             <div className="tick-botones">

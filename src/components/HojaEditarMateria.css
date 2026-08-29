@@ -94,6 +94,28 @@
   color: var(--text-h);
 }
 
+.editar-materia-input-chico {
+  width: 6rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border-radius: 0.8125rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+}
+
+.editar-materia-input-chico:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.editar-materia-horas-switch {
+  margin-top: 0.625rem;
+}
+
 .editar-materia-switch-fila {
   display: flex;
   align-items: center;

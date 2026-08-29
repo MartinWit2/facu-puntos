@@ -8,6 +8,7 @@ export const DEFAULT_CANTIDAD_INSTANCIAS_FINAL = 4
 export const DEFAULT_NOTA_APROBACION = 6
 export const DEFAULT_NOTA_PROMOCION = 8
 export const DEFAULT_PERMITE_PROMOCION = true
+export const DEFAULT_PROMOCION_POR_PROMEDIO = false
 export const DEFAULT_PUNTOS_POR_HORA = 1
 
 // Cortes de los rangos del filtro de horas cátedra en la pantalla de

@@ -155,6 +155,12 @@ function MateriaDetalleMobile() {
     })
   }
 
+  const handlePromocionPorPromedioOverride = (valor) => {
+    editarMateria(materia.id, {
+      promocionPorPromedioOverride: materia.promocionPorPromedioOverride === valor ? null : valor,
+    })
+  }
+
   const handleEditarCampo = (campo, valor) => editarMateria(materia.id, { [campo]: valor })
 
   const handleVolverReglasCarrera = () => {
@@ -162,6 +168,7 @@ function MateriaDetalleMobile() {
       notaAprobacionOverride: null,
       notaPromocionOverride: null,
       permitePromocionOverride: null,
+      promocionPorPromedioOverride: null,
     })
   }
 
@@ -190,7 +197,9 @@ function MateriaDetalleMobile() {
   const ayudaNotaSheet = notaSheet
     ? notaSheet.tipo === 'parcial'
       ? reglas.permitePromocion
-        ? `Se aprueba con ${reglas.notaAprobacion} o más. Con ${reglas.notaPromocion} en el original o el primer recu, promociona.`
+        ? reglas.promocionPorPromedio
+          ? `Se aprueba con ${reglas.notaAprobacion} o más. Si el promedio de los parciales llega a ${reglas.notaPromocion}, promociona.`
+          : `Se aprueba con ${reglas.notaAprobacion} o más. Con ${reglas.notaPromocion} en el original o el primer recu, promociona.`
         : `Se aprueba con ${reglas.notaAprobacion} o más. Esta materia no permite promoción.`
       : `Se aprueba con ${reglas.notaAprobacion} o más.`
     : ''
@@ -354,6 +363,7 @@ function MateriaDetalleMobile() {
             onEditarCampo={handleEditarCampo}
             onOverrideNumero={handleOverrideNumero}
             onPermitePromocionOverride={handlePermitePromocionOverride}
+            onPromocionPorPromedioOverride={handlePromocionPorPromedioOverride}
             onTick={handleTick}
             onVolverReglasCarrera={handleVolverReglasCarrera}
           />

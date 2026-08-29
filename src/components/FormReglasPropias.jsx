@@ -3,6 +3,7 @@ import {
   DEFAULT_NOTA_APROBACION,
   DEFAULT_NOTA_PROMOCION,
   DEFAULT_PERMITE_PROMOCION,
+  DEFAULT_PROMOCION_POR_PROMEDIO,
   DEFAULT_PUNTOS_POR_HORA,
 } from '../constants'
 
@@ -11,6 +12,7 @@ const VALORES_INICIALES = {
   notaAprobacion: DEFAULT_NOTA_APROBACION,
   notaPromocion: DEFAULT_NOTA_PROMOCION,
   permitePromocion: DEFAULT_PERMITE_PROMOCION,
+  promocionPorPromedio: DEFAULT_PROMOCION_POR_PROMEDIO,
   puntosPorHora: DEFAULT_PUNTOS_POR_HORA,
 }
 
@@ -31,6 +33,7 @@ function FormReglasPropias({ onSubmit, onCancel, submitLabel = 'Continuar', disa
       notaAprobacion: Number(form.notaAprobacion),
       notaPromocion: Number(form.notaPromocion),
       permitePromocion: form.permitePromocion,
+      promocionPorPromedio: form.promocionPorPromedio,
       puntosPorHora: Number(form.puntosPorHora),
     })
   }
@@ -68,16 +71,27 @@ function FormReglasPropias({ onSubmit, onCancel, submitLabel = 'Continuar', disa
       </label>
 
       {form.permitePromocion && (
-        <label>
-          Nota de promoción
-          <input
-            type="number"
-            min="1"
-            max="10"
-            value={form.notaPromocion}
-            onChange={(e) => setForm((prev) => ({ ...prev, notaPromocion: e.target.value }))}
-          />
-        </label>
+        <>
+          <label>
+            Nota de promoción
+            <input
+              type="number"
+              min="1"
+              max="10"
+              value={form.notaPromocion}
+              onChange={(e) => setForm((prev) => ({ ...prev, notaPromocion: e.target.value }))}
+            />
+          </label>
+
+          <label className="reglas-propias-checkbox">
+            <input
+              type="checkbox"
+              checked={form.promocionPorPromedio}
+              onChange={(e) => setForm((prev) => ({ ...prev, promocionPorPromedio: e.target.checked }))}
+            />
+            Promocionás por promedio de parciales (en vez de necesitar la nota de promoción en cada uno)
+          </label>
+        </>
       )}
 
       <label>

@@ -7,6 +7,7 @@ import {
   DEFAULT_NOTA_APROBACION,
   DEFAULT_NOTA_PROMOCION,
   DEFAULT_PERMITE_PROMOCION,
+  DEFAULT_PROMOCION_POR_PROMEDIO,
   DEFAULT_PUNTOS_POR_HORA,
 } from '../constants'
 import { contarMateriasConProgreso, tieneProgresoCargado } from '../utils/materiaEstructura'
@@ -41,6 +42,7 @@ const REGLAS_DEFAULT = {
   notaAprobacion: DEFAULT_NOTA_APROBACION,
   notaPromocion: DEFAULT_NOTA_PROMOCION,
   permitePromocion: DEFAULT_PERMITE_PROMOCION,
+  promocionPorPromedio: DEFAULT_PROMOCION_POR_PROMEDIO,
   puntosPorHora: DEFAULT_PUNTOS_POR_HORA,
 }
 
@@ -109,14 +111,37 @@ function FormReglasPropias({ reglas, onCambiar }) {
       </button>
 
       {reglas.permitePromocion && (
-        <div className="carrera-mobile-campo">
-          <span className="carrera-mobile-campo-label">Nota de promoción</span>
-          <GrillaNotaChica
-            valores={NOTAS_PROMOCION}
-            seleccionado={reglas.notaPromocion}
-            onElegir={(valor) => onCambiar('notaPromocion', valor)}
-          />
-        </div>
+        <>
+          <div className="carrera-mobile-campo">
+            <span className="carrera-mobile-campo-label">Nota de promoción</span>
+            <GrillaNotaChica
+              valores={NOTAS_PROMOCION}
+              seleccionado={reglas.notaPromocion}
+              onElegir={(valor) => onCambiar('notaPromocion', valor)}
+            />
+          </div>
+
+          <button
+            type="button"
+            className="carrera-mobile-switch-fila"
+            onClick={() => onCambiar('promocionPorPromedio', !reglas.promocionPorPromedio)}
+          >
+            <span className="carrera-mobile-switch-texto">
+              <span className="carrera-mobile-campo-label">Promoción por promedio</span>
+              <span className="carrera-mobile-campo-ayuda">
+                {reglas.promocionPorPromedio
+                  ? 'Promocionás si el promedio de los parciales llega a la nota de promoción.'
+                  : 'Cada parcial tiene que llegar a la nota de promoción individualmente.'}
+              </span>
+            </span>
+            <span
+              className={reglas.promocionPorPromedio ? 'carrera-mobile-switch activo' : 'carrera-mobile-switch'}
+              aria-hidden="true"
+            >
+              <span className="carrera-mobile-switch-perilla" />
+            </span>
+          </button>
+        </>
       )}
 
       <label className="carrera-mobile-campo">

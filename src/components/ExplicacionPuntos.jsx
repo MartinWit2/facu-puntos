@@ -1,7 +1,7 @@
 import './ExplicacionPuntos.css'
 
 function ExplicacionPuntos({ reglasCarrera }) {
-  const { notaAprobacion, notaPromocion, puntosPorHora } = reglasCarrera
+  const { notaAprobacion, notaPromocion, promocionPorPromedio, puntosPorHora } = reglasCarrera
 
   return (
     <details className="explicacion-puntos">
@@ -18,8 +18,11 @@ function ExplicacionPuntos({ reglasCarrera }) {
         </p>
         <p>
           Al aprobar la materia completa se suma un bonus extra sobre el pool: <strong>+50%</strong> si
-          promocionaste (con {notaPromocion}+ en el patrón de promoción), o <strong>+25%</strong> si aprobaste por
-          firma + final.
+          promocionaste (
+          {promocionPorPromedio
+            ? `con ${notaPromocion}+ de promedio entre los parciales`
+            : `con ${notaPromocion}+ en el patrón de promoción`}
+          ), o <strong>+25%</strong> si aprobaste por firma + final.
         </p>
         <p>Si una materia se recursa, deja de aportar puntos — no resta lo que ya ganaste en las demás.</p>
       </div>
