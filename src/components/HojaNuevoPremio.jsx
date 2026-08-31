@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import './HojaNuevoPremio.css'
 
-const COSTO_MIN = 10
-const COSTO_MAX = 2000
+const COSTO_MIN = 1
 const COSTO_STEP = 10
 
 // Borrador local del valor de costo, igual que CampoAnioOtro en
@@ -23,7 +22,7 @@ function CampoCostoValor({ valor, onCambiar }) {
     const nuevoTexto = e.target.value
     setTexto(nuevoTexto)
     const parsed = Number(nuevoTexto)
-    if (nuevoTexto !== '' && Number.isFinite(parsed) && parsed >= COSTO_MIN && parsed <= COSTO_MAX) {
+    if (nuevoTexto !== '' && Number.isFinite(parsed) && parsed >= COSTO_MIN) {
       onCambiar(parsed)
     }
   }
@@ -34,7 +33,6 @@ function CampoCostoValor({ valor, onCambiar }) {
     <input
       type="number"
       min={COSTO_MIN}
-      max={COSTO_MAX}
       className="hoja-premio-stepper-valor hoja-premio-stepper-input"
       value={texto}
       onChange={handleChange}
@@ -57,7 +55,7 @@ function HojaNuevoPremio({ form, categoriasExistentes, rangoPool, onCambiar }) {
     setAcordeonAbierto(false)
   }
 
-  const cambiarCosto = (valor) => onCambiar('costoPuntos', Math.max(COSTO_MIN, Math.min(COSTO_MAX, valor)))
+  const cambiarCosto = (valor) => onCambiar('costoPuntos', Math.max(COSTO_MIN, valor))
 
   const ayudaCosto = rangoPool
     ? `Tus materias van de ${rangoPool.min} a ${rangoPool.max} pts.`
@@ -145,7 +143,7 @@ function HojaNuevoPremio({ form, categoriasExistentes, rangoPool, onCambiar }) {
             <button
               type="button"
               onClick={() => cambiarCosto(form.costoPuntos + COSTO_STEP)}
-              disabled={form.costoPuntos >= COSTO_MAX}
+              disabled={!Number.isFinite(form.costoPuntos)}
             >
               +
             </button>

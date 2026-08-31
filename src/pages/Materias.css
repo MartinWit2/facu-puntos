@@ -10,6 +10,39 @@
   cursor: pointer;
 }
 
+.materia-acciones-lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.materia-acciones-lista .btn-agregar-materia {
+  margin-bottom: 0;
+}
+
+.btn-seleccionar-varias {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.materia-acciones-lista .btn-seleccionar-varias {
+  margin-bottom: 0;
+}
+
+.materia-seleccion-checkbox {
+  width: auto;
+  cursor: pointer;
+}
+
 .materia-filtros {
   display: flex;
   flex-wrap: wrap;

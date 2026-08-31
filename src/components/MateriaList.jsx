@@ -18,7 +18,17 @@ function agruparPorAnio(materias) {
     .map(([anio, items]) => [anio, items.slice().sort((a, b) => a.nombre.localeCompare(b.nombre))])
 }
 
-function MateriaList({ materias, reglasCarrera, onEditar, onEliminar, onToggleEmpezada, filtrosActivos }) {
+function MateriaList({
+  materias,
+  reglasCarrera,
+  onEditar,
+  onEliminar,
+  onToggleEmpezada,
+  filtrosActivos,
+  modoSeleccion,
+  seleccionadas,
+  onToggleSeleccion,
+}) {
   const [confirmandoId, setConfirmandoId] = useState(null)
 
   if (materias.length === 0) {
@@ -48,6 +58,15 @@ function MateriaList({ materias, reglasCarrera, onEditar, onEliminar, onToggleEm
                 <li key={materia.id} className="materia-card">
                   <div className="materia-card-info">
                     <div className="materia-nombre-row">
+                      {modoSeleccion && (
+                        <input
+                          type="checkbox"
+                          className="materia-seleccion-checkbox"
+                          checked={seleccionadas.has(materia.id)}
+                          onChange={() => onToggleSeleccion(materia.id)}
+                          aria-label={`Seleccionar ${materia.nombre}`}
+                        />
+                      )}
                       <Link to={`/materias/${materia.id}`} className="materia-nombre">
                         {materia.nombre}
                       </Link>

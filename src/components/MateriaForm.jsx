@@ -4,6 +4,7 @@ import {
   DEFAULT_CANTIDAD_PARCIALES,
   DEFAULT_CANTIDAD_RECUPERATORIOS,
 } from '../constants'
+import { useHorasPorClase } from '../hooks/useHorasPorClase'
 import { calcularPoolPuntos } from '../utils/puntos'
 
 const VALORES_INICIALES = {
@@ -24,52 +25,24 @@ function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, subm
   })
   const [error, setError] = useState('')
 
-  // Carga alternativa de horas cátedra como "horas por clase × cantidad de
-  // clases" (útil cuando la fuente del plan de estudio da esos dos números
-  // en vez del total). Es puramente una ayuda de carga: nada de esto se
-  // guarda, solo calcula el total y lo escribe en form.horasCatedra como si
-  // se hubiera tipeado directo.
-  const [porClase, setPorClase] = useState(false)
-  const [horasPorClase, setHorasPorClase] = useState('')
-  const [cantidadClases, setCantidadClases] = useState('')
-
   const handleChange = (campo) => (e) => {
     const { value } = e.target
     setForm((prev) => ({ ...prev, [campo]: value }))
   }
 
-  const actualizarTotalPorClase = (horasTexto, clasesTexto) => {
-    const horas = Number(horasTexto)
-    const clases = Number(clasesTexto)
-    if (horasTexto === '' || clasesTexto === '' || !Number.isFinite(horas) || horas <= 0) return
-    if (!Number.isInteger(clases) || clases < 1) return
-    const total = Math.round(horas * clases * 100) / 100
-    setForm((prev) => ({ ...prev, horasCatedra: total }))
-  }
-
-  const handleHorasPorClaseChange = (e) => {
-    const valor = e.target.value
-    setHorasPorClase(valor)
-    actualizarTotalPorClase(valor, cantidadClases)
-  }
-
-  const handleCantidadClasesChange = (e) => {
-    const valor = e.target.value
-    setCantidadClases(valor)
-    actualizarTotalPorClase(horasPorClase, valor)
-  }
-
-  const handleTogglePorClase = (e) => {
-    const activado = e.target.checked
-    setPorClase(activado)
-    // Al pasar a "Por clase" no hay forma de "deshacer" un total en sus dos
-    // factores: los inputs arrancan vacíos y el total existente queda como
-    // estaba hasta que se completen los dos.
-    if (activado) {
-      setHorasPorClase('')
-      setCantidadClases('')
-    }
-  }
+  // Carga alternativa de horas cátedra como "horas por clase × cantidad de
+  // clases" (útil cuando la fuente del plan de estudio da esos dos números
+  // en vez del total). Es puramente una ayuda de carga: nada de esto se
+  // guarda, solo calcula el total y lo escribe en form.horasCatedra como si
+  // se hubiera tipeado directo.
+  const {
+    porClase,
+    horasPorClase,
+    cantidadClases,
+    handleHorasPorClaseChange,
+    handleCantidadClasesChange,
+    handleTogglePorClase,
+  } = useHorasPorClase((total) => setForm((prev) => ({ ...prev, horasCatedra: total })))
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -142,7 +115,7 @@ function MateriaForm({ valoresIniciales, puntosPorHora, onSubmit, onCancel, subm
             Horas por clase
             <input
               type="number"
-              min="0.1"
+              min="0"
               step="0.5"
               value={horasPorClase}
               onChange={handleHorasPorClaseChange}

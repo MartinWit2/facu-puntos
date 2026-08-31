@@ -27,13 +27,15 @@ export function evaluarParciales(materia, reglas) {
   const resultados = materia.parciales.map((parcial) => evaluarParcial(parcial.notas, reglas))
   const todosAprobados = resultados.every((r) => r.aprobado)
 
-  // Modo normal (default): cada parcial tiene que llegar a notaPromocion
-  // individualmente, y como máximo en su primer recuperatorio. Modo
-  // "por promedio" (ver migración 0016): alcanza con que todos estén
-  // aprobados y el PROMEDIO de sus notas llegue a notaPromocion, sin
-  // importar en qué instancia se aprobó cada uno.
+  // En los dos modos, cada parcial tiene que haberse aprobado como máximo en
+  // su primer recuperatorio (indiceInstancia <= 1) — lo único que cambia
+  // entre uno y otro es si la nota de promoción se exige parcial por parcial
+  // (modo normal) o en el PROMEDIO de las notas (modo "por promedio", ver
+  // migración 0016).
   const cumplePatronPromocion = reglas.promocionPorPromedio
-    ? todosAprobados && calcularPromedioParciales({ resultados }) >= reglas.notaPromocion
+    ? todosAprobados &&
+      resultados.every((r) => r.indiceInstancia <= 1) &&
+      calcularPromedioParciales({ resultados }) >= reglas.notaPromocion
     : resultados.every((r) => r.aprobado && r.cumplePatronPromocion)
 
   return {

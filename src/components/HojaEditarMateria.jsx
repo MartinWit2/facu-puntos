@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useHorasPorClase } from '../hooks/useHorasPorClase'
 import './HojaEditarMateria.css'
 
 // Rangos de los steppers. El handoff dice que Recuperatorios arranca en 1,
@@ -101,41 +102,14 @@ function HojaEditarMateria({
   // local — al calcularse el total, se manda hacia arriba con el mismo
   // onEditarCampo('horasCatedra', total) de siempre. No se guarda ni "horas
   // por clase" ni "cantidad de clases".
-  const [porClase, setPorClase] = useState(false)
-  const [horasPorClase, setHorasPorClase] = useState('')
-  const [cantidadClases, setCantidadClases] = useState('')
-
-  const actualizarTotalPorClase = (horasTexto, clasesTexto) => {
-    const horas = Number(horasTexto)
-    const clases = Number(clasesTexto)
-    if (horasTexto === '' || clasesTexto === '' || !Number.isFinite(horas) || horas <= 0) return
-    if (!Number.isInteger(clases) || clases < 1) return
-    onEditarCampo('horasCatedra', Math.round(horas * clases * 100) / 100)
-  }
-
-  const handleHorasPorClaseChange = (e) => {
-    const valor = e.target.value
-    setHorasPorClase(valor)
-    actualizarTotalPorClase(valor, cantidadClases)
-  }
-
-  const handleCantidadClasesChange = (e) => {
-    const valor = e.target.value
-    setCantidadClases(valor)
-    actualizarTotalPorClase(horasPorClase, valor)
-  }
-
-  const handleTogglePorClase = () => {
-    const activado = !porClase
-    setPorClase(activado)
-    // Al pasar a "Por clase" no hay forma de "deshacer" un total en sus dos
-    // factores: los inputs arrancan vacíos y el total existente
-    // (materia.horasCatedra) queda como estaba hasta que se completen los dos.
-    if (activado) {
-      setHorasPorClase('')
-      setCantidadClases('')
-    }
-  }
+  const {
+    porClase,
+    horasPorClase,
+    cantidadClases,
+    handleHorasPorClaseChange,
+    handleCantidadClasesChange,
+    handleTogglePorClase,
+  } = useHorasPorClase((total) => onEditarCampo('horasCatedra', total))
 
   const tieneOverrides =
     materia.notaAprobacionOverride != null ||
@@ -159,7 +133,7 @@ function HojaEditarMateria({
               <span className="editar-materia-label">Horas por clase</span>
               <input
                 type="number"
-                min="0.1"
+                min="0"
                 step="0.5"
                 className="editar-materia-input-chico"
                 value={horasPorClase}
