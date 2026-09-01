@@ -3,7 +3,13 @@ import { useAuth } from '../context/useAuth.js'
 import { supabase } from '../lib/supabaseClient'
 
 function filaAPremio(fila) {
-  return { id: fila.id, nombre: fila.nombre, categoria: fila.categoria, costoPuntos: fila.costo_puntos }
+  return {
+    id: fila.id,
+    nombre: fila.nombre,
+    categoria: fila.categoria,
+    costoPuntos: fila.costo_puntos,
+    imagenUrl: fila.imagen_url,
+  }
 }
 
 // Cache compartida entre todas las instancias de usePremios() — ver el
@@ -64,6 +70,7 @@ export function usePremios() {
         nombre: datos.nombre,
         categoria: datos.categoria,
         costo_puntos: datos.costoPuntos,
+        imagen_url: datos.imagenUrl ?? null,
       }
       const { data, error } = await supabase.from('premios').insert(fila).select().single()
       if (error) {
@@ -80,6 +87,7 @@ export function usePremios() {
     if (datos.nombre !== undefined) fila.nombre = datos.nombre
     if (datos.categoria !== undefined) fila.categoria = datos.categoria
     if (datos.costoPuntos !== undefined) fila.costo_puntos = datos.costoPuntos
+    if (datos.imagenUrl !== undefined) fila.imagen_url = datos.imagenUrl
 
     const { data, error } = await supabase.from('premios').update(fila).eq('id', id).select().single()
     if (error) {

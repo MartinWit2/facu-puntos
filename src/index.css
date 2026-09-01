@@ -41,6 +41,68 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ============================================================
+   Rediseño mobile (set de mockups Stitch, ver DESIGN.md del handoff):
+   redefine los MISMOS nombres de variable que ya usa toda la app, pero
+   solo dentro de este media query — que es exactamente el breakpoint que
+   usa useEsMobil() para decidir si renderizar la UI mobile. Así el CSS
+   compartido de las pantallas mobile (que ya usa var(--accent), var(--bg),
+   etc.) adopta la nueva paleta automáticamente por cascada, sin tocar ni
+   un solo archivo de escritorio: a >640px estas variables ni existen, y
+   los selectores vuelven a resolver los valores de arriba de siempre.
+   No cubre dark mode todavía (los mockups son solo light); los bloques
+   `prefers-color-scheme: dark` que ya tenían algunas pantallas mobile
+   siguen funcionando tal cual, sin rediseñar.
+   ============================================================ */
+@media (max-width: 640px) {
+  :root {
+    --text: #464554;
+    --text-h: #0b1c30;
+    --text-muted: #767586;
+    --bg: #ffffff;
+    --bg-soft: #f8f9ff;
+    --border-color: #dce9ff;
+
+    --accent: #4648d4;
+    --accent-dark: #2f2ebe;
+    --accent-bg: rgba(70, 72, 212, 0.12);
+
+    --divisor: #eff4ff;
+    --riel: #e5eeff;
+    --chevron: #767586;
+    --tick-vacio: #c7c4d7;
+    --text-disabled: #a9a4b0;
+    --chip-vacio-bg: #eff4ff;
+
+    /* Dorado: reservado a puntos/monedas/premios, nunca para otra cosa. */
+    --gold: #f59e0b;
+    --gold-dark: #92400e;
+    --gold-bg: rgba(245, 158, 11, 0.15);
+
+    /* Estados de materia (badges) — mismo criterio en las 6 pantallas que
+       los muestran: fondo al 15% de opacidad del color, texto al 100%. */
+    --estado-pendiente: #64748b;
+    --estado-pendiente-bg: rgba(100, 116, 139, 0.15);
+    --estado-cursando: #0284c7;
+    --estado-cursando-bg: rgba(2, 132, 199, 0.15);
+    --estado-promocion: #d97706;
+    --estado-promocion-bg: rgba(217, 119, 6, 0.15);
+    --estado-firma: #16a34a;
+    --estado-firma-bg: rgba(22, 163, 74, 0.15);
+    --estado-recursa: #a3402a;
+    --estado-recursa-bg: rgba(163, 64, 42, 0.15);
+    --estado-aprobada: #059669;
+    --estado-aprobada-bg: rgba(5, 150, 105, 0.15);
+
+    --radius-card: 1rem;
+    --radius-input: 0.75rem;
+    --shadow-card: 0 4px 12px rgba(11, 28, 48, 0.06);
+
+    --sans: 'Outfit', system-ui, 'Segoe UI', Roboto, sans-serif;
+    --display: 'Outfit', var(--sans);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #d4d2d8;
@@ -74,6 +136,28 @@
 
 * {
   box-sizing: border-box;
+}
+
+/* Íconos del rediseño mobile (Material Symbols) — la clase en sí no
+   aparece en ninguna pantalla de escritorio, así que definirla acá no
+   tiene efecto fuera de mobile. */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-outlined.relleno {
+  font-variation-settings: 'FILL' 1;
 }
 
 body {
@@ -165,10 +249,10 @@ h3 {
    pantallas mobile (Agregar premio, Empezar a cursar, Confirmar, etc). */
 .boton-primario-mobile {
   width: 100%;
-  min-height: 3rem;
+  min-height: 3.5rem;
   border: none;
-  border-radius: 0.875rem;
-  background: var(--accent);
+  border-radius: var(--radius-card, 0.875rem);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: #fff;
   font: inherit;
   font-family: var(--display);

@@ -1,10 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import './TabsMobile.css'
 
+// Mismos íconos que el mockup (BottomNavBar): library_books, leaderboard,
+// workspace_premium — con relleno cuando el tab está activo.
 const TABS = [
-  { to: '/', label: 'Materias', activo: (p) => p === '/' || p.startsWith('/materias') },
-  { to: '/progreso', label: 'Progreso', activo: (p) => p === '/progreso' },
-  { to: '/premios', label: 'Premios', activo: (p) => p === '/premios' },
+  { to: '/', label: 'Materias', icono: 'library_books', activo: (p) => p === '/' || p.startsWith('/materias') },
+  { to: '/progreso', label: 'Progreso', icono: 'leaderboard', activo: (p) => p === '/progreso' },
+  { to: '/premios', label: 'Premios', icono: 'workspace_premium', activo: (p) => p === '/premios' },
 ]
 
 function TabsMobile() {
@@ -12,12 +14,17 @@ function TabsMobile() {
 
   return (
     <nav className="tabs-mobile">
-      {TABS.map(({ to, label, activo }) => (
-        <NavLink key={to} to={to} className={'tab-mobile' + (activo(pathname) ? ' activo' : '')}>
-          <span className={`tab-mobile-icono tab-mobile-icono-${label.toLowerCase()}`} aria-hidden="true" />
-          <span className="tab-mobile-label">{label}</span>
-        </NavLink>
-      ))}
+      {TABS.map(({ to, label, icono, activo }) => {
+        const esActivo = activo(pathname)
+        return (
+          <NavLink key={to} to={to} className={'tab-mobile' + (esActivo ? ' activo' : '')}>
+            <span className={esActivo ? 'material-symbols-outlined relleno' : 'material-symbols-outlined'} aria-hidden="true">
+              {icono}
+            </span>
+            <span className="tab-mobile-label">{label}</span>
+          </NavLink>
+        )
+      })}
     </nav>
   )
 }

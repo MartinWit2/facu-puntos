@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useAuth } from '../context/useAuth.js'
+import { subirArchivo } from '../utils/subirArchivo'
 import './HojaNuevoPremio.css'
 
 const COSTO_MIN = 1
@@ -48,11 +50,32 @@ function CampoCostoValor({ valor, onCambiar }) {
 // ComboboxCategoria (el input manda, elegir del acordeón solo lo setea),
 // adaptado para no empujar la hoja: la lista scrollea con su propio alto.
 function HojaNuevoPremio({ form, categoriasExistentes, rangoPool, onCambiar }) {
+  const { usuario } = useAuth()
   const [acordeonAbierto, setAcordeonAbierto] = useState(false)
+  const [subiendoImagen, setSubiendoImagen] = useState(false)
 
   const elegirCategoria = (categoria) => {
     onCambiar('categoria', categoria)
     setAcordeonAbierto(false)
+  }
+
+  // Imagen opcional del premio (sección "4b" del rediseño): se sube apenas
+  // se elige el archivo, a la carpeta del usuario en el bucket
+  // premios-imagenes (público), y el form solo guarda la URL resultante —
+  // igual que cualquier otro campo del borrador.
+  const handleImagenChange = async (e) => {
+    const archivo = e.target.files?.[0]
+    if (!archivo) return
+    setSubiendoImagen(true)
+    try {
+      const url = await subirArchivo('premios-imagenes', usuario.id, archivo)
+      onCambiar('imagenUrl', url)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setSubiendoImagen(false)
+      e.target.value = ''
+    }
   }
 
   const cambiarCosto = (valor) => onCambiar('costoPuntos', Math.max(COSTO_MIN, valor))
@@ -63,6 +86,34 @@ function HojaNuevoPremio({ form, categoriasExistentes, rangoPool, onCambiar }) {
 
   return (
     <div className="hoja-premio-form">
+      <div className="hoja-premio-campo">
+        <span className="hoja-premio-label">Imagen (opcional)</span>
+        <label className="hoja-premio-imagen">
+          {form.imagenUrl ? (
+            <img src={form.imagenUrl} alt="" className="hoja-premio-imagen-preview" />
+          ) : (
+            <span className="hoja-premio-imagen-vacia">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                add_photo_alternate
+              </span>
+              {subiendoImagen ? 'Subiendo…' : 'Agregar foto'}
+            </span>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            className="hoja-premio-imagen-input"
+            onChange={handleImagenChange}
+            disabled={subiendoImagen}
+          />
+        </label>
+        {form.imagenUrl && (
+          <button type="button" className="hoja-premio-imagen-quitar" onClick={() => onCambiar('imagenUrl', null)}>
+            Quitar imagen
+          </button>
+        )}
+      </div>
+
       <label className="hoja-premio-campo">
         <span className="hoja-premio-label">Nombre</span>
         <input

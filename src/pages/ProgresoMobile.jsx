@@ -1,3 +1,4 @@
+import ExplicacionPuntos from '../components/ExplicacionPuntos.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
@@ -66,7 +67,9 @@ function ProgresoMobile() {
       <h1>Progreso</h1>
 
       <div className="progreso-mobile-saldo">
-        <span className="progreso-mobile-moneda" aria-hidden="true" />
+        <span className="material-symbols-outlined relleno progreso-mobile-moneda" aria-hidden="true">
+          monetization_on
+        </span>
         <div className="progreso-mobile-saldo-info">
           <span className="progreso-mobile-saldo-label">Saldo disponible</span>
           <span className={saldoDisponible < 0 ? 'progreso-mobile-saldo-valor negativo' : 'progreso-mobile-saldo-valor'}>
@@ -86,6 +89,8 @@ function ProgresoMobile() {
           <span className="progreso-mobile-resumen-valor">{canjeados}</span>
         </div>
       </div>
+
+      <ExplicacionPuntos reglasCarrera={reglasCarrera} />
 
       <section className="mobile-seccion">
         <h4 className="seccion-mobile-label">De dónde vienen</h4>

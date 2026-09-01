@@ -22,6 +22,8 @@ import Progreso from './pages/Progreso.jsx'
 import ProgresoMobile from './pages/ProgresoMobile.jsx'
 import Premios from './pages/Premios.jsx'
 import PremiosMobile from './pages/PremiosMobile.jsx'
+import HistorialCanjesMobile from './pages/HistorialCanjesMobile.jsx'
+import PerfilMobile from './pages/PerfilMobile.jsx'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Materias' },
@@ -130,7 +132,7 @@ function App() {
   if (esMobil) {
     return (
       <div className="app-shell-mobile">
-        <HeaderMobile usuario={usuario} carrera={carreraActual} puntos={puntosHeader} cerrarSesion={cerrarSesion} />
+        <HeaderMobile usuario={usuario} carrera={carreraActual} puntos={puntosHeader} />
 
         <main className="app-content-mobile">
           <Routes>
@@ -138,6 +140,8 @@ function App() {
             <Route path="/materias/:id" element={<MateriaDetalleMobile />} />
             <Route path="/progreso" element={<ProgresoMobile />} />
             <Route path="/premios" element={<PremiosMobile />} />
+            <Route path="/historial-canjes" element={<HistorialCanjesMobile />} />
+            <Route path="/perfil" element={<PerfilMobile />} />
             <Route path="/cambiar-carrera" element={<CarreraMobile />} />
           </Routes>
         </main>

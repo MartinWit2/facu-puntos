@@ -60,12 +60,80 @@
   transform: translateY(2px);
 }
 
+.detalle-mobile-manuales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.detalle-mobile-manual-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: 0.625rem;
+  border: 1.5px solid var(--accent);
+  background: var(--bg);
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detalle-mobile-manual-boton .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.detalle-mobile-manual-boton.activo {
+  background: var(--accent);
+  color: #fff;
+}
+
+.detalle-mobile-progreso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card, 1rem);
+  box-shadow: var(--shadow-card);
+  padding: 0.875rem 1rem;
+}
+
+.detalle-mobile-progreso-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.detalle-mobile-progreso-valor {
+  color: var(--accent);
+}
+
+.detalle-mobile-progreso-riel {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--riel);
+  overflow: hidden;
+}
+
+.detalle-mobile-progreso-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
 .detalle-mobile-editar-icono {
   flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.3rem;
-  border: 2px solid var(--accent-dark);
+  font-size: 1.125rem;
+  color: var(--accent);
 }
 
 .detalle-mobile-editar-label {
@@ -89,29 +157,54 @@
 .detalle-mobile-editar-chevron {
   flex-shrink: 0;
   color: var(--chevron);
-  font-size: 0.75rem;
+  font-size: 1.125rem;
 }
 
 .detalle-mobile-puntos {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--gold-bg, var(--accent));
+  background: linear-gradient(120deg, var(--gold-bg, var(--accent-bg)), transparent 70%);
+  border-radius: var(--radius-card, 1.125rem);
+  box-shadow: var(--shadow-card);
+  padding: 0.875rem 1rem;
+}
+
+.detalle-mobile-puntos-icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--gold-bg, var(--accent-bg));
+  color: var(--gold, var(--accent-dark));
+}
+
+.detalle-mobile-puntos-info {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  border: 2px solid var(--accent);
-  background: var(--accent-bg);
-  border-radius: 1.125rem;
-  padding: 0.875rem 1rem;
+  gap: 0.15rem;
 }
 
 .detalle-mobile-puntos-label {
   font-size: 0.6875rem;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
 .detalle-mobile-puntos-valor {
+  flex-shrink: 0;
   font-family: var(--display);
   font-weight: 800;
   font-size: 1.75rem;
-  color: var(--accent-dark);
+  color: var(--gold-dark, var(--accent-dark));
 }
 
 .detalle-mobile-puntos-detalle {
@@ -213,11 +306,11 @@
 }
 
 .detalle-mobile-tarjeta-estado.ok {
-  color: #2f7a00;
+  color: var(--estado-firma, #2f7a00);
 }
 
 .detalle-mobile-tarjeta-estado.fail {
-  color: #c22a2f;
+  color: var(--estado-recursa, #c22a2f);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -228,6 +321,24 @@
   .detalle-mobile-tarjeta-estado.fail {
     color: #f87171;
   }
+}
+
+.detalle-mobile-tarjeta-info {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.detalle-mobile-tarjeta-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.detalle-mobile-tarjeta-info .material-symbols-outlined {
+  font-size: 0.9375rem;
 }
 
 .chips-nota-mobile {
@@ -262,21 +373,21 @@
 }
 
 .chip-nota-mobile.aprueba {
-  border-color: rgba(88, 204, 2, 0.5);
-  background: rgba(88, 204, 2, 0.14);
+  border-color: var(--estado-firma, rgba(88, 204, 2, 0.5));
+  background: var(--estado-firma-bg, rgba(88, 204, 2, 0.14));
 }
 
 .chip-nota-mobile.aprueba .chip-nota-mobile-valor {
-  color: #2f7a00;
+  color: var(--estado-firma, #2f7a00);
 }
 
 .chip-nota-mobile.desaprueba {
-  border-color: rgba(255, 75, 75, 0.45);
-  background: rgba(255, 75, 75, 0.12);
+  border-color: var(--estado-recursa, rgba(255, 75, 75, 0.45));
+  background: var(--estado-recursa-bg, rgba(255, 75, 75, 0.12));
 }
 
 .chip-nota-mobile.desaprueba .chip-nota-mobile-valor {
-  color: #c22a2f;
+  color: var(--estado-recursa, #c22a2f);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import BottomSheet from '../components/BottomSheet.jsx'
 import { useCelebracion } from '../components/Celebracion.jsx'
-import HistorialCanjesMobile from '../components/HistorialCanjesMobile.jsx'
 import HojaCanje from '../components/HojaCanje.jsx'
 import HojaNuevoPremio from '../components/HojaNuevoPremio.jsx'
 import { usePerfil } from '../context/usePerfil.js'
@@ -32,15 +32,14 @@ function agruparPorCategoria(premios) {
 function PremiosMobile() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { premios, cargando: cargandoPremios, agregarPremio, editarPremio, eliminarPremio } = usePremios()
-  const { canjes, cargando: cargandoCanjes, agregarCanje, ocultarHistorialCanjes } = useCanjes()
+  const { canjes, cargando: cargandoCanjes, agregarCanje } = useCanjes()
   const { perfil, reglasCarrera } = usePerfil()
 
   const [premioEditandoId, setPremioEditandoId] = useState(null)
   const [premioDraft, setPremioDraft] = useState(null)
   const [confirmandoEliminarId, setConfirmandoEliminarId] = useState(null)
   const [canjeSheetId, setCanjeSheetId] = useState(null)
-  const [celebracionCanje, setCelebracionCanje] = useState(null)
-  const { celebrar, elemento: confetti } = useCelebracion()
+  const { celebrar, elemento: celebracion } = useCelebracion()
 
   const cargando = cargandoMaterias || cargandoPremios || cargandoCanjes
 
@@ -66,12 +65,17 @@ function PremiosMobile() {
 
   const handleAgregarClick = () => {
     setPremioEditandoId(null)
-    setPremioDraft({ nombre: '', categoria: '', costoPuntos: COSTO_PREMIO_DEFAULT })
+    setPremioDraft({ nombre: '', categoria: '', costoPuntos: COSTO_PREMIO_DEFAULT, imagenUrl: null })
   }
 
   const handleIniciarEdicion = (premio) => {
     setPremioEditandoId(premio.id)
-    setPremioDraft({ nombre: premio.nombre, categoria: premio.categoria, costoPuntos: premio.costoPuntos })
+    setPremioDraft({
+      nombre: premio.nombre,
+      categoria: premio.categoria,
+      costoPuntos: premio.costoPuntos,
+      imagenUrl: premio.imagenUrl ?? null,
+    })
   }
 
   const handleCerrarPremioSheet = () => {
@@ -87,6 +91,7 @@ function PremiosMobile() {
       nombre: premioDraft.nombre.trim(),
       categoria: premioDraft.categoria.trim(),
       costoPuntos: premioDraft.costoPuntos,
+      imagenUrl: premioDraft.imagenUrl ?? null,
     }
     if (premioEditandoId) editarPremio(premioEditandoId, datos)
     else agregarPremio(datos)
@@ -101,13 +106,14 @@ function PremiosMobile() {
 
   const premioEnCanje = premios.find((p) => p.id === canjeSheetId)
 
-  const handleConfirmarCanje = (detalleOrigen) => {
-    agregarCanje(premioEnCanje, detalleOrigen)
-    celebrar()
-    setCelebracionCanje({
-      nombre: premioEnCanje.nombre,
-      costoPuntos: premioEnCanje.costoPuntos,
-      saldoNuevo: Math.round((saldoDisponible - premioEnCanje.costoPuntos) * 100) / 100,
+  const handleConfirmarCanje = (detalleOrigen, fotoUrl) => {
+    agregarCanje(premioEnCanje, detalleOrigen, fotoUrl)
+    const saldoNuevo = Math.round((saldoDisponible - premioEnCanje.costoPuntos) * 100) / 100
+    celebrar({
+      icono: 'redeem',
+      titulo: premioEnCanje.nombre,
+      subtitulo: `Canjeaste ${premioEnCanje.costoPuntos} pts. Te quedan ${saldoNuevo} disponibles.`,
+      boton: 'Listo',
     })
     setCanjeSheetId(null)
   }
@@ -116,7 +122,7 @@ function PremiosMobile() {
 
   return (
     <section className="page-mobile premios-mobile">
-      {confetti}
+      {celebracion}
       <h1>Premios</h1>
       {/* El saldo ya está siempre visible en el pill del header mobile; acá
           alcanza con "Podés canjearlo"/"Te faltan N pts" por premio, sin
@@ -143,8 +149,17 @@ function PremiosMobile() {
 
                 return (
                   <div key={premio.id} className="premio-fila-mobile">
+                    {premio.imagenUrl ? (
+                      <img src={premio.imagenUrl} alt="" className="premio-fila-mobile-imagen" />
+                    ) : (
+                      <span className="premio-fila-mobile-imagen-vacia" aria-hidden="true">
+                        <span className="material-symbols-outlined">redeem</span>
+                      </span>
+                    )}
                     <div className="premio-fila-mobile-info">
-                      <span className="premio-fila-mobile-nombre">{premio.nombre}</span>
+                      <span className="premio-fila-mobile-nombre" title={premio.nombre}>
+                        {premio.nombre}
+                      </span>
                       <span className={alcanza ? 'premio-fila-mobile-estado ok' : 'premio-fila-mobile-estado'}>
                         {alcanza ? 'Podés canjearlo' : `Te faltan ${premio.costoPuntos - saldoDisponible} pts`}
                       </span>
@@ -170,11 +185,25 @@ function PremiosMobile() {
                         >
                           {premio.costoPuntos} pts
                         </button>
-                        <button type="button" className="premio-fila-mobile-editar" onClick={() => handleIniciarEdicion(premio)}>
-                          Editar
+                        <button
+                          type="button"
+                          className="premio-fila-mobile-editar"
+                          onClick={() => handleIniciarEdicion(premio)}
+                          aria-label="Editar premio"
+                        >
+                          <span className="material-symbols-outlined" aria-hidden="true">
+                            edit
+                          </span>
                         </button>
-                        <button type="button" className="premio-fila-mobile-editar" onClick={() => setConfirmandoEliminarId(premio.id)}>
-                          Eliminar
+                        <button
+                          type="button"
+                          className="premio-fila-mobile-editar"
+                          onClick={() => setConfirmandoEliminarId(premio.id)}
+                          aria-label="Eliminar premio"
+                        >
+                          <span className="material-symbols-outlined" aria-hidden="true">
+                            delete
+                          </span>
                         </button>
                       </div>
                     )}
@@ -186,7 +215,20 @@ function PremiosMobile() {
         ))
       )}
 
-      <HistorialCanjesMobile canjes={canjes} onBorrarHistorial={ocultarHistorialCanjes} />
+      <Link to="/historial-canjes" className="premios-mobile-historial-fila">
+        <span className="material-symbols-outlined" aria-hidden="true">
+          receipt_long
+        </span>
+        <span className="premios-mobile-historial-texto">
+          <span className="premios-mobile-historial-titulo">Historial de canjes</span>
+          <span className="premios-mobile-historial-resumen">
+            {canjes.filter((c) => !c.oculto).length} canje{canjes.filter((c) => !c.oculto).length === 1 ? '' : 's'}
+          </span>
+        </span>
+        <span className="material-symbols-outlined premios-mobile-historial-chevron" aria-hidden="true">
+          chevron_right
+        </span>
+      </Link>
 
       <BottomSheet
         abierto={premioEnCanje != null}
@@ -234,19 +276,6 @@ function PremiosMobile() {
           />
         )}
       </BottomSheet>
-
-      {celebracionCanje && (
-        <div className="celebracion-canje-overlay">
-          <span className="celebracion-canje-moneda" aria-hidden="true" />
-          <h3 className="celebracion-canje-titulo">¡{celebracionCanje.nombre}!</h3>
-          <p className="celebracion-canje-subtitulo">
-            Canjeaste {celebracionCanje.costoPuntos} pts. Te quedan {celebracionCanje.saldoNuevo} disponibles.
-          </p>
-          <button type="button" className="celebracion-canje-boton" onClick={() => setCelebracionCanje(null)}>
-            Listo
-          </button>
-        </div>
-      )}
     </section>
   )
 }

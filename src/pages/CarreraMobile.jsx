@@ -389,8 +389,13 @@ function CarreraMobile() {
       />
 
       <button type="button" className="carrera-mobile-sin-carrera" onClick={handleAbrirReglas}>
-        <span className="carrera-mobile-sin-carrera-nombre">Crear una carrera propia</span>
-        <span className="carrera-mobile-sin-carrera-ayuda">Vos definís cómo se aprueba, promociona y puntúa</span>
+        <span className="material-symbols-outlined carrera-mobile-sin-carrera-icono" aria-hidden="true">
+          edit_note
+        </span>
+        <span className="carrera-mobile-sin-carrera-texto">
+          <span className="carrera-mobile-sin-carrera-nombre">Crear una carrera propia</span>
+          <span className="carrera-mobile-sin-carrera-ayuda">Vos definís cómo se aprueba, promociona y puntúa</span>
+        </span>
       </button>
 
       {cargandoLista ? (
@@ -412,8 +417,8 @@ function CarreraMobile() {
                   onClick={() => setDestino({ tipo: 'carrera', carrera })}
                 >
                   <span className="carrera-mobile-opcion-nombre">{carrera.nombre}</span>
-                  <span className="carrera-mobile-opcion-chevron" aria-hidden="true">
-                    ›
+                  <span className="material-symbols-outlined carrera-mobile-opcion-chevron" aria-hidden="true">
+                    chevron_right
                   </span>
                 </button>
               ))}

@@ -128,6 +128,10 @@ button.materia-fila-mobile {
   padding-bottom: 0.125rem;
 }
 
+.chip-filtro-mobile .material-symbols-outlined {
+  font-size: 1.125rem;
+}
+
 .chip-filtro-mobile {
   flex-shrink: 0;
   display: inline-flex;
@@ -418,4 +422,128 @@ button.materia-fila-mobile {
 .filtro-sheet-boton-ver:active {
   transform: translateY(3px);
   box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+/* ---------- Panel de filtros combinado (rediseño) ---------- */
+
+.filtro-panel-seccion {
+  margin-bottom: 1.5rem;
+}
+
+.filtro-panel-seccion:last-child {
+  margin-bottom: 0;
+}
+
+.filtro-panel-titulo {
+  margin: 0 0 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.filtro-panel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filtro-chip {
+  min-height: 2.375rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtro-chip.activo {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.filtro-chip-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  min-height: 2.375rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background: var(--chip-bg, var(--divisor));
+  color: var(--chip-color, var(--text-muted));
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filtro-chip-estado-punto {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+.filtro-chip-estado.activo {
+  border-color: currentcolor;
+}
+
+.filtro-chip-estado.pendiente {
+  --chip-bg: var(--estado-pendiente-bg, var(--divisor));
+  --chip-color: var(--estado-pendiente, var(--text-muted));
+}
+
+.filtro-chip-estado.cursando {
+  --chip-bg: var(--estado-cursando-bg, rgba(255, 200, 0, 0.22));
+  --chip-color: var(--estado-cursando, #a66a00);
+}
+
+.filtro-chip-estado.firma {
+  --chip-bg: var(--estado-firma-bg, rgba(28, 176, 246, 0.18));
+  --chip-color: var(--estado-firma, #0f7ab0);
+}
+
+.filtro-chip-estado.aprobada {
+  --chip-bg: var(--estado-aprobada-bg, rgba(88, 204, 2, 0.18));
+  --chip-color: var(--estado-aprobada, #2f7a00);
+}
+
+.filtro-panel-horas-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.filtro-panel-horas-cabecera .filtro-panel-titulo {
+  margin: 0;
+}
+
+.filtro-panel-horas-valor {
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.filtro-panel-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  margin: 0.5rem 0;
+}
+
+.filtro-panel-horas-limites {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.71875rem;
+  color: var(--text-muted);
 }

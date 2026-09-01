@@ -6,9 +6,10 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  border: 2px solid var(--accent);
-  background: var(--accent-bg);
-  border-radius: 1.25rem;
+  border: 1px solid var(--gold-bg, var(--accent));
+  background: linear-gradient(120deg, var(--gold-bg, var(--accent-bg)), transparent 70%);
+  border-radius: var(--radius-card, 1.25rem);
+  box-shadow: var(--shadow-card);
   padding: 1.125rem;
   margin-bottom: 0.75rem;
 }
@@ -20,11 +21,15 @@
 
 .progreso-mobile-moneda {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  background: var(--yellow);
-  box-shadow: inset 0 -4px 0 rgba(224, 172, 0, 0.9);
+  background: var(--gold-bg, var(--accent-bg));
+  color: var(--gold, var(--yellow));
+  font-size: 1.75rem;
 }
 
 .progreso-mobile-saldo-info {

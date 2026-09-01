@@ -38,83 +38,118 @@ function AuthMobile() {
 
   return (
     <div className="auth-mobile">
+      <div className="auth-mobile-decor" aria-hidden="true">
+        <span className="auth-mobile-blob auth-mobile-blob-1" />
+        <span className="auth-mobile-blob auth-mobile-blob-2" />
+        <span className="auth-mobile-blob auth-mobile-blob-3" />
+      </div>
+
       <div className="auth-mobile-marca">
-        <span className="auth-mobile-moneda" aria-hidden="true" />
+        <span className="auth-mobile-logo" aria-hidden="true">
+          <span className="material-symbols-outlined relleno">school</span>
+        </span>
         <h1 className="auth-mobile-titulo">Unipoints</h1>
         <p className="auth-mobile-bajada">{bajada}</p>
       </div>
 
-      <div className="auth-mobile-switch" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={esLogin}
-          className={esLogin ? 'auth-mobile-switch-opcion activa' : 'auth-mobile-switch-opcion'}
-          onClick={() => cambiarModo('login')}
-        >
-          Iniciar sesión
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={!esLogin}
-          className={!esLogin ? 'auth-mobile-switch-opcion activa' : 'auth-mobile-switch-opcion'}
-          onClick={() => cambiarModo('signup')}
-        >
-          Registrarme
-        </button>
-      </div>
-
-      <form className="auth-mobile-form" onSubmit={handleSubmit}>
-        <label className="auth-mobile-campo">
-          <span className="auth-mobile-label">Email</span>
-          <input
-            type="email"
-            className="auth-mobile-input"
-            value={email}
-            onChange={handleEmailChange}
-            placeholder="tunombre@mail.com"
-            autoComplete="email"
-          />
-        </label>
-
-        <div className="auth-mobile-campo">
-          <span className="auth-mobile-label">Contraseña</span>
-          <div className="auth-mobile-input-password">
-            <input
-              type={verPassword ? 'text' : 'password'}
-              value={password}
-              onChange={handlePasswordChange}
-              placeholder={esLogin ? 'Tu contraseña' : 'Elegí una contraseña'}
-              autoComplete={esLogin ? 'current-password' : 'new-password'}
-            />
-            <button type="button" className="auth-mobile-ver" onClick={() => setVerPassword((v) => !v)}>
-              {verPassword ? 'Ocultar' : 'Ver'}
-            </button>
-          </div>
-          {!esLogin && <p className="auth-mobile-ayuda">Mínimo 6 caracteres.</p>}
+      <div className="auth-mobile-card">
+        <div className="auth-mobile-switch" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={esLogin}
+            className={esLogin ? 'auth-mobile-switch-opcion activa' : 'auth-mobile-switch-opcion'}
+            onClick={() => cambiarModo('login')}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!esLogin}
+            className={!esLogin ? 'auth-mobile-switch-opcion activa' : 'auth-mobile-switch-opcion'}
+            onClick={() => cambiarModo('signup')}
+          >
+            Crear cuenta
+          </button>
         </div>
 
-        {esLogin && (
-          <button type="button" className="auth-mobile-olvide" onClick={handleOlvidoContrasena}>
-            Olvidé mi contraseña
+        <form className="auth-mobile-form" onSubmit={handleSubmit}>
+          <label className="auth-mobile-campo">
+            <span className="auth-mobile-label">Email</span>
+            <span className="auth-mobile-input-icono">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                mail
+              </span>
+              <input
+                type="email"
+                className="auth-mobile-input"
+                value={email}
+                onChange={handleEmailChange}
+                placeholder="tunombre@mail.com"
+                autoComplete="email"
+              />
+            </span>
+          </label>
+
+          <div className="auth-mobile-campo">
+            <span className="auth-mobile-label">Contraseña</span>
+            <div className="auth-mobile-input-icono auth-mobile-input-password">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                lock
+              </span>
+              <input
+                type={verPassword ? 'text' : 'password'}
+                value={password}
+                onChange={handlePasswordChange}
+                placeholder={esLogin ? 'Tu contraseña' : 'Elegí una contraseña'}
+                autoComplete={esLogin ? 'current-password' : 'new-password'}
+              />
+              <button
+                type="button"
+                className="auth-mobile-ver"
+                onClick={() => setVerPassword((v) => !v)}
+                aria-label={verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
+                <span className="material-symbols-outlined">{verPassword ? 'visibility_off' : 'visibility'}</span>
+              </button>
+            </div>
+            {!esLogin && <p className="auth-mobile-ayuda">Mínimo 6 caracteres.</p>}
+          </div>
+
+          {esLogin && (
+            <button type="button" className="auth-mobile-olvide" onClick={handleOlvidoContrasena}>
+              ¿Olvidaste tu contraseña?
+            </button>
+          )}
+
+          {(error || mensaje) && (
+            <p className={error ? 'auth-mobile-aviso error' : 'auth-mobile-aviso info'}>{error || mensaje}</p>
+          )}
+
+          <button type="submit" className="auth-mobile-submit" disabled={cargando || !formularioValido}>
+            {cargando ? (
+              'Un momento…'
+            ) : (
+              <>
+                {esLogin ? 'Ingresar' : 'Crear cuenta'}
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  arrow_forward
+                </span>
+              </>
+            )}
           </button>
-        )}
+        </form>
 
-        {(error || mensaje) && (
-          <p className={error ? 'auth-mobile-aviso error' : 'auth-mobile-aviso info'}>{error || mensaje}</p>
-        )}
+        <p className="auth-mobile-info">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            info
+          </span>
+          Ingresá con el mail provisto por tu facultad.
+        </p>
+      </div>
 
-        <button type="submit" className="auth-mobile-submit" disabled={cargando || !formularioValido}>
-          {cargando ? 'Un momento…' : esLogin ? 'Iniciar sesión' : 'Crear cuenta'}
-        </button>
-      </form>
-
-      <button
-        type="button"
-        className="auth-mobile-pie"
-        onClick={() => cambiarModo(esLogin ? 'signup' : 'login')}
-      >
+      <button type="button" className="auth-mobile-pie" onClick={() => cambiarModo(esLogin ? 'signup' : 'login')}>
         {esLogin ? '¿No tenés cuenta? Registrate' : '¿Ya tenés cuenta? Iniciá sesión'}
       </button>
     </div>

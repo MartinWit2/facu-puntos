@@ -27,3 +27,19 @@
 .explicacion-puntos-contenido strong {
   color: var(--text-h);
 }
+
+@media (max-width: 640px) {
+  .explicacion-puntos {
+    border-radius: var(--radius-card, 1rem);
+    box-shadow: var(--shadow-card);
+    padding: 0.875rem 1rem;
+  }
+
+  .explicacion-puntos summary::before {
+    content: 'help';
+    font-family: 'Material Symbols Outlined';
+    margin-right: 0.4375rem;
+    color: var(--accent);
+    vertical-align: -0.15em;
+  }
+}

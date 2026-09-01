@@ -10,6 +10,7 @@ import { useMaterias } from '../hooks/useMaterias.js'
 import { contarInstanciasVisibles, evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
+import { calcularProgresoMateria } from '../utils/progresoMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './MateriaDetalleMobile.css'
 
@@ -24,9 +25,24 @@ function etiquetaInstanciaFinal(indice) {
   return `Inst. ${indice + 1}`
 }
 
-function TarjetaInstancias({ titulo, notas, reglas, resultado, tipo, onAbrirNota }) {
+function formatearFecha(fechaIso) {
+  if (!fechaIso) return null
+  const fecha = new Date(`${fechaIso}T00:00:00`)
+  if (Number.isNaN(fecha.getTime())) return null
+  return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onAbrirNota }) {
   const visibles = contarInstanciasVisibles(notas, reglas)
   const etiqueta = tipo === 'parcial' ? etiquetaInstanciaParcial : etiquetaInstanciaFinal
+  const intentos = notas.filter((n) => n != null).length
+  // Fecha de la última instancia cargada (nota o solo fecha, lo que haya).
+  const ultimaFecha = formatearFecha(
+    [...(fechas ?? [])]
+      .slice(0, visibles)
+      .reverse()
+      .find((f) => f != null),
+  )
 
   let estadoTexto = 'Sin rendir'
   let estadoClase = ''
@@ -43,6 +59,22 @@ function TarjetaInstancias({ titulo, notas, reglas, resultado, tipo, onAbrirNota
       <div className="detalle-mobile-tarjeta-cabecera">
         <h3>{titulo}</h3>
         <span className={`detalle-mobile-tarjeta-estado ${estadoClase}`}>{estadoTexto}</span>
+      </div>
+      <div className="detalle-mobile-tarjeta-info">
+        <span>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            history
+          </span>
+          {intentos} intento{intentos === 1 ? '' : 's'}
+        </span>
+        {ultimaFecha && (
+          <span>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              calendar_today
+            </span>
+            {ultimaFecha}
+          </span>
+        )}
       </div>
       <div className="chips-nota-mobile">
         {Array.from({ length: visibles }, (_, indice) => {
@@ -73,10 +105,12 @@ function MateriaDetalleMobile() {
 
   const { celebrar, elemento: celebracion } = useCelebracion()
   const [notaSheet, setNotaSheet] = useState(null)
+  const [fechaSheet, setFechaSheet] = useState('')
   const [editarAbierto, setEditarAbierto] = useState(false)
 
   const reglas = materia && reglasCarrera ? calcularReglasEfectivas(materia, reglasCarrera) : null
   const evaluacion = reglas ? evaluarCursada(materia, reglas) : null
+  const puntos = materia && reglas ? calcularPuntosMateria(materia, reglas) : null
 
   // Festeja el instante en que la materia PASA a promocionó/firmó (por nota
   // o por tick manual), no cada vez que la pantalla se abre ya estando así.
@@ -84,10 +118,15 @@ function MateriaDetalleMobile() {
   useEffect(() => {
     const anterior = estadoAnteriorRef.current
     if (evaluacion && anterior !== evaluacion.estado && ESTADOS_FESTEJABLES.has(evaluacion.estado)) {
-      celebrar()
+      celebrar({
+        icono: 'emoji_events',
+        titulo: evaluacion.estado === 'promocion' ? '¡Promocionaste!' : '¡Materia firmada!',
+        subtitulo: `${materia.nombre} · +${puntos} pts`,
+        boton: 'Continuar',
+      })
     }
     estadoAnteriorRef.current = evaluacion?.estado
-  }, [evaluacion, celebrar])
+  }, [evaluacion, celebrar, materia, puntos])
 
   if (cargando) {
     return (
@@ -110,20 +149,31 @@ function MateriaDetalleMobile() {
   const muestraFinal = evaluacion.resultadoFinal !== null
   const faltanHoras = materia.horasCatedra == null
   const poolBase = calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)
-  const puntos = calcularPuntosMateria(materia, reglas)
+  const progreso = calcularProgresoMateria(materia, reglas)
 
-  const actualizarNotaParcial = (indiceParcial, indiceInstancia, valor) => {
+  // `fechas` puede no existir todavía en materias creadas antes de este
+  // campo (JSON viejo, sin esa clave) — se reconstruye con el mismo largo
+  // que `notas` en vez de mapear directo sobre `p.fechas`, que si no existe
+  // (o está más corta) no tiene índices para "crecer" con .map().
+  const actualizarNotaParcial = (indiceParcial, indiceInstancia, valor, fecha) => {
     const nota = valor === '' || valor == null ? null : Number(valor)
-    const parciales = materia.parciales.map((p, i) =>
-      i !== indiceParcial ? p : { notas: p.notas.map((n, j) => (j === indiceInstancia ? nota : n)) },
-    )
+    const parciales = materia.parciales.map((p, i) => {
+      if (i !== indiceParcial) return p
+      const fechasBase = Array.from({ length: p.notas.length }, (_, j) => p.fechas?.[j] ?? null)
+      return {
+        notas: p.notas.map((n, j) => (j === indiceInstancia ? nota : n)),
+        fechas: fechasBase.map((f, j) => (j === indiceInstancia ? fecha || null : f)),
+      }
+    })
     editarMateria(materia.id, { parciales })
   }
 
-  const actualizarNotaFinal = (indiceInstancia, valor) => {
+  const actualizarNotaFinal = (indiceInstancia, valor, fecha) => {
     const nota = valor === '' || valor == null ? null : Number(valor)
     const notas = materia.final.notas.map((n, j) => (j === indiceInstancia ? nota : n))
-    editarMateria(materia.id, { final: { notas } })
+    const fechasBase = Array.from({ length: materia.final.notas.length }, (_, j) => materia.final.fechas?.[j] ?? null)
+    const fechas = fechasBase.map((f, j) => (j === indiceInstancia ? fecha || null : f))
+    editarMateria(materia.id, { final: { notas, fechas } })
   }
 
   const handleTick = (valor) => {
@@ -172,20 +222,38 @@ function MateriaDetalleMobile() {
     })
   }
 
-  const abrirNotaParcial = (indiceParcial) => (indiceInstancia) =>
+  const abrirNotaParcial = (indiceParcial) => (indiceInstancia) => {
     setNotaSheet({ tipo: 'parcial', parcialIdx: indiceParcial, instanciaIdx: indiceInstancia })
-  const abrirNotaFinal = (indiceInstancia) => setNotaSheet({ tipo: 'final', instanciaIdx: indiceInstancia })
+    setFechaSheet(materia.parciales[indiceParcial]?.fechas?.[indiceInstancia] ?? '')
+  }
+  const abrirNotaFinal = (indiceInstancia) => {
+    setNotaSheet({ tipo: 'final', instanciaIdx: indiceInstancia })
+    setFechaSheet(materia.final.fechas?.[indiceInstancia] ?? '')
+  }
 
   const elegirNota = (valor) => {
-    if (notaSheet.tipo === 'parcial') actualizarNotaParcial(notaSheet.parcialIdx, notaSheet.instanciaIdx, valor)
-    else actualizarNotaFinal(notaSheet.instanciaIdx, valor)
+    if (notaSheet.tipo === 'parcial') actualizarNotaParcial(notaSheet.parcialIdx, notaSheet.instanciaIdx, valor, fechaSheet)
+    else actualizarNotaFinal(notaSheet.instanciaIdx, valor, fechaSheet)
     setNotaSheet(null)
   }
 
   const borrarNota = () => {
-    if (notaSheet.tipo === 'parcial') actualizarNotaParcial(notaSheet.parcialIdx, notaSheet.instanciaIdx, '')
-    else actualizarNotaFinal(notaSheet.instanciaIdx, '')
+    if (notaSheet.tipo === 'parcial') actualizarNotaParcial(notaSheet.parcialIdx, notaSheet.instanciaIdx, '', null)
+    else actualizarNotaFinal(notaSheet.instanciaIdx, '', null)
     setNotaSheet(null)
+  }
+
+  // Cambiar la fecha sin tocar la nota persiste enseguida (con la nota que
+  // ya hubiera en esa instancia) — no hace falta volver a tocar la grilla
+  // para que la fecha quede guardada.
+  const cambiarFechaSheet = (valor) => {
+    setFechaSheet(valor)
+    const notaActual =
+      notaSheet.tipo === 'parcial'
+        ? materia.parciales[notaSheet.parcialIdx].notas[notaSheet.instanciaIdx]
+        : materia.final.notas[notaSheet.instanciaIdx]
+    if (notaSheet.tipo === 'parcial') actualizarNotaParcial(notaSheet.parcialIdx, notaSheet.instanciaIdx, notaActual, valor)
+    else actualizarNotaFinal(notaSheet.instanciaIdx, notaActual, valor)
   }
 
   const tituloNotaSheet = notaSheet
@@ -219,7 +287,7 @@ function MateriaDetalleMobile() {
       <div className="detalle-mobile-titulo-bloque">
         <h1>{materia.nombre}</h1>
         <div className="detalle-mobile-meta-row">
-          <MateriaBadge estado={evaluacion.estado} compacto />
+          <MateriaBadge estado={evaluacion.estado} compacto manual={materia.tickManual != null} />
           {faltanHoras ? (
             <span className="detalle-mobile-aviso">Faltan las horas cátedra</span>
           ) : (
@@ -229,25 +297,64 @@ function MateriaDetalleMobile() {
             </span>
           )}
         </div>
+        <div className="detalle-mobile-manuales">
+          <button
+            type="button"
+            className={materia.tickManual === 'promocion' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
+            onClick={() => handleTick('promocion')}
+          >
+            <span className="material-symbols-outlined" aria-hidden="true">
+              toggle_on
+            </span>
+            Marcar Promoción manual
+          </button>
+          <button
+            type="button"
+            className={materia.tickManual === 'firma' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
+            onClick={() => handleTick('firma')}
+          >
+            <span className="material-symbols-outlined" aria-hidden="true">
+              toggle_on
+            </span>
+            Marcar Firma manual
+          </button>
+        </div>
       </div>
 
       <button type="button" className="detalle-mobile-editar-fila" onClick={() => setEditarAbierto(true)}>
-        <span className="detalle-mobile-editar-icono" aria-hidden="true" />
+        <span className="material-symbols-outlined detalle-mobile-editar-icono" aria-hidden="true">
+          tune
+        </span>
         <span className="detalle-mobile-editar-label">Editar materia</span>
         <span className="detalle-mobile-editar-resumen">{resumenReglas}</span>
-        <span className="detalle-mobile-editar-chevron" aria-hidden="true">
-          ›
+        <span className="material-symbols-outlined detalle-mobile-editar-chevron" aria-hidden="true">
+          chevron_right
         </span>
       </button>
 
+      <div className="detalle-mobile-progreso">
+        <div className="detalle-mobile-progreso-cabecera">
+          <span>Progreso de la materia</span>
+          <span className="detalle-mobile-progreso-valor">{progreso}%</span>
+        </div>
+        <div className="detalle-mobile-progreso-riel">
+          <div className="detalle-mobile-progreso-relleno" style={{ width: `${progreso}%` }} />
+        </div>
+      </div>
+
       <div className="detalle-mobile-puntos">
-        <span className="detalle-mobile-puntos-label">Puntos de esta materia</span>
-        <span className="detalle-mobile-puntos-valor">{puntos}</span>
-        <span className="detalle-mobile-puntos-detalle">
-          Pool base {poolBase}
-          {evaluacion.estado === 'promocion' && ' · +50% por promoción'}
-          {evaluacion.estado === 'aprobada' && ' · +25% por final'}
+        <span className="detalle-mobile-puntos-icono" aria-hidden="true">
+          <span className="material-symbols-outlined relleno">stars</span>
         </span>
+        <div className="detalle-mobile-puntos-info">
+          <span className="detalle-mobile-puntos-label">Puntos de esta materia</span>
+          <span className="detalle-mobile-puntos-detalle">
+            Pool base {poolBase}
+            {evaluacion.estado === 'promocion' && ' · +50% por promoción'}
+            {evaluacion.estado === 'aprobada' && ' · +25% por final'}
+          </span>
+        </div>
+        <span className="detalle-mobile-puntos-valor">{puntos}</span>
       </div>
 
       <label className="detalle-mobile-checkbox">
@@ -274,6 +381,7 @@ function MateriaDetalleMobile() {
               key={indice}
               titulo={`Parcial ${indice + 1}`}
               notas={parcial.notas}
+              fechas={parcial.fechas}
               reglas={reglas}
               resultado={evaluacion.resultadoParciales.resultados[indice]}
               tipo="parcial"
@@ -293,6 +401,7 @@ function MateriaDetalleMobile() {
             <TarjetaInstancias
               titulo="Final"
               notas={materia.final.notas}
+              fechas={materia.final.fechas}
               reglas={reglas}
               resultado={evaluacion.resultadoFinal}
               tipo="final"
@@ -339,6 +448,8 @@ function MateriaDetalleMobile() {
           <HojaNota
             ayuda={ayudaNotaSheet}
             notaAprobacion={reglas.notaAprobacion}
+            fecha={fechaSheet}
+            onCambiarFecha={cambiarFechaSheet}
             onElegir={elegirNota}
             onBorrar={borrarNota}
           />
@@ -365,6 +476,7 @@ function MateriaDetalleMobile() {
             onPermitePromocionOverride={handlePermitePromocionOverride}
             onPromocionPorPromedioOverride={handlePromocionPorPromedioOverride}
             onTick={handleTick}
+            onToggleNoSumaPuntos={handleToggleNoSumaPuntos}
             onVolverReglasCarrera={handleVolverReglasCarrera}
           />
         )}

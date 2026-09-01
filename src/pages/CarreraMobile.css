@@ -76,16 +76,35 @@
 
 .carrera-mobile-sin-carrera {
   display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 0.75rem;
   width: 100%;
   background: var(--bg);
-  border: 1.5px dashed var(--border-color);
-  border-radius: 1.125rem;
+  border: 1.5px dashed var(--accent);
+  border-radius: var(--radius-card, 1.125rem);
   padding: 0.875rem 1rem;
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.carrera-mobile-sin-carrera-icono {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.carrera-mobile-sin-carrera-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
 }
 
 .carrera-mobile-sin-carrera-nombre {

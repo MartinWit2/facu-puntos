@@ -1,5 +1,7 @@
 .materia-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -7,34 +9,40 @@
   white-space: nowrap;
 }
 
+.materia-badge-manual {
+  font-size: 0.875rem;
+}
+
+/* Las variables --estado-* solo existen en mobile (ver index.css): si no
+   están definidas (escritorio), cada badge cae en su color de siempre. */
 .badge-pendiente {
-  background: var(--border-color);
-  color: var(--text-muted);
+  background: var(--estado-pendiente-bg, var(--border-color));
+  color: var(--estado-pendiente, var(--text-muted));
 }
 
 .badge-cursando {
-  background: rgba(255, 200, 0, 0.22);
-  color: #a66a00;
+  background: var(--estado-cursando-bg, rgba(255, 200, 0, 0.22));
+  color: var(--estado-cursando, #a66a00);
 }
 
 .badge-promocion {
-  background: rgba(88, 204, 2, 0.18);
-  color: #2f7a00;
+  background: var(--estado-promocion-bg, rgba(88, 204, 2, 0.18));
+  color: var(--estado-promocion, #2f7a00);
 }
 
 .badge-firma {
-  background: rgba(28, 176, 246, 0.18);
-  color: #0f7ab0;
+  background: var(--estado-firma-bg, rgba(28, 176, 246, 0.18));
+  color: var(--estado-firma, #0f7ab0);
 }
 
 .badge-recursa {
-  background: rgba(255, 75, 75, 0.16);
-  color: #c22a2f;
+  background: var(--estado-recursa-bg, rgba(255, 75, 75, 0.16));
+  color: var(--estado-recursa, #c22a2f);
 }
 
 .badge-aprobada {
-  background: rgba(88, 204, 2, 0.18);
-  color: #2f7a00;
+  background: var(--estado-aprobada-bg, rgba(88, 204, 2, 0.18));
+  color: var(--estado-aprobada, #2f7a00);
 }
 
 @media (prefers-color-scheme: dark) {

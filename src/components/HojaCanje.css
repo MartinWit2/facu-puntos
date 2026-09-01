@@ -101,6 +101,60 @@
   }
 }
 
+.hoja-canje-foto-campo {
+  margin-bottom: 0.875rem;
+}
+
+.hoja-canje-foto-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.hoja-canje-foto {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 6rem;
+  border-radius: var(--radius-card, 1rem);
+  border: 1.5px dashed var(--border-color);
+  background: var(--divisor);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.hoja-canje-foto-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hoja-canje-foto-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted);
+  font-size: 0.78125rem;
+  font-weight: 600;
+}
+
+.hoja-canje-foto-vacia .material-symbols-outlined {
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.hoja-canje-foto-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .hoja-canje-confirmar {
   width: 100%;
   min-height: 3.125rem;

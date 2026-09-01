@@ -6,6 +6,50 @@
   margin-bottom: 1.125rem;
 }
 
+.premios-mobile-historial-fila {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  margin-top: 0.5rem;
+  border-radius: var(--radius-card, 1rem);
+  border: 1px solid var(--border-color);
+  background: var(--bg);
+  box-shadow: var(--shadow-card);
+  color: inherit;
+  text-decoration: none;
+}
+
+.premios-mobile-historial-fila > .material-symbols-outlined {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.premios-mobile-historial-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.premios-mobile-historial-titulo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.premios-mobile-historial-resumen {
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.premios-mobile-historial-chevron {
+  flex-shrink: 0;
+  color: var(--chevron);
+}
+
 .premios-mobile-grupo {
   margin-bottom: 1.125rem;
 }
@@ -43,6 +87,23 @@
   border-radius: 1.125rem;
   box-shadow: var(--shadow-card);
   padding: 0.8125rem 0.9375rem;
+}
+
+.premio-fila-mobile-imagen,
+.premio-fila-mobile-imagen-vacia {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.premio-fila-mobile-imagen-vacia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold-bg, var(--accent-bg));
+  color: var(--gold, var(--accent));
 }
 
 .premio-fila-mobile-info {
@@ -120,15 +181,25 @@
 }
 
 .premio-fila-mobile-editar {
-  min-width: 3.375rem;
-  font: inherit;
-  font-size: 0.75rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.625rem;
   color: var(--text-muted);
   background: none;
   border: none;
-  padding: 0.4rem;
-  text-align: center;
   cursor: pointer;
+}
+
+.premio-fila-mobile-editar .material-symbols-outlined {
+  font-size: 1.125rem;
+}
+
+.premio-fila-mobile-editar:active {
+  background: var(--divisor);
 }
 
 .premio-fila-mobile-confirmar {

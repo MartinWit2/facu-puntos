@@ -95,6 +95,7 @@ function HojaEditarMateria({
   onPermitePromocionOverride,
   onPromocionPorPromedioOverride,
   onTick,
+  onToggleNoSumaPuntos,
   onVolverReglasCarrera,
 }) {
   // Carga alternativa de horas cátedra: útil cuando la fuente del plan da
@@ -259,8 +260,19 @@ function HojaEditarMateria({
         </>
       )}
 
-      <div className="editar-materia-forzar">
-        <span className="editar-materia-label">Forzar resultado</span>
+      <div className="editar-materia-opciones">
+        <h3 className="editar-materia-opciones-titulo">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            settings
+          </span>
+          Opciones adicionales
+        </h3>
+
+        <label className="editar-materia-opciones-checkbox">
+          <input type="checkbox" checked={materia.poolOverride === 0} onChange={onToggleNoSumaPuntos} />
+          No sumar puntos de esta materia (ya la tenía aprobada antes de usar la app)
+        </label>
+
         <div className="detalle-mobile-toggles">
           <button
             type="button"

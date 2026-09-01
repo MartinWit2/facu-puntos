@@ -10,13 +10,11 @@ import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
-import { FILTROS_VACIOS, RANGOS_HORAS, materiaCoincideFiltros } from '../utils/filtrosMaterias'
+import { FILTROS_VACIOS, HORAS_CATEDRA_MAX, materiaCoincideFiltros } from '../utils/filtrosMaterias'
 import {
   DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
   DEFAULT_CANTIDAD_PARCIALES,
   DEFAULT_CANTIDAD_RECUPERATORIOS,
-  RANGO_HORAS_UMBRAL_1,
-  RANGO_HORAS_UMBRAL_2,
 } from '../constants'
 import { useState } from 'react'
 import './MateriasMobile.css'
@@ -37,21 +35,14 @@ function valoresNuevaMateria() {
 
 // Mismas 4 opciones agrupadas que ya usa materiaCoincideFiltros (ver
 // utils/filtrosMaterias.js) — se repiten acá solo como lista para la hoja,
-// la lógica de coincidencia sigue siendo la del util.
+// la lógica de coincidencia sigue siendo la del util. La clase da el color
+// semántico del chip (ver MateriasMobile.css).
 const OPCIONES_ESTADO = [
-  { valor: 'aprobada', etiqueta: 'Aprobada' },
-  { valor: 'firmada', etiqueta: 'Firmada' },
-  { valor: 'cursando', etiqueta: 'Cursando' },
-  { valor: 'pendiente', etiqueta: 'Pendiente' },
+  { valor: 'pendiente', etiqueta: 'Pendiente', clase: 'pendiente' },
+  { valor: 'cursando', etiqueta: 'Cursando', clase: 'cursando' },
+  { valor: 'firmada', etiqueta: 'Firmada', clase: 'firma' },
+  { valor: 'aprobada', etiqueta: 'Aprobada', clase: 'aprobada' },
 ]
-
-// Etiquetas más amigables que el "0-99" de escritorio, pero mismos `valor`
-// (bajo/medio/alto) para que materiaCoincideFiltros los reconozca igual.
-const ETIQUETAS_HORAS_MOBILE = {
-  bajo: `Menos de ${RANGO_HORAS_UMBRAL_1}`,
-  medio: `${RANGO_HORAS_UMBRAL_1} a ${RANGO_HORAS_UMBRAL_2 - 1}`,
-  alto: `${RANGO_HORAS_UMBRAL_2} o más`,
-}
 
 function esAprobada(estado) {
   return estado === 'aprobada' || estado === 'promocion'
@@ -143,7 +134,11 @@ function MateriasMobile() {
   const { materias, cargando, agregarMateria, editarMateria } = useMaterias()
   const { reglasCarrera } = usePerfil()
   const [filtros, setFiltros] = useState(FILTROS_VACIOS)
-  const [filtroSheet, setFiltroSheet] = useState(null)
+  // Separado de `filtros` a propósito: ver el comentario de FILTROS_VACIOS
+  // en utils/filtrosMaterias.js — no puede vivir en ese objeto sin romper
+  // el desktop.
+  const [horasMax, setHorasMax] = useState(null)
+  const [filtroSheetAbierto, setFiltroSheetAbierto] = useState(false)
   const [nuevaMateria, setNuevaMateria] = useState(null)
   const [anioRecienAgregado, setAnioRecienAgregado] = useState(null)
 
@@ -169,20 +164,14 @@ function MateriasMobile() {
     return { materia, reglas, evaluacion: evaluarCursada(materia, reglas), puntos: calcularPuntosMateria(materia, reglas) }
   })
 
-  const filtrosActivos = filtros.anios.length > 0 || filtros.rangosHoras.length > 0 || filtros.estados.length > 0
-  const coincide = ({ materia }) => materiaCoincideFiltros(materia, filtros, reglasCarrera)
+  const filtrosActivos = filtros.anios.length > 0 || horasMax != null || filtros.estados.length > 0
+  const coincide = ({ materia }) => materiaCoincideFiltros(materia, filtros, reglasCarrera, horasMax)
   const totalAprobadas = enriquecidas.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
   const totalCoincidentes = enriquecidas.filter(coincide).length
+  const cantidadFiltrosActivos = filtros.anios.length + filtros.estados.length + (horasMax != null ? 1 : 0)
 
   const aniosPresentes = [...new Set(materias.map((m) => m.anioCursada))].sort((a, b) => a - b)
   const opcionesAnios = aniosPresentes.map((anio) => ({ valor: String(anio), etiqueta: `${nombreAnio(anio)} año` }))
-  const opcionesHoras = RANGOS_HORAS.map((r) => ({ valor: r.valor, etiqueta: ETIQUETAS_HORAS_MOBILE[r.valor] }))
-
-  const CATEGORIAS = [
-    { key: 'anios', etiqueta: 'Año', opciones: opcionesAnios },
-    { key: 'rangosHoras', etiqueta: 'Horas', opciones: opcionesHoras },
-    { key: 'estados', etiqueta: 'Estado', opciones: OPCIONES_ESTADO },
-  ]
 
   const toggleFiltro = (categoria, valor) => {
     setFiltros((prev) => {
@@ -192,7 +181,18 @@ function MateriasMobile() {
     })
   }
 
-  const limpiarFiltros = () => setFiltros(FILTROS_VACIOS)
+  // El slider llega hasta HORAS_CATEDRA_MAX; en ese tope el filtro se
+  // considera "sin límite" (horasMax en null) en vez de comparar contra un
+  // número que ninguna materia real supera.
+  const cambiarHorasMax = (valor) => {
+    const numero = Number(valor)
+    setHorasMax(numero >= HORAS_CATEDRA_MAX ? null : numero)
+  }
+
+  const limpiarFiltros = () => {
+    setFiltros(FILTROS_VACIOS)
+    setHorasMax(null)
+  }
 
   const handleAbrirNuevaMateria = () => setNuevaMateria(valoresNuevaMateria())
   const handleCerrarNuevaMateria = () => setNuevaMateria(null)
@@ -287,20 +287,17 @@ function MateriasMobile() {
       ) : (
         <>
           <div className="filtros-mobile">
-            {CATEGORIAS.map((categoria) => {
-              const cantidad = filtros[categoria.key].length
-              return (
-                <button
-                  key={categoria.key}
-                  type="button"
-                  className={cantidad > 0 ? 'chip-filtro-mobile activo' : 'chip-filtro-mobile'}
-                  onClick={() => setFiltroSheet(categoria.key)}
-                >
-                  {categoria.etiqueta}
-                  {cantidad > 0 && <span className="chip-filtro-mobile-contador">{cantidad}</span>}
-                </button>
-              )
-            })}
+            <button
+              type="button"
+              className={cantidadFiltrosActivos > 0 ? 'chip-filtro-mobile activo' : 'chip-filtro-mobile'}
+              onClick={() => setFiltroSheetAbierto(true)}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                tune
+              </span>
+              Filtros
+              {cantidadFiltrosActivos > 0 && <span className="chip-filtro-mobile-contador">{cantidadFiltrosActivos}</span>}
+            </button>
             {filtrosActivos && (
               <button type="button" className="chip-filtro-mobile-limpiar" onClick={limpiarFiltros}>
                 Limpiar
@@ -422,36 +419,77 @@ function MateriasMobile() {
       )}
 
       <BottomSheet
-        abierto={filtroSheet != null}
-        onCerrar={() => setFiltroSheet(null)}
-        titulo={CATEGORIAS.find((c) => c.key === filtroSheet)?.etiqueta}
+        abierto={filtroSheetAbierto}
+        onCerrar={() => setFiltroSheetAbierto(false)}
+        titulo="Filtros"
+        footer={
+          <button type="button" className="boton-primario-mobile" onClick={() => setFiltroSheetAbierto(false)}>
+            Ver {totalCoincidentes} materias
+          </button>
+        }
       >
-        {filtroSheet && (
-          <>
-            <ul className="filtro-sheet-lista">
-              {CATEGORIAS.find((c) => c.key === filtroSheet).opciones.map((opcion) => {
-                const marcado = filtros[filtroSheet].includes(opcion.valor)
-                return (
-                  <li key={opcion.valor}>
-                    <button
-                      type="button"
-                      className={marcado ? 'filtro-sheet-opcion marcada' : 'filtro-sheet-opcion'}
-                      onClick={() => toggleFiltro(filtroSheet, opcion.valor)}
-                    >
-                      <span className="filtro-sheet-tilde" aria-hidden="true">
-                        {marcado && '✓'}
-                      </span>
-                      {opcion.etiqueta}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-            <button type="button" className="filtro-sheet-boton-ver" onClick={() => setFiltroSheet(null)}>
-              Ver {totalCoincidentes} materias
-            </button>
-          </>
-        )}
+        <div className="filtro-panel-seccion">
+          <h4 className="filtro-panel-titulo">Año</h4>
+          <div className="filtro-panel-chips">
+            {opcionesAnios.map((opcion) => (
+              <button
+                key={opcion.valor}
+                type="button"
+                className={filtros.anios.includes(opcion.valor) ? 'filtro-chip activo' : 'filtro-chip'}
+                onClick={() => toggleFiltro('anios', opcion.valor)}
+              >
+                {opcion.etiqueta}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filtro-panel-seccion">
+          <h4 className="filtro-panel-titulo">Estado</h4>
+          <div className="filtro-panel-chips">
+            {OPCIONES_ESTADO.map((opcion) => {
+              const marcado = filtros.estados.includes(opcion.valor)
+              return (
+                <button
+                  key={opcion.valor}
+                  type="button"
+                  className={
+                    marcado
+                      ? `filtro-chip-estado ${opcion.clase} activo`
+                      : `filtro-chip-estado ${opcion.clase}`
+                  }
+                  onClick={() => toggleFiltro('estados', opcion.valor)}
+                >
+                  <span className="filtro-chip-estado-punto" aria-hidden="true" />
+                  {opcion.etiqueta}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="filtro-panel-seccion">
+          <div className="filtro-panel-horas-cabecera">
+            <h4 className="filtro-panel-titulo">Horas cátedra</h4>
+            <span className="filtro-panel-horas-valor">
+              {horasMax == null ? `Hasta ${HORAS_CATEDRA_MAX}h+` : `Hasta ${horasMax}h`}
+            </span>
+          </div>
+          <input
+            type="range"
+            className="filtro-panel-slider"
+            min="0"
+            max={HORAS_CATEDRA_MAX}
+            step="8"
+            value={horasMax ?? HORAS_CATEDRA_MAX}
+            onChange={(e) => cambiarHorasMax(e.target.value)}
+            aria-label="Horas cátedra máximas"
+          />
+          <div className="filtro-panel-horas-limites">
+            <span>0h</span>
+            <span>{HORAS_CATEDRA_MAX}h+</span>
+          </div>
+        </div>
       </BottomSheet>
 
       <BottomSheet
