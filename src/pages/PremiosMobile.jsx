@@ -109,7 +109,7 @@ function PremiosMobile() {
   const handleConfirmarCanje = (detalleOrigen, fotoUrl) => {
     agregarCanje(premioEnCanje, detalleOrigen, fotoUrl)
     const saldoNuevo = Math.round((saldoDisponible - premioEnCanje.costoPuntos) * 100) / 100
-    celebrar({
+    celebrar('premio', {
       icono: 'redeem',
       titulo: premioEnCanje.nombre,
       subtitulo: `Canjeaste ${premioEnCanje.costoPuntos} pts. Te quedan ${saldoNuevo} disponibles.`,

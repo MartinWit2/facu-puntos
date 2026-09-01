@@ -32,6 +32,15 @@ function formatearFecha(fechaIso) {
   return fecha.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+// Versión compacta (dd/mm, sin año) para mostrar al lado de la etiqueta de
+// cada chip de instancia — "Recu 1 · 14/10".
+function formatearFechaCorta(fechaIso) {
+  if (!fechaIso) return null
+  const fecha = new Date(`${fechaIso}T00:00:00`)
+  if (Number.isNaN(fecha.getTime())) return null
+  return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
+}
+
 function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onAbrirNota }) {
   const visibles = contarInstanciasVisibles(notas, reglas)
   const etiqueta = tipo === 'parcial' ? etiquetaInstanciaParcial : etiquetaInstanciaFinal
@@ -80,6 +89,7 @@ function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onA
         {Array.from({ length: visibles }, (_, indice) => {
           const nota = notas[indice]
           const clase = nota == null ? 'vacio' : nota >= reglas.notaAprobacion ? 'aprueba' : 'desaprueba'
+          const fechaCorta = formatearFechaCorta(fechas?.[indice])
           return (
             <button
               key={indice}
@@ -88,7 +98,10 @@ function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onA
               onClick={() => onAbrirNota(indice)}
             >
               <span className="chip-nota-mobile-valor">{nota ?? '–'}</span>
-              <span className="chip-nota-mobile-label">{etiqueta(indice)}</span>
+              <span className="chip-nota-mobile-label">
+                {etiqueta(indice)}
+                {fechaCorta && ` · ${fechaCorta}`}
+              </span>
             </button>
           )
         })}
@@ -118,7 +131,7 @@ function MateriaDetalleMobile() {
   useEffect(() => {
     const anterior = estadoAnteriorRef.current
     if (evaluacion && anterior !== evaluacion.estado && ESTADOS_FESTEJABLES.has(evaluacion.estado)) {
-      celebrar({
+      celebrar('materia', {
         icono: 'emoji_events',
         titulo: evaluacion.estado === 'promocion' ? '¡Promocionaste!' : '¡Materia firmada!',
         subtitulo: `${materia.nombre} · +${puntos} pts`,

@@ -15,3 +15,9 @@ export const DEFAULT_PUNTOS_POR_HORA = 1
 // Materias. Default, ajustables acá si hiciera falta cambiar los rangos.
 export const RANGO_HORAS_UMBRAL_1 = 100 // horas < este valor => rango "bajo"
 export const RANGO_HORAS_UMBRAL_2 = 160 // horas >= este valor => rango "alto" (entre medio => "medio")
+
+// Ventanas de los recordatorios de notificaciones push (sección "4.3" del
+// prompt de notificaciones) — usadas por la Edge Function
+// enviar-recordatorios, no por el frontend.
+export const RECORDATORIO_PROXIMO_DIAS_ANTES = 3 // avisar cuando faltan <= N días para la fecha
+export const RECORDATORIO_NOTA_PENDIENTE_DIAS = 7 // primer aviso N días después de pasada la fecha; se repite cada N días

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { reproducirSonido } from '../utils/sonidos'
 import './Celebracion.css'
 
 const COLORES = ['#58cc02', '#1cb0f6', '#ffc800', '#ff4b4b', '#ce82ff']
@@ -16,22 +17,25 @@ function generarPiezas() {
   }))
 }
 
-// Festejo (confetti cayendo ~1.5s + una card centrada) para el momento en
-// que una materia promociona/firma, o se confirma un canje de premio —
-// mismo lenguaje visual para las dos, solo cambia el contenido de la card
-// (sección "3i" del rediseño). `celebrar(contenido)` dispara el confetti
-// siempre; si se le pasa `contenido` ({ icono, titulo, subtitulo, boton }),
-// además muestra la card hasta que se toque el botón o se cierre.
-// `elemento` es lo que hay que renderizar en el árbol del componente que
-// lo usa. Llamar `celebrar()` sin argumentos (como ya hacía el detalle de
-// materia antes de esta sección) sigue funcionando: solo confetti.
+// Festejo (confetti cayendo ~1.5s + una card centrada + un sonido cortito)
+// para el momento en que una materia promociona/firma, o se confirma un
+// canje de premio — mismo lenguaje visual para las dos, solo cambia el
+// contenido de la card (sección "3i" del rediseño) y el sonido (sección
+// "2" del prompt de notificaciones). `celebrar(variante, contenido)`:
+// `variante` es 'materia' o 'premio' (elige qué sonido suena — default
+// 'materia' si no se pasa nada, para no romper un `celebrar()` viejo sin
+// argumentos); `contenido` ({ icono, titulo, subtitulo, boton }) es
+// opcional, si se pasa además muestra la card hasta que se toque el botón
+// o se cierre. `elemento` es lo que hay que renderizar en el árbol del
+// componente que lo usa.
 export function useCelebracion() {
   const [piezas, setPiezas] = useState(null)
   const [contenido, setContenido] = useState(null)
 
-  const celebrar = useCallback((contenidoCard) => {
+  const celebrar = useCallback((variante, contenidoCard) => {
     setPiezas(generarPiezas())
     setTimeout(() => setPiezas(null), DURACION_MS)
+    reproducirSonido(variante)
     if (contenidoCard) setContenido(contenidoCard)
   }, [])
 

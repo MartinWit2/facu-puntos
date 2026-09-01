@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/useAuth.js'
 import { usePerfil } from '../context/usePerfil.js'
 import { useMaterias } from '../hooks/useMaterias.js'
 import { evaluarCursada } from '../utils/cursada'
 import { calcularPuntosTotales } from '../utils/puntosMateria'
+import { activarPush, corriendoStandalone, desactivarPush, esIOS, pushSoportado, suscripcionActual } from '../utils/push'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
+import { reproducirSonido, sonidoActivado, setSonidoActivado } from '../utils/sonidos'
 import './PerfilMobile.css'
 
 function esAprobada(estado) {
@@ -18,6 +21,71 @@ function PerfilMobile() {
   const { usuario, cerrarSesion } = useAuth()
   const { perfil, carreras, reglasCarrera } = usePerfil()
   const { materias, cargando } = useMaterias()
+  const [sonido, setSonido] = useState(() => sonidoActivado())
+
+  // Es una preferencia del dispositivo (localStorage), no de la cuenta —
+  // no hace falta que se sincronice entre dispositivos. Tocar el switch
+  // reproduce el sonido de materia como muestra de cómo va a sonar cuando
+  // esté prendido.
+  const handleToggleSonido = () => {
+    const activado = !sonido
+    setSonido(activado)
+    setSonidoActivado(activado)
+    if (activado) reproducirSonido('materia')
+  }
+
+  // Notificaciones push (sección "4.2" del prompt): arranca "cargando"
+  // mientras se chequea si ya hay una suscripción activa del navegador, y
+  // después queda en uno de cuatro estados. 'no-soportado' e
+  // 'ios-no-instalado' son terminales — en esos casos no hay nada que
+  // activar, el switch solo explica por qué.
+  const [notiEstado, setNotiEstado] = useState('cargando')
+  const [notiAviso, setNotiAviso] = useState('')
+  const [notiCargando, setNotiCargando] = useState(false)
+
+  useEffect(() => {
+    let cancelado = false
+    async function chequearEstado() {
+      if (esIOS() && !corriendoStandalone()) {
+        if (!cancelado) setNotiEstado('ios-no-instalado')
+        return
+      }
+      if (!pushSoportado()) {
+        if (!cancelado) setNotiEstado('no-soportado')
+        return
+      }
+      const suscripcion = await suscripcionActual()
+      if (!cancelado) setNotiEstado(suscripcion ? 'activo' : 'inactivo')
+    }
+    chequearEstado()
+    return () => {
+      cancelado = true
+    }
+  }, [])
+
+  const handleToggleNotificaciones = async () => {
+    if (notiEstado !== 'activo' && notiEstado !== 'inactivo') return
+    setNotiAviso('')
+    setNotiCargando(true)
+    try {
+      if (notiEstado === 'activo') {
+        await desactivarPush()
+        setNotiEstado('inactivo')
+      } else {
+        const suscripcion = await activarPush(usuario.id)
+        if (suscripcion) {
+          setNotiEstado('activo')
+        } else {
+          setNotiAviso('Habilitá los permisos de notificaciones desde la configuración de tu navegador o sistema.')
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      setNotiAviso('Algo falló activando las notificaciones. Probá de nuevo en un rato.')
+    } finally {
+      setNotiCargando(false)
+    }
+  }
 
   const inicial = usuario.email?.[0]?.toUpperCase() ?? '?'
   const carreraActual = carreras.find((c) => c.id === perfil?.carrera_id)
@@ -67,6 +135,47 @@ function PerfilMobile() {
           </div>
         </div>
       )}
+
+      <span className="seccion-mobile-label">Preferencias</span>
+      <div className="perfil-mobile-acciones">
+        <button type="button" className="perfil-mobile-switch-fila" onClick={handleToggleSonido}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            {sonido ? 'volume_up' : 'volume_off'}
+          </span>
+          <span className="perfil-mobile-switch-texto">
+            <span>Sonido</span>
+            <span className="perfil-mobile-switch-ayuda">Al aprobar una materia o canjear un premio.</span>
+          </span>
+          <span className={sonido ? 'perfil-mobile-switch activo' : 'perfil-mobile-switch'} aria-hidden="true">
+            <span className="perfil-mobile-switch-perilla" />
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className="perfil-mobile-switch-fila"
+          onClick={handleToggleNotificaciones}
+          disabled={notiCargando || notiEstado === 'cargando' || notiEstado === 'no-soportado' || notiEstado === 'ios-no-instalado'}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            {notiEstado === 'activo' ? 'notifications_active' : 'notifications_off'}
+          </span>
+          <span className="perfil-mobile-switch-texto">
+            <span>Notificaciones</span>
+            <span className="perfil-mobile-switch-ayuda">
+              {notiEstado === 'ios-no-instalado'
+                ? 'Agregá Unipoints a tu pantalla de inicio para poder activar las notificaciones.'
+                : notiEstado === 'no-soportado'
+                  ? 'Tu navegador no soporta notificaciones push.'
+                  : 'Parciales y finales que se acercan, y notas pendientes de cargar.'}
+            </span>
+          </span>
+          <span className={notiEstado === 'activo' ? 'perfil-mobile-switch activo' : 'perfil-mobile-switch'} aria-hidden="true">
+            <span className="perfil-mobile-switch-perilla" />
+          </span>
+        </button>
+        {notiAviso && <p className="perfil-mobile-switch-aviso">{notiAviso}</p>}
+      </div>
 
       <div className="perfil-mobile-acciones">
         <Link to="/cambiar-carrera" className="perfil-mobile-accion">
