@@ -9,7 +9,7 @@ export function evaluarParcial(notas, reglas) {
       return { aprobado: false, agotado: false, notaAprobacion: null, indiceInstancia: null }
     }
     if (nota >= reglas.notaAprobacion) {
-      return {
+      const resultadoOriginal = {
         aprobado: true,
         agotado: false,
         notaAprobacion: nota,
@@ -17,6 +17,33 @@ export function evaluarParcial(notas, reglas) {
         // "como máximo en su primer recuperatorio" => índice 0 (original) o 1 (recu 1).
         cumplePatronPromocion: nota >= reglas.notaPromocion && indice <= 1,
       }
+
+      // Caso puntual: el original aprobó pero no llegó a nota de promoción.
+      // Si la materia permite promoción y hay un primer recuperatorio
+      // configurado, ese recu queda disponible para rendir IGUAL, de forma
+      // opcional, buscando promocionar. Si se carga y llega a nota de
+      // promoción, pasa a contar como el resultado de este parcial (mismo
+      // patrón "en el original o el primer recu" de siempre). Si no se
+      // carga, o se carga y no alcanza, el parcial se queda con el
+      // resultado original tal cual — nunca empeora.
+      if (
+        indice === 0 &&
+        !resultadoOriginal.cumplePatronPromocion &&
+        reglas.permitePromocion &&
+        notas.length > 1 &&
+        notas[1] != null &&
+        notas[1] >= reglas.notaPromocion
+      ) {
+        return {
+          aprobado: true,
+          agotado: false,
+          notaAprobacion: notas[1],
+          indiceInstancia: 1,
+          cumplePatronPromocion: true,
+        }
+      }
+
+      return resultadoOriginal
     }
   }
   // Se cargaron todas las instancias disponibles y ninguna llegó a la nota de aprobación.
@@ -122,11 +149,23 @@ export function calcularNotaMateriaAutomatica(evaluacion) {
 
 // Cuántas instancias (de un parcial o del final) mostrar en el formulario:
 // hasta la primera vacía, o hasta la que aprobó, lo que venga primero.
-export function contarInstanciasVisibles(notas, reglas) {
+// `esParcial` habilita el caso puntual del recu opcional para promocionar
+// (ver evaluarParcial) — el final no tiene ese patrón, así que se lo deja
+// desactivado por default para no mostrarle una instancia de más.
+export function contarInstanciasVisibles(notas, reglas, { esParcial = false } = {}) {
   for (let indice = 0; indice < notas.length; indice += 1) {
     const nota = notas[indice]
     if (nota == null) return indice + 1
-    if (nota >= reglas.notaAprobacion) return indice + 1
+    if (nota >= reglas.notaAprobacion) {
+      // Mismo caso puntual que en evaluarParcial: el original aprobó pero
+      // no llega a nota de promoción, y queda un primer recu opcional para
+      // intentar promocionar — se sigue mostrando esa instancia (vacía o
+      // ya cargada), pero nunca más allá de ella.
+      if (esParcial && indice === 0 && nota < reglas.notaPromocion && reglas.permitePromocion && notas.length > 1) {
+        return 2
+      }
+      return indice + 1
+    }
   }
   return notas.length
 }

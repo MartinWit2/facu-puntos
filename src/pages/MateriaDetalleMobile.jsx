@@ -42,9 +42,19 @@ function formatearFechaCorta(fechaIso) {
 }
 
 function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onAbrirNota }) {
-  const visibles = contarInstanciasVisibles(notas, reglas)
+  const visibles = contarInstanciasVisibles(notas, reglas, { esParcial: tipo === 'parcial' })
   const etiqueta = tipo === 'parcial' ? etiquetaInstanciaParcial : etiquetaInstanciaFinal
   const intentos = notas.filter((n) => n != null).length
+  // El chip "extra" del recu 1 opcional para promocionar (ver evaluarParcial
+  // en utils/cursada.js): el original aprobó por debajo de la nota de
+  // promoción y hay un primer recu disponible para intentarla igual.
+  const esRecuOpcionalPromocion =
+    tipo === 'parcial' &&
+    notas[0] != null &&
+    notas[0] >= reglas.notaAprobacion &&
+    notas[0] < reglas.notaPromocion &&
+    reglas.permitePromocion &&
+    notas.length > 1
   // Fecha de la última instancia cargada (nota o solo fecha, lo que haya).
   const ultimaFecha = formatearFecha(
     [...(fechas ?? [])]
@@ -100,6 +110,7 @@ function TarjetaInstancias({ titulo, notas, fechas, reglas, resultado, tipo, onA
               <span className="chip-nota-mobile-valor">{nota ?? '–'}</span>
               <span className="chip-nota-mobile-label">
                 {etiqueta(indice)}
+                {esRecuOpcionalPromocion && indice === 1 && ' · opcional, para promocionar'}
                 {fechaCorta && ` · ${fechaCorta}`}
               </span>
             </button>

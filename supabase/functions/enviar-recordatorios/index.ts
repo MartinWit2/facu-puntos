@@ -17,8 +17,10 @@ import { contarInstanciasVisibles, evaluarCursada } from '../../../src/utils/cur
 
 // Mismas constantes que src/constants.js (no se puede importar ese archivo
 // tal cual porque tira de otros módulos con imports de Vite/React) — si se
-// cambian acá, cambiarlas también ahí.
-const RECORDATORIO_PROXIMO_DIAS_ANTES = 3
+// cambian acá, cambiarlas también ahí. De mayor a menor: cada umbral de
+// RECORDATORIOS_PROXIMO_DIAS_ANTES es un aviso independiente (parche sobre
+// la sección 4.3 del prompt de notificaciones — antes era un solo umbral).
+const RECORDATORIOS_PROXIMO_DIAS_ANTES = [14, 7, 1]
 const RECORDATORIO_NOTA_PENDIENTE_DIAS = 7
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -112,48 +114,87 @@ type Aviso = {
   textoEspecifico: string
 }
 
-// Evalúa las tres condiciones de la sección "4.3" para una única instancia
-// (un parcial puntual, o el final) que ya se identificó como "la activa".
-function evaluarInstancia(
+// Texto del aviso de "próximo", distinto para cada umbral (para que no sea
+// el mismo mensaje 3 veces) y según sea parcial o final.
+function textoProximo(
+  tipoProximo: 'parcial_proximo' | 'final_proximo',
+  materiaNombre: string,
+  etiquetaInstancia: string,
+  umbral: number,
+  fecha: string,
+): string {
+  // `etiquetaInstancia` ya es "el parcial", "el recuperatorio N del
+  // parcial M", o "el final" — se arma la frase alrededor de eso.
+  if (umbral === 14) return `Tenés ${etiquetaInstancia} de ${materiaNombre} en 2 semanas (${fecha}).`
+  if (umbral === 7) return `Tenés ${etiquetaInstancia} de ${materiaNombre} en 1 semana (${fecha}).`
+  if (umbral === 1) return `¡Mañana rendís ${etiquetaInstancia} de ${materiaNombre}!`
+  // Umbral genérico, por si en el futuro se agrega uno que no sea 14/7/1.
+  return `Tenés ${etiquetaInstancia} de ${materiaNombre} en ${umbral} días (${fecha}).`
+}
+
+// Sección "4.3.a"/"4.3.b", parcheada: en vez de un solo umbral, cada valor
+// de RECORDATORIOS_PROXIMO_DIAS_ANTES es un aviso independiente para la
+// MISMA instancia activa, cada uno trackeado con su propia clave_instancia
+// (sufijo "-14"/"-7"/"-1"). Puede devolver más de un aviso en la misma
+// corrida si el cron se saltó días y de golpe hay que "ponerse al día" con
+// más de un umbral vencido a la vez.
+function evaluarProximo(
   hoy: string,
   materiaId: string,
   materiaNombre: string,
   tipoProximo: 'parcial_proximo' | 'final_proximo',
-  claveInstancia: string,
+  claveInstanciaBase: string,
   fecha: string | null | undefined,
   etiquetaInstancia: string,
   registrosExistentes: Map<string, Record<string, unknown>>,
-): Aviso | null {
-  if (!fecha) return null
-
-  // El mapa se arma con `${materiaId}:${claveInstancia}` — hay que buscar
-  // con la misma clave compuesta, porque `claveInstancia` sola (ej.
-  // "parcial-0-instancia-1") se repite igual entre materias distintas.
-  const claveCompuesta = `${materiaId}:${claveInstancia}`
+): Aviso[] {
+  if (!fecha) return []
   const dias = diasEntre(hoy, fecha)
-  const registro = registrosExistentes.get(claveCompuesta)
+  if (dias < 0) return [] // ya pasó — de eso se ocupa evaluarNotaPendiente
 
-  if (dias >= 0) {
-    // (a)/(b): próximo, dentro de la ventana, y todavía no se avisó para
-    // esta MISMA fecha (si la fecha cambió, es un aviso nuevo).
-    if (dias > RECORDATORIO_PROXIMO_DIAS_ANTES) return null
-    if (registro?.tipo === tipoProximo && registro.ultima_fecha_referencia === fecha) return null
-    return {
+  const avisos: Aviso[] = []
+  for (const umbral of RECORDATORIOS_PROXIMO_DIAS_ANTES) {
+    // "<=" a propósito (no "=="): si el cron se saltea un día, el aviso se
+    // manda igual en la corrida siguiente en vez de perderse.
+    if (dias > umbral) continue
+
+    const claveInstancia = `${claveInstanciaBase}-${umbral}`
+    // El mapa se arma con `${materiaId}:${claveInstancia}` — hay que
+    // buscar con la misma clave compuesta, porque `claveInstancia` sola
+    // se repite igual entre materias distintas.
+    const registro = registrosExistentes.get(`${materiaId}:${claveInstancia}`)
+    if (registro?.ultima_fecha_referencia === fecha) continue // ya se avisó este umbral para esta fecha
+
+    avisos.push({
       userId: '',
       materiaId,
       materiaNombre,
       tipo: tipoProximo,
       claveInstancia,
       fecha,
-      textoEspecifico:
-        tipoProximo === 'parcial_proximo'
-          ? `${materiaNombre}: ${etiquetaInstancia} el ${fecha}.`
-          : `${materiaNombre}: final el ${fecha}.`,
-    }
+      textoEspecifico: textoProximo(tipoProximo, materiaNombre, etiquetaInstancia, umbral, fecha),
+    })
   }
+  return avisos
+}
 
-  // (c): la fecha ya pasó y sigue sin nota — se repite cada
-  // RECORDATORIO_NOTA_PENDIENTE_DIAS días desde el primer aviso posible.
+// Sección "4.3.c", sin cambios por este parche: la fecha ya pasó y sigue
+// sin nota — se repite cada RECORDATORIO_NOTA_PENDIENTE_DIAS días desde el
+// primer aviso posible.
+function evaluarNotaPendiente(
+  hoy: string,
+  materiaId: string,
+  materiaNombre: string,
+  claveInstancia: string,
+  fecha: string | null | undefined,
+  etiquetaInstancia: string,
+  registrosExistentes: Map<string, Record<string, unknown>>,
+): Aviso | null {
+  if (!fecha) return null
+  const dias = diasEntre(hoy, fecha)
+  if (dias >= 0) return null // todavía no pasó
+
+  const claveCompuesta = `${materiaId}:${claveInstancia}`
   const registroPendiente = registrosExistentes.get(`nota_pendiente:${claveCompuesta}`)
   if (!registroPendiente || registroPendiente.ultima_fecha_referencia !== fecha) {
     // Todavía no hay registro para ESTA fecha (o la fecha cambió): el
@@ -228,39 +269,29 @@ Deno.serve(async () => {
     const evaluacion = evaluarCursada(materia, reglas)
 
     materia.parciales.forEach((parcial, indiceParcial) => {
-      const activo = contarInstanciasVisibles(parcial.notas, reglas) - 1
+      const activo = contarInstanciasVisibles(parcial.notas, reglas, { esParcial: true }) - 1
       if (parcial.notas[activo] != null) return // esa instancia ya tiene nota (aprobó o fue la última agotada)
 
       const etiqueta = activo === 0 ? 'el parcial' : `el recuperatorio ${activo} del parcial ${indiceParcial + 1}`
       const clave = `parcial-${indiceParcial}-instancia-${activo}`
-      const aviso = evaluarInstancia(
-        hoy,
-        materia.id,
-        materia.nombre,
-        'parcial_proximo',
-        clave,
-        parcial.fechas?.[activo],
-        etiqueta,
-        registrosPorClave,
-      )
-      if (aviso) avisos.push({ ...aviso, userId: materia.userId })
+      const fecha = parcial.fechas?.[activo]
+      for (const aviso of evaluarProximo(hoy, materia.id, materia.nombre, 'parcial_proximo', clave, fecha, etiqueta, registrosPorClave)) {
+        avisos.push({ ...aviso, userId: materia.userId })
+      }
+      const avisoPendiente = evaluarNotaPendiente(hoy, materia.id, materia.nombre, clave, fecha, etiqueta, registrosPorClave)
+      if (avisoPendiente) avisos.push({ ...avisoPendiente, userId: materia.userId })
     })
 
     if (evaluacion.resultadoFinal !== null) {
       const activo = contarInstanciasVisibles(materia.final.notas, reglas) - 1
       if (materia.final.notas[activo] == null) {
         const clave = `final-instancia-${activo}`
-        const aviso = evaluarInstancia(
-          hoy,
-          materia.id,
-          materia.nombre,
-          'final_proximo',
-          clave,
-          materia.final.fechas?.[activo],
-          'el final',
-          registrosPorClave,
-        )
-        if (aviso) avisos.push({ ...aviso, userId: materia.userId })
+        const fecha = materia.final.fechas?.[activo]
+        for (const aviso of evaluarProximo(hoy, materia.id, materia.nombre, 'final_proximo', clave, fecha, 'el final', registrosPorClave)) {
+          avisos.push({ ...aviso, userId: materia.userId })
+        }
+        const avisoPendiente = evaluarNotaPendiente(hoy, materia.id, materia.nombre, clave, fecha, 'el final', registrosPorClave)
+        if (avisoPendiente) avisos.push({ ...avisoPendiente, userId: materia.userId })
       }
     }
   }
