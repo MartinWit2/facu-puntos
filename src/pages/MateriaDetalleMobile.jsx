@@ -7,7 +7,7 @@ import HojaNota from '../components/HojaNota.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useMaterias } from '../hooks/useMaterias.js'
-import { contarInstanciasVisibles, evaluarCursada } from '../utils/cursada'
+import { calcularNotaMateriaAutomatica, contarInstanciasVisibles, evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
 import { calcularProgresoMateria } from '../utils/progresoMateria'
@@ -175,6 +175,13 @@ function MateriaDetalleMobile() {
   const faltanHoras = materia.horasCatedra == null
   const poolBase = calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)
   const progreso = calcularProgresoMateria(materia, reglas)
+  // Default de "nota final de la materia" cuando todavía no se cargó una a
+  // mano: promedio de los parciales (promoción) o la nota del final
+  // (aprobada por final). Mismo criterio que ya usa MateriaDetalle.jsx en
+  // escritorio (calcularNotaMateriaAutomatica) — acá se ve como la celda
+  // "activa" de la grilla en vez de un input numérico prellenado.
+  const notaMateriaAutomatica = calcularNotaMateriaAutomatica(evaluacion)
+  const notaMateriaMostrada = materia.notaMateriaManual ?? notaMateriaAutomatica
 
   // `fechas` puede no existir todavía en materias creadas antes de este
   // campo (JSON viejo, sin esa clave) — se reconstruye con el mismo largo
@@ -489,7 +496,9 @@ function MateriaDetalleMobile() {
         <section className="mobile-seccion">
           <div className="nota-final-cabecera">
             <h4 className="seccion-mobile-label nota-final-label">Nota final de la materia</h4>
-            <span className="nota-final-estado">{materia.notaMateriaManual != null ? 'Cargada' : 'Sin cargar'}</span>
+            <span className="nota-final-estado">
+              {materia.notaMateriaManual != null ? 'Cargada' : notaMateriaAutomatica != null ? 'Calculada' : 'Sin cargar'}
+            </span>
           </div>
           <div className="detalle-mobile-tarjeta">
             <div className="nota-final-grilla">
@@ -497,7 +506,7 @@ function MateriaDetalleMobile() {
                 <button
                   key={nota}
                   type="button"
-                  className={materia.notaMateriaManual === nota ? 'nota-final-celda activa' : 'nota-final-celda'}
+                  className={notaMateriaMostrada === nota ? 'nota-final-celda activa' : 'nota-final-celda'}
                   onClick={() => handleNotaManual(nota)}
                 >
                   {nota}
@@ -505,9 +514,7 @@ function MateriaDetalleMobile() {
               ))}
               <button
                 type="button"
-                className={
-                  materia.notaMateriaManual == null ? 'nota-final-celda sin-nota activa' : 'nota-final-celda sin-nota'
-                }
+                className={notaMateriaMostrada == null ? 'nota-final-celda sin-nota activa' : 'nota-final-celda sin-nota'}
                 onClick={() => handleNotaManual('')}
               >
                 Sin nota

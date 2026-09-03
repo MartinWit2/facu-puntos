@@ -145,9 +145,18 @@ function calcularPromedioParciales(resultadoParciales) {
   return Math.round(promedio * 100) / 100
 }
 
-// Nota "automática" (por regla), sin considerar el override manual.
+// Nota "automática" (por regla), sin considerar el override manual: en
+// promoción, el promedio de los parciales redondeado PARA ABAJO si da con
+// coma (Math.floor, no Math.round — calcularPromedioParciales devuelve el
+// promedio exacto a 2 decimales porque ese mismo valor también se usa para
+// la regla de "promoción por promedio" en evaluarParciales, que no tiene
+// que ver con este redondeo); en aprobada por final, la nota que se sacó en
+// la instancia que aprobó.
 export function calcularNotaMateriaAutomatica(evaluacion) {
-  if (evaluacion.estado === 'promocion') return calcularPromedioParciales(evaluacion.resultadoParciales)
+  if (evaluacion.estado === 'promocion') {
+    const promedio = calcularPromedioParciales(evaluacion.resultadoParciales)
+    return promedio == null ? null : Math.floor(promedio)
+  }
   if (evaluacion.estado === 'aprobada') return evaluacion.resultadoFinal.notaAprobacion
   return null
 }
