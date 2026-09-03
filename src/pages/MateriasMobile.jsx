@@ -10,7 +10,7 @@ import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
-import { FILTROS_VACIOS, HORAS_CATEDRA_MAX, materiaCoincideFiltros } from '../utils/filtrosMaterias'
+import { FILTROS_VACIOS, calcularLimiteHoras, materiaCoincideFiltros } from '../utils/filtrosMaterias'
 import {
   DEFAULT_CANTIDAD_INSTANCIAS_FINAL,
   DEFAULT_CANTIDAD_PARCIALES,
@@ -46,6 +46,16 @@ const OPCIONES_ESTADO = [
 
 function esAprobada(estado) {
   return estado === 'aprobada' || estado === 'promocion'
+}
+
+// Posición (0-100%) de un valor dentro del slider de rango de horas cátedra,
+// para dibujar la franja rellena entre las dos manijas. Si el límite no
+// tiene ancho (min === max, un solo valor de horas cargado), no hay nada
+// que posicionar de forma proporcional — se deja fijo en 0.
+function porcentajeHoras(valor, limite) {
+  const ancho = limite.max - limite.min
+  if (ancho === 0) return 0
+  return ((valor - limite.min) / ancho) * 100
 }
 
 // Calculadora Total/Por-clase de la hoja "Cargar horas cátedra" (selección
@@ -136,8 +146,9 @@ function MateriasMobile() {
   const [filtros, setFiltros] = useState(FILTROS_VACIOS)
   // Separado de `filtros` a propósito: ver el comentario de FILTROS_VACIOS
   // en utils/filtrosMaterias.js — no puede vivir en ese objeto sin romper
-  // el desktop.
-  const [horasMax, setHorasMax] = useState(null)
+  // el desktop. `null` = sin filtrar (o el rango elegido coincide con el
+  // completo); si no, { min, max }.
+  const [horas, setHoras] = useState(null)
   const [filtroSheetAbierto, setFiltroSheetAbierto] = useState(false)
   const [nuevaMateria, setNuevaMateria] = useState(null)
   const [anioRecienAgregado, setAnioRecienAgregado] = useState(null)
@@ -164,11 +175,13 @@ function MateriasMobile() {
     return { materia, reglas, evaluacion: evaluarCursada(materia, reglas), puntos: calcularPuntosMateria(materia, reglas) }
   })
 
-  const filtrosActivos = filtros.anios.length > 0 || horasMax != null || filtros.estados.length > 0
-  const coincide = ({ materia }) => materiaCoincideFiltros(materia, filtros, reglasCarrera, horasMax)
+  const limiteHoras = calcularLimiteHoras(materias)
+
+  const filtrosActivos = filtros.anios.length > 0 || horas != null || filtros.estados.length > 0
+  const coincide = ({ materia }) => materiaCoincideFiltros(materia, filtros, reglasCarrera, horas)
   const totalAprobadas = enriquecidas.filter(({ evaluacion }) => esAprobada(evaluacion.estado)).length
   const totalCoincidentes = enriquecidas.filter(coincide).length
-  const cantidadFiltrosActivos = filtros.anios.length + filtros.estados.length + (horasMax != null ? 1 : 0)
+  const cantidadFiltrosActivos = filtros.anios.length + filtros.estados.length + (horas != null ? 1 : 0)
 
   const aniosPresentes = [...new Set(materias.map((m) => m.anioCursada))].sort((a, b) => a - b)
   const opcionesAnios = aniosPresentes.map((anio) => ({ valor: String(anio), etiqueta: `${nombreAnio(anio)} año` }))
@@ -181,17 +194,26 @@ function MateriasMobile() {
     })
   }
 
-  // El slider llega hasta HORAS_CATEDRA_MAX; en ese tope el filtro se
-  // considera "sin límite" (horasMax en null) en vez de comparar contra un
-  // número que ninguna materia real supera.
+  // Las dos manijas nunca se cruzan: mover el mínimo lo tope como mucho en
+  // el máximo actual, y viceversa. Cuando el rango elegido vuelve a coincidir
+  // con el límite completo, se guarda como `null` (no hay nada que filtrar).
+  const aplicarHoras = (min, max) => {
+    setHoras(min === limiteHoras.min && max === limiteHoras.max ? null : { min, max })
+  }
+
+  const cambiarHorasMin = (valor) => {
+    const actualMax = horas?.max ?? limiteHoras.max
+    aplicarHoras(Math.min(Number(valor), actualMax), actualMax)
+  }
+
   const cambiarHorasMax = (valor) => {
-    const numero = Number(valor)
-    setHorasMax(numero >= HORAS_CATEDRA_MAX ? null : numero)
+    const actualMin = horas?.min ?? limiteHoras.min
+    aplicarHoras(actualMin, Math.max(Number(valor), actualMin))
   }
 
   const limpiarFiltros = () => {
     setFiltros(FILTROS_VACIOS)
-    setHorasMax(null)
+    setHoras(null)
   }
 
   const handleAbrirNuevaMateria = () => setNuevaMateria(valoresNuevaMateria())
@@ -468,28 +490,46 @@ function MateriasMobile() {
           </div>
         </div>
 
-        <div className="filtro-panel-seccion">
-          <div className="filtro-panel-horas-cabecera">
-            <h4 className="filtro-panel-titulo">Horas cátedra</h4>
-            <span className="filtro-panel-horas-valor">
-              {horasMax == null ? `Hasta ${HORAS_CATEDRA_MAX}h+` : `Hasta ${horasMax}h`}
-            </span>
+        {limiteHoras && (
+          <div className="filtro-panel-seccion">
+            <div className="filtro-panel-horas-cabecera">
+              <h4 className="filtro-panel-titulo">Horas cátedra</h4>
+              <span className="filtro-panel-horas-valor">
+                {horas?.min ?? limiteHoras.min} – {horas?.max ?? limiteHoras.max} hs
+              </span>
+            </div>
+            <div className="filtro-rango-slider">
+              <div className="filtro-rango-riel" />
+              <div
+                className="filtro-rango-relleno"
+                style={{
+                  left: `${porcentajeHoras(horas?.min ?? limiteHoras.min, limiteHoras)}%`,
+                  right: `${100 - porcentajeHoras(horas?.max ?? limiteHoras.max, limiteHoras)}%`,
+                }}
+              />
+              <input
+                type="range"
+                min={limiteHoras.min}
+                max={limiteHoras.max}
+                value={horas?.min ?? limiteHoras.min}
+                onChange={(e) => cambiarHorasMin(e.target.value)}
+                aria-label="Horas cátedra mínimas"
+              />
+              <input
+                type="range"
+                min={limiteHoras.min}
+                max={limiteHoras.max}
+                value={horas?.max ?? limiteHoras.max}
+                onChange={(e) => cambiarHorasMax(e.target.value)}
+                aria-label="Horas cátedra máximas"
+              />
+            </div>
+            <div className="filtro-panel-horas-limites">
+              <span>{limiteHoras.min}h</span>
+              <span>{limiteHoras.max}h</span>
+            </div>
           </div>
-          <input
-            type="range"
-            className="filtro-panel-slider"
-            min="0"
-            max={HORAS_CATEDRA_MAX}
-            step="8"
-            value={horasMax ?? HORAS_CATEDRA_MAX}
-            onChange={(e) => cambiarHorasMax(e.target.value)}
-            aria-label="Horas cátedra máximas"
-          />
-          <div className="filtro-panel-horas-limites">
-            <span>0h</span>
-            <span>{HORAS_CATEDRA_MAX}h+</span>
-          </div>
-        </div>
+        )}
       </BottomSheet>
 
       <BottomSheet

@@ -99,8 +99,13 @@ export function evaluarFinal(materia, reglas) {
 // si la carrera no permite promoción automática, el tick manual sigue
 // pudiendo forzarla (es una excepción explícita del profesor).
 // 'pendiente' vs 'cursando' es la ÚNICA distinción manual de este cálculo
-// (materia.empezada): no se dispara solo con cargar una nota, el usuario la
-// marca a mano. Todo lo demás sigue siendo 100% derivado de las notas.
+// (materia.empezada) — acá solo se LEE tal cual está guardada. Quien la
+// pone en true es la UI (mobile): al botón "Empezar a cursar" se le suma
+// que cargar la nota o la fecha de un parcial también la fuerza a true de
+// paso (ver actualizarNotaParcial en MateriaDetalleMobile.jsx/
+// ProximosMobile.jsx), para que una materia con progreso real cargado no
+// se quede mostrando "pendiente". Todo lo demás sigue siendo 100% derivado
+// de las notas.
 export function evaluarCursada(materia, reglas) {
   const resultadoParciales = evaluarParciales(materia, reglas)
 

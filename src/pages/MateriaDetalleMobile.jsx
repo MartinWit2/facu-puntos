@@ -190,7 +190,14 @@ function MateriaDetalleMobile() {
         fechas: fechasBase.map((f, j) => (j === indiceInstancia ? fecha || null : f)),
       }
     })
-    editarMateria(materia.id, { parciales })
+    const datos = { parciales }
+    // Cargar una nota o una fecha de un parcial es progreso real: la
+    // materia pasa a "cursando" sola, sin depender de que se haya tocado
+    // "Empezar a cursar" antes (si no, podía quedar "pendiente" con notas
+    // ya cargadas). Al borrar (nota y fecha en null) no se toca — no hay
+    // por qué volver a pendiente solo por borrar una nota.
+    if (nota != null || fecha) datos.empezada = true
+    editarMateria(materia.id, datos)
   }
 
   const actualizarNotaFinal = (indiceInstancia, valor, fecha) => {

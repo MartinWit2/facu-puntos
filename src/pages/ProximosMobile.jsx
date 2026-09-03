@@ -90,7 +90,11 @@ function actualizarNotaParcial(editarMateria, materia, indiceParcial, indiceInst
       fechas: fechasBase.map((f, j) => (j === indiceInstancia ? fecha || null : f)),
     }
   })
-  editarMateria(materia.id, { parciales })
+  const datos = { parciales }
+  // Cargar una nota o una fecha de un parcial es progreso real: la materia
+  // pasa a "cursando" sola (ver mismo criterio en MateriaDetalleMobile.jsx).
+  if (nota != null || fecha) datos.empezada = true
+  editarMateria(materia.id, datos)
 }
 
 function actualizarNotaFinal(editarMateria, materia, indiceInstancia, valor, fecha) {
@@ -312,7 +316,7 @@ function ProximosMobile() {
         <>
           {proximos.length > 0 && (
             <section className="mobile-seccion">
-              <h4 className="seccion-mobile-label">Fechas próximas</h4>
+              <h4 className="seccion-mobile-label proximos-mobile-titulo-seccion">Fechas próximas</h4>
               <div className="proximos-mobile-lista">
                 {proximos.map((item, indice) => {
                   const dias = diasHasta(item.fecha, hoy)
@@ -338,8 +342,8 @@ function ProximosMobile() {
           )}
 
           {pendientes.length > 0 && (
-            <section className="mobile-seccion">
-              <h4 className="seccion-mobile-label">Notas pendientes de cargar</h4>
+            <section className="mobile-seccion proximos-mobile-seccion-pendientes">
+              <h4 className="seccion-mobile-label proximos-mobile-titulo-seccion">Notas pendientes de cargar</h4>
               <div className="proximos-mobile-lista">
                 {pendientes.map((item) => (
                   <div

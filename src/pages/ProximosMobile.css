@@ -2,6 +2,14 @@
   margin: 0 0 1rem;
 }
 
+.proximos-mobile-titulo-seccion {
+  font-size: 0.9375rem;
+}
+
+.proximos-mobile-seccion-pendientes {
+  margin-top: 1.5rem;
+}
+
 .proximos-mobile-lista {
   display: flex;
   flex-direction: column;

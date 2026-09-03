@@ -4,17 +4,12 @@ import { calcularReglasEfectivas } from './reglasMateria'
 
 // `rangosHoras` (3 categorías fijas) es el filtro de horas que sigue usando
 // el desktop sin cambios (MateriaFiltros.jsx, que hace
-// Object.values(filtros).some(lista => lista.length > 0) — por eso
-// `horasMax` NO puede vivir adentro de este objeto, rompería esa cuenta
-// con un null sin .length). El filtro nuevo del rediseño mobile (sección
-// "3c" del handoff, un slider continuo de "hasta X horas") se pasa aparte,
-// como cuarto argumento de materiaCoincideFiltros.
+// Object.values(filtros).some(lista => lista.length > 0) — por eso el
+// filtro de horas de mobile NO puede vivir adentro de este objeto, rompería
+// esa cuenta con un null sin .length). El filtro de mobile (un slider de
+// rango real, min y max) se pasa aparte, como cuarto argumento de
+// materiaCoincideFiltros.
 export const FILTROS_VACIOS = { anios: [], rangosHoras: [], estados: [] }
-
-// Tope del slider de horas — mismo máximo que ya usan los steppers de
-// horas cátedra (RANGOS.horasCatedra.max en MateriaForm/HojaNuevaMateria/
-// HojaEditarMateria), así el filtro nunca deja afuera un valor cargable.
-export const HORAS_CATEDRA_MAX = 320
 
 export const RANGOS_HORAS = [
   { valor: 'bajo', etiqueta: `0-${RANGO_HORAS_UMBRAL_1 - 1}` },
@@ -26,6 +21,17 @@ export function calcularRangoHoras(horasCatedra) {
   if (horasCatedra >= RANGO_HORAS_UMBRAL_2) return 'alto'
   if (horasCatedra >= RANGO_HORAS_UMBRAL_1) return 'medio'
   return 'bajo'
+}
+
+// Límites del slider de rango de mobile: mínimo y máximo REALES entre las
+// horas cátedra que el usuario ya cargó (no un tope fijo) — así tiene
+// sentido para cualquier carrera, sin importar cuántas horas manejen sus
+// materias. `null` cuando ninguna materia tiene horas cargadas todavía (no
+// hay filtro que mostrar).
+export function calcularLimiteHoras(materias) {
+  const horas = materias.map((m) => m.horasCatedra).filter((h) => h != null)
+  if (horas.length === 0) return null
+  return { min: Math.min(...horas), max: Math.max(...horas) }
 }
 
 // El filtro de estado agrupa los 6 estados reales en 4 opciones: "Aprobada"
@@ -42,16 +48,20 @@ const ESTADOS_POR_FILTRO = {
 
 // Dentro de cada categoría los valores seleccionados combinan por OR (ej.
 // "1er año" o "2do año"); entre categorías combinan por AND (ej. año Y estado).
-export function materiaCoincideFiltros(materia, filtros, reglasCarrera, horasMax) {
+// `horas` es el rango { min, max } del slider de mobile (o null si no está
+// filtrando) — independiente de `filtros.rangosHoras`, ver el comentario de
+// FILTROS_VACIOS.
+export function materiaCoincideFiltros(materia, filtros, reglasCarrera, horas) {
   if (filtros.anios.length > 0 && !filtros.anios.includes(String(materia.anioCursada))) return false
 
   if (filtros.rangosHoras.length > 0 && !filtros.rangosHoras.includes(calcularRangoHoras(materia.horasCatedra))) {
     return false
   }
 
-  // Materias sin horas cargadas no se excluyen por este filtro (no hay
-  // forma de saber si están debajo o arriba del tope elegido).
-  if (horasMax != null && materia.horasCatedra != null && materia.horasCatedra > horasMax) {
+  // A diferencia del filtro de categorías fijas de arriba, acá SÍ quedan
+  // afuera las materias sin horas cargadas cuando el filtro está activo con
+  // un rango distinto al completo — no hay forma de saber si entrarían.
+  if (horas != null && (materia.horasCatedra == null || materia.horasCatedra < horas.min || materia.horasCatedra > horas.max)) {
     return false
   }
 
