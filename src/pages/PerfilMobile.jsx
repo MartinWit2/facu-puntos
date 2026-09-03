@@ -8,11 +8,18 @@ import { calcularPuntosTotales } from '../utils/puntosMateria'
 import { activarPush, corriendoStandalone, desactivarPush, esIOS, pushSoportado, suscripcionActual } from '../utils/push'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import { reproducirSonido, sonidoActivado, setSonidoActivado } from '../utils/sonidos'
+import { temaElegido, setTemaElegido } from '../utils/tema'
 import './PerfilMobile.css'
 
 function esAprobada(estado) {
   return estado === 'aprobada' || estado === 'promocion'
 }
+
+const OPCIONES_TEMA = [
+  { valor: 'claro', etiqueta: 'Claro', icono: 'light_mode' },
+  { valor: 'oscuro', etiqueta: 'Oscuro', icono: 'dark_mode' },
+  { valor: 'automatico', etiqueta: 'Automático', icono: 'brightness_auto' },
+]
 
 // Pantalla propia (sección "3b" del rediseño mobile): antes era el menú
 // desplegable que se abría tocando el avatar en HeaderMobile.jsx. El
@@ -22,6 +29,12 @@ function PerfilMobile() {
   const { perfil, carreras, reglasCarrera } = usePerfil()
   const { materias, cargando } = useMaterias()
   const [sonido, setSonido] = useState(() => sonidoActivado())
+  const [tema, setTema] = useState(() => temaElegido())
+
+  const handleCambiarTema = (valor) => {
+    setTema(valor)
+    setTemaElegido(valor)
+  }
 
   // Es una preferencia del dispositivo (localStorage), no de la cuenta —
   // no hace falta que se sincronice entre dispositivos. Tocar el switch
@@ -175,6 +188,28 @@ function PerfilMobile() {
           </span>
         </button>
         {notiAviso && <p className="perfil-mobile-switch-aviso">{notiAviso}</p>}
+
+        <div className="perfil-mobile-tema-fila">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            {OPCIONES_TEMA.find((o) => o.valor === tema)?.icono}
+          </span>
+          <span className="perfil-mobile-switch-texto">
+            <span>Tema</span>
+            <span className="perfil-mobile-switch-ayuda">Elegí cómo se ve la app en este dispositivo.</span>
+          </span>
+        </div>
+        <div className="perfil-mobile-tema-opciones" role="group" aria-label="Tema">
+          {OPCIONES_TEMA.map((opcion) => (
+            <button
+              key={opcion.valor}
+              type="button"
+              className={tema === opcion.valor ? 'perfil-mobile-tema-opcion activa' : 'perfil-mobile-tema-opcion'}
+              onClick={() => handleCambiarTema(opcion.valor)}
+            >
+              {opcion.etiqueta}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="perfil-mobile-acciones">

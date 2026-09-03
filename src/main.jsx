@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { PerfilProvider } from './context/PerfilContext.jsx'
 import { registrarServiceWorker } from './utils/push.js'
+import { inicializarTema } from './utils/tema.js'
 import './index.css'
 import App from './App.jsx'
 
@@ -12,6 +13,10 @@ import App from './App.jsx'
 // service worker listo para suscribirse. No pide permiso de notificación
 // ni hace nada más por sí solo.
 registrarServiceWorker()
+
+// Aplica la preferencia de tema guardada antes del primer render, para que
+// no haya un parpadeo con el tema "automático" y después el elegido.
+inicializarTema()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

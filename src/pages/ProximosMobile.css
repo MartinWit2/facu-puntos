@@ -1,0 +1,235 @@
+.proximos-mobile h1 {
+  margin: 0 0 1rem;
+}
+
+.proximos-mobile-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.proximos-mobile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  padding: 0.8125rem 0.9375rem;
+  text-decoration: none;
+}
+
+.proximos-mobile-item.destacado {
+  border-left-color: var(--accent);
+}
+
+.proximos-mobile-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.proximos-mobile-item-materia {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proximos-mobile-item-etiqueta {
+  font-size: 0.75rem;
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.proximos-mobile-item-fecha {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.proximos-mobile-chip {
+  flex-shrink: 0;
+  padding: 0.3125rem 0.6875rem;
+  border-radius: 999px;
+  background: var(--divisor);
+  color: var(--text-muted);
+  font-size: 0.71875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.proximos-mobile-chip.destacado {
+  background: var(--gold-bg, var(--accent-bg));
+  color: var(--gold-dark, var(--accent-dark));
+}
+
+.proximos-mobile-pendiente-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-card);
+  padding: 0.8125rem 0.9375rem;
+}
+
+.proximos-mobile-cargar-boton {
+  flex-shrink: 0;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.proximos-mobile-agendar-boton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.125rem;
+}
+
+/* ---------- Estado vacío ---------- */
+
+.proximos-mobile-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card, 1.125rem);
+  box-shadow: var(--shadow-card);
+  padding: 2rem 1.25rem;
+}
+
+.proximos-mobile-vacio-icono {
+  font-size: 2.5rem;
+  color: var(--accent);
+}
+
+.proximos-mobile-vacio-texto {
+  margin: 0;
+  font-size: 0.84375rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.proximos-mobile-vacio > .boton-primario-mobile {
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.proximos-mobile-vacio-contadores {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.proximos-mobile-vacio-contador {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem;
+  border-radius: 0.875rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-color);
+}
+
+.proximos-mobile-vacio-contador-valor {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.375rem;
+  color: var(--text-h);
+}
+
+.proximos-mobile-vacio-contador-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Hoja "Agendar nueva fecha" ---------- */
+
+.proximos-agendar-paso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.proximos-agendar-volver {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.proximos-agendar-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.proximos-agendar-opcion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.9375rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.proximos-agendar-opcion-nota {
+  flex-shrink: 0;
+  font-size: 0.71875rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.proximos-agendar-vacio {
+  margin: 0;
+  padding: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.proximos-agendar-fecha-campo {
+  display: block;
+}

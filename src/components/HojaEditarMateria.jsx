@@ -90,12 +90,14 @@ function GrillaNotaChica({ valores, seleccionado, onElegir }) {
 function HojaEditarMateria({
   materia,
   reglas,
+  estado,
   onEditarCampo,
   onOverrideNumero,
   onPermitePromocionOverride,
   onPromocionPorPromedioOverride,
   onTick,
   onToggleNoSumaPuntos,
+  onVolverAPendiente,
   onVolverReglasCarrera,
 }) {
   // Carga alternativa de horas cátedra: útil cuando la fuente del plan da
@@ -111,6 +113,8 @@ function HojaEditarMateria({
     handleCantidadClasesChange,
     handleTogglePorClase,
   } = useHorasPorClase((total) => onEditarCampo('horasCatedra', total))
+
+  const [confirmandoVolver, setConfirmandoVolver] = useState(false)
 
   const tieneOverrides =
     materia.notaAprobacionOverride != null ||
@@ -289,6 +293,31 @@ function HojaEditarMateria({
             Firmó
           </button>
         </div>
+
+        {estado !== 'pendiente' &&
+          (confirmandoVolver ? (
+            <div className="editar-materia-confirmar">
+              <span>¿Seguro? Se van a borrar las notas cargadas de esta materia.</span>
+              <div className="editar-materia-confirmar-botones">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onVolverAPendiente()
+                    setConfirmandoVolver(false)
+                  }}
+                >
+                  Sí
+                </button>
+                <button type="button" onClick={() => setConfirmandoVolver(false)}>
+                  No
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" className="editar-materia-volver" onClick={() => setConfirmandoVolver(true)}>
+              Volver a pendiente
+            </button>
+          ))}
       </div>
 
       {tieneOverrides && (

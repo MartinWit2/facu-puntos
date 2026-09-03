@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react'
 import ExplicacionPuntos from '../components/ExplicacionPuntos.jsx'
 import MateriaBadge from '../components/MateriaBadge.jsx'
 import { usePerfil } from '../context/usePerfil.js'
 import { useCanjes } from '../hooks/useCanjes.js'
 import { useMaterias } from '../hooks/useMaterias.js'
+import { supabase } from '../lib/supabaseClient'
 import {
   calcularPuntosCanjeados,
   calcularPuntosUsadosPorMateria,
@@ -15,10 +17,44 @@ import { calcularPuntosMateria, calcularPuntosTotales } from '../utils/puntosMat
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import './ProgresoMobile.css'
 
+// Mismo criterio que MateriasMobile.jsx.
+function esAprobada(estado) {
+  return estado === 'aprobada' || estado === 'promocion'
+}
+
 function ProgresoMobile() {
   const { materias, cargando: cargandoMaterias } = useMaterias()
   const { canjes, cargando: cargandoCanjes } = useCanjes()
   const { perfil, reglasCarrera } = usePerfil()
+
+  // Tamaño real del plan de estudios de la carrera (sección "2" del prompt
+  // Próximos/progreso/tema) — NO es la cantidad de materias que el usuario
+  // cargó, es el total de filas de materias_catalogo para su carrera_id.
+  // Se cachea por carreraId, mismo patrón que PerfilContext.
+  const carreraId = perfil?.carrera_id ?? null
+  const [totalCatalogoCache, setTotalCatalogoCache] = useState(null)
+
+  useEffect(() => {
+    if (!carreraId) return
+    if (totalCatalogoCache?.carreraId === carreraId) return
+
+    let cancelado = false
+    supabase
+      .from('materias_catalogo')
+      .select('id', { count: 'exact', head: true })
+      .eq('carrera_id', carreraId)
+      .then(({ count, error }) => {
+        if (cancelado) return
+        if (error) {
+          console.error(error)
+          return
+        }
+        setTotalCatalogoCache({ carreraId, valor: count ?? 0 })
+      })
+    return () => {
+      cancelado = true
+    }
+  }, [carreraId, totalCatalogoCache])
 
   if (cargandoMaterias || cargandoCanjes) {
     return (
@@ -62,9 +98,41 @@ function ProgresoMobile() {
   const canjeados = calcularPuntosCanjeados(canjesCarreraActual)
   const saldoDisponible = calcularSaldoDisponible(ganados, canjesCarreraActual)
 
+  // Aprobadas del PLAN, no de todo lo cargado: solo materias que vienen del
+  // catálogo (materiaCatalogoId no nulo, ver clonarPlanDeEstudio en
+  // PerfilContext.jsx) — una materia agregada a mano no cuenta acá, aunque
+  // sí siga contando para puntos/badges en el resto de la app.
+  const totalCatalogoListo = !carreraId || totalCatalogoCache?.carreraId === carreraId
+  const totalCatalogo = carreraId && totalCatalogoCache?.carreraId === carreraId ? totalCatalogoCache.valor : null
+  const aprobadasDelPlan = materias.filter(
+    (m) => m.materiaCatalogoId != null && esAprobada(evaluarCursada(m, calcularReglasEfectivas(m, reglasCarrera)).estado),
+  ).length
+  const porcentajeCarrera = totalCatalogo ? Math.round((aprobadasDelPlan / totalCatalogo) * 100) : null
+
   return (
     <section className="page-mobile progreso-mobile">
       <h1>Progreso</h1>
+
+      {!carreraId || (totalCatalogoListo && totalCatalogo === 0) ? (
+        <p className="progreso-mobile-carrera-no-disponible">
+          El progreso de la carrera no está disponible para carreras sin plan de estudios cargado.
+        </p>
+      ) : (
+        totalCatalogoListo &&
+        totalCatalogo > 0 && (
+          <div className="progreso-mobile-carrera">
+            <div className="progreso-mobile-carrera-cabecera">
+              <span className="progreso-mobile-carrera-texto">
+                {aprobadasDelPlan} de {totalCatalogo} materias aprobadas
+              </span>
+              <span className="progreso-mobile-carrera-porcentaje">{porcentajeCarrera}%</span>
+            </div>
+            <div className="progreso-mobile-carrera-riel">
+              <div className="progreso-mobile-carrera-relleno" style={{ width: `${porcentajeCarrera}%` }} />
+            </div>
+          </div>
+        )
+      )}
 
       <div className="progreso-mobile-saldo">
         <span className="material-symbols-outlined relleno progreso-mobile-moneda" aria-hidden="true">

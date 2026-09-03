@@ -132,6 +132,44 @@
   line-height: 1.4;
 }
 
+.perfil-mobile-tema-fila {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem 0;
+}
+
+.perfil-mobile-tema-fila > .material-symbols-outlined {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.perfil-mobile-tema-opciones {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0 1rem;
+}
+
+.perfil-mobile-tema-opcion {
+  flex: 1;
+  min-height: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.perfil-mobile-tema-opcion.activa {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
 .perfil-mobile-switch-texto {
   flex: 1;
   min-width: 0;

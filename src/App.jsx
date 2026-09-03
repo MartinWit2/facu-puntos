@@ -18,6 +18,7 @@ import Materias from './pages/Materias.jsx'
 import MateriasMobile from './pages/MateriasMobile.jsx'
 import MateriaDetalle from './pages/MateriaDetalle.jsx'
 import MateriaDetalleMobile from './pages/MateriaDetalleMobile.jsx'
+import ProximosMobile from './pages/ProximosMobile.jsx'
 import Progreso from './pages/Progreso.jsx'
 import ProgresoMobile from './pages/ProgresoMobile.jsx'
 import Premios from './pages/Premios.jsx'
@@ -138,6 +139,7 @@ function App() {
           <Routes>
             <Route path="/" element={<MateriasMobile />} />
             <Route path="/materias/:id" element={<MateriaDetalleMobile />} />
+            <Route path="/proximos" element={<ProximosMobile />} />
             <Route path="/progreso" element={<ProgresoMobile />} />
             <Route path="/premios" element={<PremiosMobile />} />
             <Route path="/historial-canjes" element={<HistorialCanjesMobile />} />

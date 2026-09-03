@@ -134,6 +134,80 @@
   }
 }
 
+/* ============================================================
+   Elección manual de tema (sección "3" del prompt Próximos/progreso-
+   carrera/tema): además del @media (prefers-color-scheme: dark) de arriba
+   (que sigue sirviendo tal cual para el modo "Automático"), estos dos
+   bloques dejan elegir a mano. `:root[data-theme]` tiene más especificidad
+   que un `:root {}` a secas, así que gana siempre sea cual sea el tema del
+   sistema operativo o el ancho de pantalla — ver utils/tema.js, que es
+   quien pone (o saca) el atributo en <html>. Mismos valores que ya existen
+   arriba, sin tocar ningún color: la afinación fina se hace aparte.
+   ============================================================ */
+:root[data-theme='dark'] {
+  --text: #d4d2d8;
+  --text-h: #f3f4f6;
+  --text-muted: #9ca3af;
+  --bg: #16171d;
+  --bg-soft: #1d1f27;
+  --border-color: #2e303a;
+
+  --accent: #db6cdc;
+  --accent-dark: #a83fab;
+  --accent-bg: rgba(219, 108, 220, 0.18);
+
+  --blue: #38bdf8;
+  --blue-dark: #0ea5e9;
+  --yellow: #ffd84d;
+  --yellow-dark: #e0ac00;
+  --red: #ff6b6b;
+  --red-dark: #e63e3e;
+
+  --divisor: #262832;
+  --riel: #2a2c36;
+  --chevron: #6b6878;
+  --tick-vacio: #3a3c46;
+  --text-disabled: #6f6c78;
+  --chip-vacio-bg: #1d1f27;
+
+  --shadow-card: 0 3px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* Los valores de acá son los del bloque mobile (@media max-width: 640px)
+   de arriba, no los del :root base de escritorio: el toggle de tema solo
+   existe en Perfil (mobile), así que "Claro" tiene que verse igual que
+   "Automático" ya se ve con el sistema en claro — si tomara los valores de
+   escritorio (violeta) en vez de los de mobile (azul/índigo), elegir
+   "Claro" a mano cambiaría los colores en vez de solo fijarlos. */
+:root[data-theme='light'] {
+  --text: #464554;
+  --text-h: #0b1c30;
+  --text-muted: #767586;
+  --bg: #ffffff;
+  --bg-soft: #f8f9ff;
+  --border-color: #dce9ff;
+
+  --accent: #4648d4;
+  --accent-dark: #2f2ebe;
+  --accent-bg: rgba(70, 72, 212, 0.12);
+
+  --blue: #1cb0f6;
+  --blue-dark: #1899d6;
+  --yellow: #ffc800;
+  --yellow-dark: #e0ac00;
+  --red: #ff4b4b;
+  --red-dark: #e63e3e;
+
+  --divisor: #eff4ff;
+  --riel: #e5eeff;
+  --chevron: #767586;
+  --tick-vacio: #c7c4d7;
+  --text-disabled: #a9a4b0;
+  --chip-vacio-bg: #eff4ff;
+
+  --shadow-card: 0 4px 12px rgba(11, 28, 48, 0.06);
+}
+
 * {
   box-sizing: border-box;
 }

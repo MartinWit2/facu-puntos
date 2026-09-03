@@ -131,6 +131,7 @@ function MateriaDetalleMobile() {
   const [notaSheet, setNotaSheet] = useState(null)
   const [fechaSheet, setFechaSheet] = useState('')
   const [editarAbierto, setEditarAbierto] = useState(false)
+  const [confirmandoVolverCursar, setConfirmandoVolverCursar] = useState(false)
 
   const reglas = materia && reglasCarrera ? calcularReglasEfectivas(materia, reglasCarrera) : null
   const evaluacion = reglas ? evaluarCursada(materia, reglas) : null
@@ -206,6 +207,36 @@ function MateriaDetalleMobile() {
 
   const handleToggleEmpezada = () => {
     editarMateria(materia.id, { empezada: !materia.empezada })
+  }
+
+  // Reset real de progreso (prompt-31b): a diferencia de handleToggleEmpezada
+  // (que solo cambia la bandera, usado por "Empezar a cursar" desde
+  // pendiente, donde no hay nada que borrar todavía), esto vacía notas y
+  // fechas de TODAS las instancias de parciales y final, saca el tick manual
+  // y la nota manual — pero deja los overrides de reglas y poolOverride tal
+  // cual, porque son configuración de la materia, no progreso cursado.
+  // `empezadaDestino` decide si termina en pendiente (false) o cursando (true).
+  const resetearProgreso = (empezadaDestino) => {
+    const parciales = materia.parciales.map((p) => ({
+      notas: p.notas.map(() => null),
+      fechas: p.notas.map(() => null),
+    }))
+    const final = {
+      notas: materia.final.notas.map(() => null),
+      fechas: materia.final.notas.map(() => null),
+    }
+    editarMateria(materia.id, {
+      parciales,
+      final,
+      tickManual: null,
+      notaMateriaManual: null,
+      empezada: empezadaDestino,
+    })
+  }
+
+  const handleVolverACursar = () => {
+    resetearProgreso(true)
+    setConfirmandoVolverCursar(false)
   }
 
   // Hoy este checkbox solo existe en MateriaForm.jsx (alta/edición desde la
@@ -299,8 +330,6 @@ function MateriaDetalleMobile() {
   const intentosFinal = muestraFinal ? materia.final.notas.filter((n) => n != null).length : 0
   const restantesFinal = muestraFinal ? materia.final.notas.length - intentosFinal : 0
 
-  const resumenReglas = `Aprueba ${reglas.notaAprobacion} · promo ${reglas.permitePromocion ? reglas.notaPromocion : 'no'}`
-
   return (
     <section className="page-mobile detalle-mobile">
       {celebracion}
@@ -309,7 +338,19 @@ function MateriaDetalleMobile() {
       </Link>
 
       <div className="detalle-mobile-titulo-bloque">
-        <h1>{materia.nombre}</h1>
+        <div className="detalle-mobile-titulo-fila">
+          <h1>{materia.nombre}</h1>
+          <button
+            type="button"
+            className="detalle-mobile-editar-icono-boton"
+            onClick={() => setEditarAbierto(true)}
+            aria-label="Editar materia"
+          >
+            <span className="material-symbols-outlined" aria-hidden="true">
+              tune
+            </span>
+          </button>
+        </div>
         <div className="detalle-mobile-meta-row">
           <MateriaBadge estado={evaluacion.estado} compacto manual={materia.tickManual != null} />
           {faltanHoras ? (
@@ -321,40 +362,7 @@ function MateriaDetalleMobile() {
             </span>
           )}
         </div>
-        <div className="detalle-mobile-manuales">
-          <button
-            type="button"
-            className={materia.tickManual === 'promocion' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
-            onClick={() => handleTick('promocion')}
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">
-              toggle_on
-            </span>
-            Marcar Promoción manual
-          </button>
-          <button
-            type="button"
-            className={materia.tickManual === 'firma' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
-            onClick={() => handleTick('firma')}
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">
-              toggle_on
-            </span>
-            Marcar Firma manual
-          </button>
-        </div>
       </div>
-
-      <button type="button" className="detalle-mobile-editar-fila" onClick={() => setEditarAbierto(true)}>
-        <span className="material-symbols-outlined detalle-mobile-editar-icono" aria-hidden="true">
-          tune
-        </span>
-        <span className="detalle-mobile-editar-label">Editar materia</span>
-        <span className="detalle-mobile-editar-resumen">{resumenReglas}</span>
-        <span className="material-symbols-outlined detalle-mobile-editar-chevron" aria-hidden="true">
-          chevron_right
-        </span>
-      </button>
 
       <div className="detalle-mobile-progreso">
         <div className="detalle-mobile-progreso-cabecera">
@@ -381,21 +389,30 @@ function MateriaDetalleMobile() {
         <span className="detalle-mobile-puntos-valor">{puntos}</span>
       </div>
 
-      <label className="detalle-mobile-checkbox">
-        <input type="checkbox" checked={materia.poolOverride === 0} onChange={handleToggleNoSumaPuntos} />
-        No sumar puntos de esta materia (ya la tenía aprobada antes de usar la app)
-      </label>
-
       {evaluacion.estado === 'pendiente' && (
         <button type="button" className="detalle-mobile-boton-primario" onClick={handleToggleEmpezada}>
           Empezar a cursar
         </button>
       )}
-      {evaluacion.estado === 'cursando' && (
-        <button type="button" className="detalle-mobile-boton-secundario" onClick={handleToggleEmpezada}>
-          Volver a pendiente
-        </button>
-      )}
+
+      {evaluacion.estado === 'recursa' &&
+        (confirmandoVolverCursar ? (
+          <div className="detalle-mobile-confirmar">
+            <span>¿Seguro? Se van a borrar las notas cargadas de esta materia.</span>
+            <div className="detalle-mobile-confirmar-botones">
+              <button type="button" onClick={handleVolverACursar}>
+                Sí
+              </button>
+              <button type="button" onClick={() => setConfirmandoVolverCursar(false)}>
+                No
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" className="detalle-mobile-boton-primario" onClick={() => setConfirmandoVolverCursar(true)}>
+            Volver a cursar
+          </button>
+        ))}
 
       <section className="mobile-seccion">
         <h4 className="seccion-mobile-label">Parciales</h4>
@@ -414,6 +431,32 @@ function MateriaDetalleMobile() {
           ))}
         </div>
       </section>
+
+      {/* Prueba visual del prompt-31b: mismo par de botones que antes vivía
+          en el bloque de título, ahora justo debajo de los parciales — a
+          confirmar con captura antes de darlo por definitivo. */}
+      <div className="detalle-mobile-manuales">
+        <button
+          type="button"
+          className={materia.tickManual === 'promocion' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
+          onClick={() => handleTick('promocion')}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            toggle_on
+          </span>
+          Marcar Promoción manual
+        </button>
+        <button
+          type="button"
+          className={materia.tickManual === 'firma' ? 'detalle-mobile-manual-boton activo' : 'detalle-mobile-manual-boton'}
+          onClick={() => handleTick('firma')}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            toggle_on
+          </span>
+          Marcar Firma manual
+        </button>
+      </div>
 
       {muestraFinal && (
         <section className="mobile-seccion">
@@ -495,12 +538,14 @@ function MateriaDetalleMobile() {
           <HojaEditarMateria
             materia={materia}
             reglas={reglas}
+            estado={evaluacion.estado}
             onEditarCampo={handleEditarCampo}
             onOverrideNumero={handleOverrideNumero}
             onPermitePromocionOverride={handlePermitePromocionOverride}
             onPromocionPorPromedioOverride={handlePromocionPorPromedioOverride}
             onTick={handleTick}
             onToggleNoSumaPuntos={handleToggleNoSumaPuntos}
+            onVolverAPendiente={() => resetearProgreso(false)}
             onVolverReglasCarrera={handleVolverReglasCarrera}
           />
         )}
