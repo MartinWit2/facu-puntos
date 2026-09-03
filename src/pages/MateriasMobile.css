@@ -207,22 +207,24 @@ button.materia-fila-mobile {
 .materias-mobile-lista {
   display: flex;
   flex-direction: column;
-  gap: 1.125rem;
+  gap: 1.5rem;
 }
 
+/* Cada materia ya es su propia burbuja (.materia-fila-mobile) — el grupo de
+   año es solo un encabezado (título + contador + barra + chevron) arriba de
+   la lista, sin caja propia alrededor (antes todo el año era una sola
+   tarjeta con divisores finitos adentro). */
 .anio-card-mobile {
-  background: var(--bg);
-  border: 1px solid var(--border-color);
-  border-radius: 1.125rem;
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .anio-card-mobile-cabecera {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.9375rem 1rem;
+  padding: 0.25rem 0.25rem 0.75rem;
   min-height: 2.75rem;
   cursor: pointer;
   list-style: none;
@@ -285,20 +287,25 @@ button.materia-fila-mobile {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
+/* Burbuja por materia (antes una fila plana con divisor, dentro de una
+   única tarjeta de año) — más grande y con su propio borde/sombra, como en
+   el mockup de Stitch (mis_materias_actualizada). */
 .materia-fila-mobile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.8125rem 1rem;
-  border-bottom: 1px solid var(--divisor);
+  gap: 0.875rem;
+  padding: 1.125rem 1.25rem;
+  border-radius: 1.25rem;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg);
+  box-shadow: var(--shadow-card);
   text-decoration: none;
   color: inherit;
-}
-
-.anio-card-mobile-lista li:last-child .materia-fila-mobile {
-  border-bottom: none;
 }
 
 .materia-fila-mobile-info {
@@ -306,12 +313,13 @@ button.materia-fila-mobile {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 
 .materia-fila-mobile-nombre {
-  font-size: 0.90625rem;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.0625rem;
+  font-weight: 700;
   color: var(--text-h);
   line-height: 1.25;
   overflow: hidden;
@@ -324,6 +332,44 @@ button.materia-fila-mobile {
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.materia-fila-mobile-barra {
+  height: 0.25rem;
+  border-radius: 999px;
+  background: var(--riel);
+  overflow: hidden;
+}
+
+.materia-fila-mobile-barra-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--estado-cursando, var(--accent));
+  transition: width 0.3s ease;
+}
+
+.materia-fila-mobile-barra.estado-pendiente .materia-fila-mobile-barra-relleno {
+  background: var(--estado-pendiente, var(--text-muted));
+}
+
+.materia-fila-mobile-barra.estado-cursando .materia-fila-mobile-barra-relleno {
+  background: var(--estado-cursando, var(--accent));
+}
+
+.materia-fila-mobile-barra.estado-promocion .materia-fila-mobile-barra-relleno {
+  background: var(--estado-promocion, var(--accent));
+}
+
+.materia-fila-mobile-barra.estado-firma .materia-fila-mobile-barra-relleno {
+  background: var(--estado-firma, var(--accent));
+}
+
+.materia-fila-mobile-barra.estado-recursa .materia-fila-mobile-barra-relleno {
+  background: var(--estado-recursa, var(--red));
+}
+
+.materia-fila-mobile-barra.estado-aprobada .materia-fila-mobile-barra-relleno {
+  background: var(--estado-aprobada, var(--accent));
 }
 
 .materia-fila-mobile .materia-badge {

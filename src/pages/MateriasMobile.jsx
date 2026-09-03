@@ -9,6 +9,7 @@ import { nombreAnio } from '../utils/anio'
 import { evaluarCursada } from '../utils/cursada'
 import { calcularPoolPuntos } from '../utils/puntos'
 import { calcularPuntosMateria } from '../utils/puntosMateria'
+import { calcularProgresoMateria } from '../utils/progresoMateria'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
 import { FILTROS_VACIOS, calcularLimiteHoras, materiaCoincideFiltros } from '../utils/filtrosMaterias'
 import {
@@ -172,7 +173,14 @@ function MateriasMobile() {
 
   const enriquecidas = materias.map((materia) => {
     const reglas = calcularReglasEfectivas(materia, reglasCarrera)
-    return { materia, reglas, evaluacion: evaluarCursada(materia, reglas), puntos: calcularPuntosMateria(materia, reglas) }
+    const evaluacion = evaluarCursada(materia, reglas)
+    return {
+      materia,
+      reglas,
+      evaluacion,
+      puntos: calcularPuntosMateria(materia, reglas),
+      progreso: calcularProgresoMateria(materia, reglas),
+    }
   })
 
   const limiteHoras = calcularLimiteHoras(materias)
@@ -368,7 +376,7 @@ function MateriasMobile() {
                     </summary>
 
                     <ul className="anio-card-mobile-lista">
-                      {itemsVisibles.map(({ materia, reglas, evaluacion, puntos }) => {
+                      {itemsVisibles.map(({ materia, reglas, evaluacion, puntos, progreso }) => {
                         const faltanHoras = materia.horasCatedra == null
                         const marcada = seleccionadas.has(materia.id)
                         const contenido = (
@@ -390,6 +398,9 @@ function MateriasMobile() {
                                     {calcularPoolPuntos(materia.horasCatedra, reglas.puntosPorHora)}
                                   </span>
                                 )}
+                              </div>
+                              <div className={`materia-fila-mobile-barra estado-${evaluacion.estado}`}>
+                                <div className="materia-fila-mobile-barra-relleno" style={{ width: `${progreso}%` }} />
                               </div>
                             </div>
                             {!modoSeleccion && (
