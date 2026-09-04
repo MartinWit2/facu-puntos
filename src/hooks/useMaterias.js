@@ -81,6 +81,14 @@ function obtenerCache() {
   return cache
 }
 
+// Fuerza un refetch (prompt-32, sección 2 — refrescar al volver a primer
+// plano): resetea el cache a null, lo que hace que `cargando` vuelva a dar
+// true en cualquier instancia montada de useMaterias() y que el efecto de
+// arriba pida los datos de nuevo, porque ya no matchea `usuario.id`.
+export function invalidarCacheMaterias() {
+  actualizarCache(() => null)
+}
+
 export function useMaterias() {
   const { usuario } = useAuth()
   // Se cachea junto con el id del usuario, igual que en PerfilContext: si el

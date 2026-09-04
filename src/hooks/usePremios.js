@@ -33,6 +33,11 @@ function obtenerCache() {
   return cache
 }
 
+// Ver invalidarCacheMaterias en useMaterias.js.
+export function invalidarCachePremios() {
+  actualizarCache(() => null)
+}
+
 export function usePremios() {
   const { usuario } = useAuth()
   const cacheActual = useSyncExternalStore(suscribirse, obtenerCache)

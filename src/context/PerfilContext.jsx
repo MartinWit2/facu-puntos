@@ -48,7 +48,7 @@ export function PerfilProvider({ children }) {
     supabase
       .from('perfiles')
       .select(
-        'user_id, carrera_id, carrera_desde, nombre_custom, nota_aprobacion_custom, nota_promocion_custom, permite_promocion_custom, promocion_por_promedio_custom, puntos_por_hora_custom',
+        'user_id, carrera_id, carrera_desde, nombre_custom, username, nota_aprobacion_custom, nota_promocion_custom, permite_promocion_custom, promocion_por_promedio_custom, puntos_por_hora_custom',
       )
       .eq('user_id', usuario.id)
       .maybeSingle()
@@ -339,6 +339,32 @@ export function PerfilProvider({ children }) {
     }
   }
 
+  // Nombre de usuario elegido a mano (prompt-32, sección 3) — se guarda con
+  // upsert porque puede no existir fila de perfiles todavía (recién
+  // registrado, sin carrera elegida). El índice único case-insensitive
+  // sobre lower(username) en la base es la fuente de verdad para la
+  // unicidad; acá solo se traduce el error (código 23505) a un mensaje
+  // legible. Se usa desde Perfil/Cuenta para cargar uno en una cuenta vieja
+  // que todavía no tiene — el alta (AuthMobile.jsx) hace su propio upsert
+  // directo porque ese momento no depende de que este contexto esté listo.
+  const guardarUsername = async (username) => {
+    if (!usuario) return { error: 'No hay sesión.' }
+
+    const { error: errorGuardar } = await supabase
+      .from('perfiles')
+      .upsert({ user_id: usuario.id, username }, { onConflict: 'user_id' })
+
+    if (errorGuardar) {
+      return { error: errorGuardar.code === '23505' ? 'Ese nombre de usuario ya está en uso.' : errorGuardar.message }
+    }
+
+    setPerfilCache((prev) => ({
+      usuarioId: usuario.id,
+      valor: { ...(prev?.usuarioId === usuario.id ? prev.valor : { user_id: usuario.id, carrera_id: null }), username },
+    }))
+    return { error: null }
+  }
+
   const value = {
     perfil: perfil ?? null,
     cargandoPerfil,
@@ -353,6 +379,7 @@ export function PerfilProvider({ children }) {
     eligiendo,
     cambiarCarrera,
     cambiandoCarrera,
+    guardarUsername,
     error,
   }
 

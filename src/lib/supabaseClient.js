@@ -8,4 +8,11 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 // puede mostrar un aviso claro en vez de una pantalla en blanco.
 export const supabaseConfigurado = Boolean(supabaseUrl && supabaseAnonKey)
 
-export const supabase = supabaseConfigurado ? createClient(supabaseUrl, supabaseAnonKey) : null
+// persistSession/autoRefreshToken ya son el default de supabase-js, pero se
+// dejan explícitos (prompt-32, sección 4) para que nadie los rompa sin
+// querer más adelante: la sesión tiene que sobrevivir a cerrar y reabrir la
+// app en el mismo dispositivo, sin pedir login de nuevo hasta un logout
+// explícito.
+export const supabase = supabaseConfigurado
+  ? createClient(supabaseUrl, supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true } })
+  : null

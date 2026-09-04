@@ -1,12 +1,14 @@
-import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Auth from './pages/Auth.jsx'
 import AuthMobile from './pages/AuthMobile.jsx'
 import SeleccionCarrera from './pages/SeleccionCarrera.jsx'
 import CarreraMobile from './pages/CarreraMobile.jsx'
 import { useAuth } from './context/useAuth.js'
 import { usePerfil } from './context/usePerfil.js'
-import { useMaterias } from './hooks/useMaterias.js'
-import { useCanjes } from './hooks/useCanjes.js'
+import { useMaterias, invalidarCacheMaterias } from './hooks/useMaterias.js'
+import { useCanjes, invalidarCacheCanjes } from './hooks/useCanjes.js'
+import { invalidarCachePremios } from './hooks/usePremios.js'
 import { useEsMobil } from './hooks/useEsMobil.js'
 import { calcularSaldoDisponible, canjesDesde } from './utils/canjes'
 import { calcularPuntosTotales } from './utils/puntosMateria'
@@ -58,15 +60,64 @@ function CabeceraApp({ usuario, cerrarSesion, mostrarCambiarCarrera, puntos }) {
 
 function App() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const { configurado, cargando, session, usuario, cerrarSesion } = useAuth()
+
+  // Fallback del click en una notificación push (ver public/sw.js): cuando
+  // el navegador no soporta WindowClient.navigate(), el Service Worker
+  // manda un postMessage en vez de navegar él mismo, y acá se completa con
+  // React Router — así no hace falta una recarga dura de la SPA.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    const handleMensaje = (event) => {
+      if (event.data?.type === 'navegar' && event.data.url) navigate(event.data.url)
+    }
+    navigator.serviceWorker.addEventListener('message', handleMensaje)
+    return () => navigator.serviceWorker.removeEventListener('message', handleMensaje)
+  }, [navigate])
   const { perfil, carreras, cargandoPerfil, carreraElegida, cargandoReglasCarrera, reglasCarrera } = usePerfil()
-  const { materias } = useMaterias()
-  const { canjes } = useCanjes()
+  const { materias, cargando: cargandoMaterias } = useMaterias()
+  const { canjes, cargando: cargandoCanjes } = useCanjes()
   const esMobil = useEsMobil()
 
-  const puntosHeader = reglasCarrera
-    ? calcularSaldoDisponible(calcularPuntosTotales(materias, reglasCarrera), canjesDesde(canjes, perfil?.carrera_desde))
-    : null
+  // Refresca las cachés compartidas (materias/canjes/premios) cada vez que
+  // la app vuelve a primer plano después de estar oculta un rato (prompt-32,
+  // sección 2) — con un umbral chico para no volver a pedir todo si el
+  // usuario solo cambió de pestaña un instante. Esto es una salvaguarda
+  // extra: el bug puntual de saldo negativo ya se resuelve con el gate de
+  // `cargandoMaterias`/`cargandoCanjes` de abajo, pero esto además evita que
+  // los datos queden viejos si la PWA pasa mucho tiempo sin cerrarse del todo.
+  useEffect(() => {
+    let ultimoRefresco = Date.now()
+    const UMBRAL_MS = 60 * 1000
+
+    const handleVisibilidad = () => {
+      if (document.visibilityState !== 'visible') return
+      const ahora = Date.now()
+      if (ahora - ultimoRefresco < UMBRAL_MS) return
+      ultimoRefresco = ahora
+      invalidarCacheMaterias()
+      invalidarCacheCanjes()
+      invalidarCachePremios()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilidad)
+    window.addEventListener('pageshow', handleVisibilidad)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilidad)
+      window.removeEventListener('pageshow', handleVisibilidad)
+    }
+  }, [])
+
+  // Nunca se muestra un saldo calculado con datos a medio cargar (prompt-32,
+  // sección 2 — bug del saldo negativo momentáneo): mientras materias o
+  // canjes todavía están pidiéndose, puntosHeader queda en null, y
+  // HeaderMobile/CabeceraApp ya saben ocultar la píldora de puntos cuando es
+  // null en vez de mostrar un 0 o un negativo transitorio.
+  const puntosHeader =
+    reglasCarrera && !cargandoMaterias && !cargandoCanjes
+      ? calcularSaldoDisponible(calcularPuntosTotales(materias, reglasCarrera), canjesDesde(canjes, perfil?.carrera_desde))
+      : null
   // Si no hay carrera_id pero el perfil ya tiene una carrera propia armada
   // (ver CarreraMobile/SeleccionCarrera/CambiarCarrera), se arma un objeto
   // liviano solo con el nombre para que el header lo muestre igual que a
@@ -133,7 +184,7 @@ function App() {
   if (esMobil) {
     return (
       <div className="app-shell-mobile">
-        <HeaderMobile usuario={usuario} carrera={carreraActual} puntos={puntosHeader} />
+        <HeaderMobile usuario={usuario} username={perfil?.username} carrera={carreraActual} puntos={puntosHeader} />
 
         <main className="app-content-mobile">
           <Routes>

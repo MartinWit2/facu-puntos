@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom'
 import './HeaderMobile.css'
 
 // El avatar navega a /perfil (pantalla propia, sección "3b" del rediseño)
-// en vez de abrir un menú desplegable acá mismo.
-function HeaderMobile({ usuario, carrera, puntos }) {
-  const inicial = usuario.email?.[0]?.toUpperCase() ?? '?'
+// en vez de abrir un menú desplegable acá mismo. La inicial sale del
+// username si tiene uno cargado (prompt-32, sección 3), igual criterio que
+// PerfilMobile.jsx — si no, sigue saliendo del email como siempre.
+function HeaderMobile({ usuario, username, carrera, puntos }) {
+  const inicial = (username || usuario.email)?.[0]?.toUpperCase() ?? '?'
 
   return (
     <header className="header-mobile">

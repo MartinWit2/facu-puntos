@@ -7,6 +7,7 @@ import { evaluarCursada } from '../utils/cursada'
 import { calcularPuntosTotales } from '../utils/puntosMateria'
 import { activarPush, corriendoStandalone, desactivarPush, esIOS, pushSoportado, suscripcionActual } from '../utils/push'
 import { calcularReglasEfectivas } from '../utils/reglasMateria'
+import { USERNAME_RE } from '../hooks/useAuthFormMobile.js'
 import { reproducirSonido, sonidoActivado, setSonidoActivado } from '../utils/sonidos'
 import { temaElegido, setTemaElegido } from '../utils/tema'
 import './PerfilMobile.css'
@@ -26,10 +27,47 @@ const OPCIONES_TEMA = [
 // avatar ahora navega para acá en vez de abrir el dropdown.
 function PerfilMobile() {
   const { usuario, cerrarSesion } = useAuth()
-  const { perfil, carreras, reglasCarrera } = usePerfil()
+  const { perfil, carreras, reglasCarrera, guardarUsername } = usePerfil()
   const { materias, cargando } = useMaterias()
   const [sonido, setSonido] = useState(() => sonidoActivado())
   const [tema, setTema] = useState(() => temaElegido())
+
+  // Nombre de usuario (prompt-32, sección 3): las cuentas sin uno todavía
+  // ven acá un campo para cargarlo, y las que ya tienen uno pueden abrir el
+  // mismo campo (precargado) para cambiarlo — no es de una sola vez, se
+  // puede editar cuando quieran, como cualquier otro dato de perfil.
+  const [editandoUsername, setEditandoUsername] = useState(false)
+  const [usernameCampo, setUsernameCampo] = useState('')
+  const [usernameError, setUsernameError] = useState('')
+  const [usernameGuardando, setUsernameGuardando] = useState(false)
+
+  const handleAbrirEdicionUsername = () => {
+    setUsernameCampo(perfil?.username ?? '')
+    setUsernameError('')
+    setEditandoUsername(true)
+  }
+
+  const handleCancelarEdicionUsername = () => {
+    setEditandoUsername(false)
+    setUsernameError('')
+  }
+
+  const handleGuardarUsername = async () => {
+    const valor = usernameCampo.trim()
+    if (!USERNAME_RE.test(valor)) {
+      setUsernameError('Solo letras, números y guión bajo, sin espacios.')
+      return
+    }
+    setUsernameGuardando(true)
+    const { error } = await guardarUsername(valor)
+    setUsernameGuardando(false)
+    if (error) setUsernameError(error)
+    else {
+      setUsernameCampo('')
+      setUsernameError('')
+      setEditandoUsername(false)
+    }
+  }
 
   const handleCambiarTema = (valor) => {
     setTema(valor)
@@ -100,7 +138,7 @@ function PerfilMobile() {
     }
   }
 
-  const inicial = usuario.email?.[0]?.toUpperCase() ?? '?'
+  const inicial = (perfil?.username || usuario.email)?.[0]?.toUpperCase() ?? '?'
   const carreraActual = carreras.find((c) => c.id === perfil?.carrera_id)
   const nombreCarrera = carreraActual
     ? carreraActual.universidad
@@ -126,9 +164,44 @@ function PerfilMobile() {
         <span className="perfil-mobile-avatar" aria-hidden="true">
           {inicial}
         </span>
-        <span className="perfil-mobile-email">{usuario.email}</span>
+        <span className="perfil-mobile-email">{perfil?.username ?? usuario.email}</span>
         <span className="perfil-mobile-carrera">{nombreCarrera}</span>
       </div>
+
+      {editandoUsername ? (
+        <div className="perfil-mobile-username-campo">
+          <input
+            type="text"
+            className="perfil-mobile-username-input"
+            placeholder="Elegir nombre de usuario"
+            value={usernameCampo}
+            onChange={(e) => {
+              setUsernameCampo(e.target.value)
+              setUsernameError('')
+            }}
+            autoFocus
+          />
+          <button
+            type="button"
+            className="perfil-mobile-username-boton"
+            disabled={usernameGuardando || !usernameCampo.trim()}
+            onClick={handleGuardarUsername}
+          >
+            Guardar
+          </button>
+          <button type="button" className="perfil-mobile-username-cancelar" onClick={handleCancelarEdicionUsername}>
+            Cancelar
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="perfil-mobile-username-editar" onClick={handleAbrirEdicionUsername}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            edit
+          </span>
+          {perfil?.username ? 'Cambiar nombre de usuario' : 'Elegir nombre de usuario'}
+        </button>
+      )}
+      {usernameError && <p className="perfil-mobile-switch-aviso">{usernameError}</p>}
 
       {!cargando && (
         <div className="perfil-mobile-stats">

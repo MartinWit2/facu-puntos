@@ -1,12 +1,17 @@
 import { useState } from 'react'
-import { EMAIL_RE, useAuthForm } from '../hooks/useAuthForm.js'
+import { EMAIL_RE } from '../hooks/useAuthForm.js'
+import { USERNAME_RE, useAuthFormMobile } from '../hooks/useAuthFormMobile.js'
 import './AuthMobile.css'
 
 function AuthMobile() {
   const {
     modo,
+    identificador,
+    setIdentificador,
     email,
     setEmail,
+    username,
+    setUsername,
     password,
     setPassword,
     error,
@@ -16,7 +21,7 @@ function AuthMobile() {
     limpiarAviso,
     handleSubmit,
     handleOlvidoContrasena,
-  } = useAuthForm()
+  } = useAuthFormMobile()
   const [verPassword, setVerPassword] = useState(false)
 
   const esLogin = modo === 'login'
@@ -24,8 +29,18 @@ function AuthMobile() {
     ? 'Cargá tus notas, ganá puntos y canjealos por lo que quieras.'
     : 'Armá tu cuenta y elegí tu carrera para empezar.'
 
+  const handleIdentificadorChange = (e) => {
+    setIdentificador(e.target.value)
+    limpiarAviso()
+  }
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value)
+    limpiarAviso()
+  }
+
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value)
     limpiarAviso()
   }
 
@@ -34,7 +49,11 @@ function AuthMobile() {
     limpiarAviso()
   }
 
-  const formularioValido = EMAIL_RE.test(email.trim()) && (esLogin ? password.length > 0 : password.length >= 6)
+  const formularioValido = esLogin
+    ? identificador.trim().length > 0 && password.length > 0
+    : EMAIL_RE.test(email.trim()) &&
+      (username.trim() === '' || USERNAME_RE.test(username.trim())) &&
+      password.length >= 6
 
   return (
     <div className="auth-mobile">
@@ -75,22 +94,60 @@ function AuthMobile() {
         </div>
 
         <form className="auth-mobile-form" onSubmit={handleSubmit}>
-          <label className="auth-mobile-campo">
-            <span className="auth-mobile-label">Email</span>
-            <span className="auth-mobile-input-icono">
-              <span className="material-symbols-outlined" aria-hidden="true">
-                mail
+          {esLogin ? (
+            <label className="auth-mobile-campo">
+              <span className="auth-mobile-label">Email o nombre de usuario</span>
+              <span className="auth-mobile-input-icono">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  person
+                </span>
+                <input
+                  type="text"
+                  className="auth-mobile-input"
+                  value={identificador}
+                  onChange={handleIdentificadorChange}
+                  placeholder="tunombre@mail.com o tu_usuario"
+                  autoComplete="username"
+                />
               </span>
-              <input
-                type="email"
-                className="auth-mobile-input"
-                value={email}
-                onChange={handleEmailChange}
-                placeholder="tunombre@mail.com"
-                autoComplete="email"
-              />
-            </span>
-          </label>
+            </label>
+          ) : (
+            <>
+              <label className="auth-mobile-campo">
+                <span className="auth-mobile-label">Email</span>
+                <span className="auth-mobile-input-icono">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    mail
+                  </span>
+                  <input
+                    type="email"
+                    className="auth-mobile-input"
+                    value={email}
+                    onChange={handleEmailChange}
+                    placeholder="tunombre@mail.com"
+                    autoComplete="email"
+                  />
+                </span>
+              </label>
+
+              <label className="auth-mobile-campo">
+                <span className="auth-mobile-label">Nombre de usuario (opcional)</span>
+                <span className="auth-mobile-input-icono">
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    badge
+                  </span>
+                  <input
+                    type="text"
+                    className="auth-mobile-input"
+                    value={username}
+                    onChange={handleUsernameChange}
+                    placeholder="tu_usuario"
+                    autoComplete="off"
+                  />
+                </span>
+              </label>
+            </>
+          )}
 
           <div className="auth-mobile-campo">
             <span className="auth-mobile-label">Contraseña</span>

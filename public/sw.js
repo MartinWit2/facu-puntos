@@ -42,7 +42,14 @@ self.addEventListener('notificationclick', (event) => {
       for (const client of clientList) {
         const clientUrl = new URL(client.url)
         if (clientUrl.origin === self.location.origin && 'focus' in client) {
-          if ('navigate' in client) client.navigate(url)
+          if ('navigate' in client) {
+            client.navigate(url)
+          } else {
+            // Fallback si el navegador no soporta WindowClient.navigate():
+            // el lado de la app escucha este mensaje (ver App.jsx) y hace la
+            // navegación con React Router en vez de una recarga dura.
+            client.postMessage({ type: 'navegar', url })
+          }
           return client.focus()
         }
       }

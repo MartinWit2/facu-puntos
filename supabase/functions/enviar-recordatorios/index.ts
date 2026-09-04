@@ -296,8 +296,12 @@ Deno.serve(async () => {
     }
   }
 
-  // Agrupa por usuario: 1 aviso → notificación específica a esa materia; 2+
-  // → un solo resumen a /materias, para no saturar el mismo día.
+  // Agrupa por usuario: 1 aviso → notificación específica; 2+ → un solo
+  // resumen, para no saturar el mismo día. Las dos variantes apuntan a
+  // /proximos (prompt-32, sección 1) en vez de a la materia puntual o al
+  // listado de materias: ahí es donde ya está todo agrupado (fechas
+  // próximas + notas pendientes), tocar cualquier aviso lleva al mismo
+  // lugar sin necesidad de distinguir por tipo.
   const avisosPorUsuario = new Map<string, Aviso[]>()
   for (const aviso of avisos) {
     const lista = avisosPorUsuario.get(aviso.userId) ?? []
@@ -322,11 +326,11 @@ Deno.serve(async () => {
 
     const payload =
       listaAvisos.length === 1
-        ? { title: 'Unipoints', body: listaAvisos[0].textoEspecifico, url: `/materias/${listaAvisos[0].materiaId}` }
+        ? { title: 'Unipoints', body: listaAvisos[0].textoEspecifico, url: '/proximos' }
         : {
             title: 'Unipoints',
             body: `Tenés ${listaAvisos.length} avisos. Tocá para ver el detalle.`,
-            url: '/materias',
+            url: '/proximos',
           }
 
     for (const suscripcion of misSuscripciones) {
