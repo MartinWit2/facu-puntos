@@ -14,14 +14,13 @@ import { contarMateriasConProgreso, tieneProgresoCargado } from '../utils/materi
 import { calcularPuntosTotales } from '../utils/puntosMateria'
 import './CarreraMobile.css'
 
-// Mismo criterio de matching que SelectorCarreras.jsx (coincide): substring
-// case-insensitive por nombre o universidad. Se repite acá porque este
-// componente además agrupa por universidad, cosa que SelectorCarreras no
-// hace y no vale la pena tocar solo para mobile.
-function coincide(carrera, busqueda) {
-  const q = busqueda.trim().toLowerCase()
-  if (!q) return true
-  return carrera.nombre.toLowerCase().includes(q) || carrera.universidad?.toLowerCase().includes(q)
+// NFD + sacar los diacríticos (acentos, diéresis) para que buscar "abogaci"
+// encuentre "Abogacía" sin tener que escribir la tilde.
+function normalizar(texto) {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
 }
 
 function agruparPorUniversidad(carreras) {
@@ -195,8 +194,22 @@ function CarreraMobile() {
   // actual es "sin carrera fija" (la única otra forma de tener carreraElegida).
   const actualmenteSinCarrera = !esPrimeraVez && !carreraActual
   const otrasCarreras = carreraActual ? carreras.filter((c) => c.id !== carreraActual.id) : carreras
-  const filtradas = otrasCarreras.filter((c) => coincide(c, busqueda))
-  const grupos = agruparPorUniversidad(filtradas)
+
+  // Si la búsqueda matchea el nombre de una universidad entera, esa
+  // universidad se sigue mostrando como burbuja colapsable con TODAS sus
+  // carreras adentro (no una lista plana) — buscar "UADE" da la burbuja
+  // "UADE", no sus carreras sueltas. Lo que sí va suelto en una lista plana
+  // son las carreras cuyo nombre matchea pero cuya universidad no (para no
+  // duplicar una carrera en las dos vistas a la vez).
+  const q = normalizar(busqueda.trim())
+  const gruposCompletos = agruparPorUniversidad(otrasCarreras)
+  const gruposPorUniversidad = q ? gruposCompletos.filter(([universidad]) => normalizar(universidad).includes(q)) : []
+  const universidadesConGrupo = new Set(gruposPorUniversidad.map(([universidad]) => universidad))
+  const carrerasSueltas = q
+    ? otrasCarreras.filter((c) => !universidadesConGrupo.has(c.universidad) && normalizar(c.nombre).includes(q))
+    : []
+  const grupos = q ? gruposPorUniversidad : gruposCompletos
+  const sinResultados = q && gruposPorUniversidad.length === 0 && carrerasSueltas.length === 0
   const cargandoLista = cargandoCarreras || cargandoMaterias
 
   const handleAbrirReglas = () => {
@@ -402,28 +415,66 @@ function CarreraMobile() {
         <p className="page-placeholder">Cargando carreras…</p>
       ) : otrasCarreras.length === 0 ? (
         <p className="page-placeholder">Todavía no hay carreras cargadas.</p>
-      ) : grupos.length === 0 ? (
-        <p className="page-placeholder">Ninguna carrera coincide con "{busqueda}".</p>
+      ) : sinResultados ? (
+        <p className="page-placeholder">No se encontraron carreras.</p>
       ) : (
         <div className="carrera-mobile-lista">
+          {/* Universidades que matchean por su propio nombre (o todas, sin
+              buscar nada): burbuja colapsable con todas sus carreras adentro
+              — mismo patrón que el acordeón de año en MateriasMobile.jsx
+              (details/summary sin controlar, arranca siempre cerrado). */}
           {grupos.map(([universidad, items]) => (
-            <div key={universidad} className="carrera-mobile-grupo">
-              <span className="seccion-mobile-label">{universidad}</span>
-              {items.map((carrera) => (
-                <button
-                  key={carrera.id}
-                  type="button"
-                  className="carrera-mobile-opcion"
-                  onClick={() => setDestino({ tipo: 'carrera', carrera })}
-                >
-                  <span className="carrera-mobile-opcion-nombre">{carrera.nombre}</span>
-                  <span className="material-symbols-outlined carrera-mobile-opcion-chevron" aria-hidden="true">
-                    chevron_right
-                  </span>
-                </button>
-              ))}
-            </div>
+            <details key={universidad} className="carrera-mobile-acordeon">
+              <summary className="carrera-mobile-acordeon-cabecera">
+                <span className="carrera-mobile-acordeon-titulo">
+                  {universidad} <span className="carrera-mobile-acordeon-conteo">({items.length})</span>
+                </span>
+                <span className="carrera-mobile-acordeon-chevron" aria-hidden="true">
+                  ▾
+                </span>
+              </summary>
+              <div className="carrera-mobile-grupo-lista">
+                {items.map((carrera) => (
+                  <button
+                    key={carrera.id}
+                    type="button"
+                    className="carrera-mobile-opcion"
+                    onClick={() => setDestino({ tipo: 'carrera', carrera })}
+                  >
+                    <span className="carrera-mobile-opcion-nombre">{carrera.nombre}</span>
+                    <span className="material-symbols-outlined carrera-mobile-opcion-chevron" aria-hidden="true">
+                      chevron_right
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </details>
           ))}
+
+          {/* Carreras que matchean por su propio nombre, pero cuya
+              universidad no matcheó (si no, ya están adentro de una
+              burbuja de arriba) — sueltas, con la universidad al lado para
+              no perder contexto fuera del acordeón. */}
+          {carrerasSueltas.length > 0 && (
+            <ul className="carrera-mobile-lista-plana">
+              {carrerasSueltas.map((carrera) => (
+                <li key={carrera.id}>
+                  <button
+                    type="button"
+                    className="carrera-mobile-opcion"
+                    onClick={() => setDestino({ tipo: 'carrera', carrera })}
+                  >
+                    <span className="carrera-mobile-opcion-nombre">
+                      {carrera.nombre} <span className="carrera-mobile-opcion-universidad">— {carrera.universidad}</span>
+                    </span>
+                    <span className="material-symbols-outlined carrera-mobile-opcion-chevron" aria-hidden="true">
+                      chevron_right
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
